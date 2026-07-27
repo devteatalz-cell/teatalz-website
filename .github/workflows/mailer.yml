@@ -6,7 +6,9 @@ name: Teatalz mailer
 
 on:
   schedule:
-    - cron: '*/10 * * * *'   # every 10 minutes
+    # Off-peak minute offsets. GitHub drops/delays schedules that land on the
+    # top-of-hour rush (:00, :10, :20 ...), which is why '*/10' never fired.
+    - cron: '3,13,23,33,43,53 * * * *'
   workflow_dispatch: {}        # manual "Run workflow" button
 
 concurrency:
