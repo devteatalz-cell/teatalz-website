@@ -1,0 +1,9 @@
+{
+  "name": "teatalz-mailer",
+  "private": true,
+  "type": "module",
+  "description": "GitHub Actions mailer for Teatalz waitlist welcome + signup/investor alerts (Zoho SMTP + Supabase).",
+  "dependencies": {
+    "nodemailer": "^6.9.14"
+  }
+}

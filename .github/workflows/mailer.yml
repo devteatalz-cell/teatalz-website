@@ -1,0 +1,36 @@
+name: Teatalz mailer
+
+# Sends waitlist welcome emails + signup alerts (rumesupport@) + investor alerts (founder@).
+# Inert until the repo has the secrets below. Safe to keep enabled: the script exits cleanly
+# if secrets are missing.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # every 10 minutes
+  workflow_dispatch: {}        # manual "Run workflow" button
+
+concurrency:
+  group: teatalz-mailer
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: npm --prefix mailer install --omit=dev --no-audit --no-fund
+      - name: Send notifications
+        run: node mailer/send-notifications.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ZOHO_SMTP_HOST: ${{ secrets.ZOHO_SMTP_HOST }}
+          ZOHO_SMTP_USER: ${{ secrets.ZOHO_SMTP_USER }}
+          ZOHO_SMTP_PASS: ${{ secrets.ZOHO_SMTP_PASS }}
+          NOTIFY_SIGNUPS_TO: ${{ secrets.NOTIFY_SIGNUPS_TO }}
+          NOTIFY_INVESTORS_TO: ${{ secrets.NOTIFY_INVESTORS_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}

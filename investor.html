@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" href="assets/teatalz-logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Investor Room — Teatalz</title>
+  <meta name="description" content="Private investor room for Teatalz House of Rume Private Limited." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#150a12" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .inv-wrap{max-width:960px;margin:0 auto;padding:120px 22px 90px}
+    .lockcard{max-width:440px;margin:6vh auto 0;text-align:center}
+    .lockcard .lockicon{font-size:2.4rem;margin-bottom:6px}
+    .inv-field{display:flex;flex-direction:column;gap:6px;text-align:left;margin-bottom:14px}
+    .inv-field label{font-size:.82rem;color:var(--ink-2);font-weight:500}
+    .inv-input{width:100%;padding:13px 15px;border-radius:13px;border:1px solid var(--border);
+      background:rgba(255,255,255,.04);color:var(--ink);font:inherit;font-size:.98rem;outline:none;transition:border-color .2s,background .2s}
+    .inv-input:focus{border-color:var(--brand);background:rgba(255,255,255,.07)}
+    .inv-msg{font-size:.88rem;margin-top:10px;min-height:1.2em}
+    .inv-msg.err{color:#ff9db0}.inv-msg.ok{color:#8fe3b0}
+    .roomhead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:6px}
+    .badge{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+      border:1px solid var(--border);border-radius:999px;padding:5px 12px}
+    .tr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0 8px}
+    .tr-stat{background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:20px 18px;text-align:center}
+    .tr-stat .n{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;
+      background:linear-gradient(120deg,#fff,#e6b8ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .tr-stat .l{font-size:.82rem;color:var(--ink-2);margin-top:4px}
+    .wl-table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:8px}
+    .wl-table th{text-align:left;font-weight:600;color:var(--ink-3);font-size:.76rem;letter-spacing:.05em;
+      text-transform:uppercase;padding:9px 12px;border-bottom:1px solid var(--border)}
+    .wl-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--ink)}
+    .wl-table tr:last-child td{border-bottom:none}
+    .wl-scroll{max-height:340px;overflow:auto;border:1px solid var(--border);border-radius:16px;background:var(--glass)}
+    .doc-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+      padding:16px 18px;border:1px solid var(--border);border-radius:16px;background:var(--glass);margin-bottom:12px}
+    .doc-row .meta b{display:block;font-size:1rem}
+    .doc-row .meta span{font-size:.82rem;color:var(--ink-3)}
+    .mask{color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .note{font-size:.84rem;color:var(--ink-3);line-height:1.6;margin-top:8px}
+    @media(max-width:640px){.tr-grid{grid-template-columns:1fr;}.wl-table th:nth-child(3),.wl-table td:nth-child(3){display:none}}
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/"><img src="assets/teatalz-logo.png" alt="Teatalz logo" />Teatalz</a>
+      <div class="links">
+        <a href="/#top">Home</a>
+        <a href="about.html">About</a>
+        <a class="btn sm" href="/">← Back to site</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="inv-wrap">
+
+    <!-- ============ 1. LOCK ============ -->
+    <section id="lock" class="glass lockcard">
+      <div class="lockicon">🔒</div>
+      <h1 style="font-size:1.5rem;margin-bottom:6px">Investor Room</h1>
+      <p style="color:var(--ink-2);font-size:.95rem;margin-bottom:20px">
+        Private area for <strong>Teatalz House of Rume Private Limited</strong>. Enter your access code to continue.
+      </p>
+      <div class="inv-field">
+        <input id="passcode" class="inv-input" type="password" placeholder="Access code" autocomplete="off"
+               onkeydown="if(event.key==='Enter')unlock()" />
+      </div>
+      <button class="btn" style="width:100%" onclick="unlock()">Unlock</button>
+      <div id="lockmsg" class="inv-msg"></div>
+    </section>
+
+    <!-- ============ 2. IDENTIFY ============ -->
+    <section id="gate" class="glass lockcard" style="display:none">
+      <div class="lockicon">👋</div>
+      <h1 style="font-size:1.4rem;margin-bottom:6px">Welcome. Who's visiting?</h1>
+      <p style="color:var(--ink-2);font-size:.92rem;margin-bottom:20px">
+        We log data-room visits so we can follow up personally. Your details stay private to the founders.
+      </p>
+      <div class="inv-field"><label for="g-name">Full name *</label>
+        <input id="g-name" class="inv-input" type="text" placeholder="e.g. Ananya Rao" /></div>
+      <div class="inv-field"><label for="g-email">Email *</label>
+        <input id="g-email" class="inv-input" type="email" placeholder="you@fund.com" /></div>
+      <div class="inv-field"><label for="g-firm">Firm / fund (optional)</label>
+        <input id="g-firm" class="inv-input" type="text" placeholder="e.g. Blume Ventures" /></div>
+      <button class="btn" style="width:100%" onclick="enterRoom()">Enter the data room →</button>
+      <div id="gatemsg" class="inv-msg"></div>
+    </section>
+
+    <!-- ============ 3. ROOM ============ -->
+    <section id="room" style="display:none">
+      <div class="roomhead">
+        <h1 style="font-size:1.8rem">Teatalz — Investor Room</h1>
+        <span class="badge">🔒 Private · Invited investors only</span>
+      </div>
+      <p style="color:var(--ink-2);max-width:620px">A Hinglish-first AI companion (Rume) and a kinder social media platform (Adda), built for young India. Below: live waitlist traction and the data room.</p>
+
+      <!-- Traction -->
+      <h2 style="font-family:'Space Grotesk',sans-serif;margin:34px 0 2px;font-size:1.3rem">Live traction</h2>
+      <p class="note" style="margin-top:2px">Pulled live from our production waitlist. Names shown for authenticity; contact details are masked for user privacy (DPDP).</p>
+      <div class="tr-grid">
+        <div class="tr-stat"><div class="n" id="st-total">—</div><div class="l">People on the waitlist</div></div>
+        <div class="tr-stat"><div class="n" id="st-cities">—</div><div class="l">Cities represented</div></div>
+        <div class="tr-stat"><div class="n" id="st-langs">—</div><div class="l">Native languages</div></div>
+      </div>
+      <div class="wl-scroll">
+        <table class="wl-table">
+          <thead><tr><th>Name</th><th>City</th><th>Language</th><th>Mobile</th><th>Email</th><th>Joined</th></tr></thead>
+          <tbody id="wl-body"><tr><td colspan="6" style="color:var(--ink-3)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Data room -->
+      <h2 style="font-family:'Space Grotesk',sans-serif;margin:38px 0 2px;font-size:1.3rem">Data room</h2>
+      <p class="note" style="margin-top:2px">Read any document below, or download it — private to invited investors. Your downloads are noted (<strong id="who-email">you</strong>) and the founders are alerted. Links expire and are not public.</p>
+      <div id="docs" style="margin-top:16px">Loading…</div>
+      <div id="docmsg" class="inv-msg ok" style="text-align:center"></div>
+
+      <p class="note" style="margin-top:30px;text-align:center">
+        Questions? Reach the founders at <a href="mailto:founder@teatalz.com" style="color:var(--ink-2)">founder@teatalz.com</a>.<br />
+        © 2026 Teatalz House of Rume Private Limited · CIN U63120TS2025PTC206945
+      </p>
+    </section>
+
+  </main>
+
+  <script>
+    // ---- config (public anon key only — read-only, RLS-protected) ----
+    var SUPABASE_URL = "https://qypuomwxqcothpashfcv.supabase.co";
+    var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5cHVvbXd4cWNvdGhwYXNoZmN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MDgwMTQsImV4cCI6MjEwMDA4NDAxNH0.krPHLNqi9ROa_W-B-MAtBwOGlTr0Vn088E2hFKJDW1o";
+    var VERIFIED_CODE = null;   // set after the server-side passcode check; used to fetch signed doc URLs
+    var visitor = {name:"", email:"", firm:""};
+
+    function $(id){return document.getElementById(id);}
+    async function sb(path, opts){
+      opts = opts || {};
+      opts.headers = Object.assign({
+        "apikey": SUPABASE_ANON,
+        "Authorization": "Bearer " + SUPABASE_ANON,
+        "Content-Type": "application/json"
+      }, opts.headers || {});
+      return fetch(SUPABASE_URL + path, opts);
+    }
+
+    // ---- 1. unlock (passcode verified SERVER-SIDE — never stored in this page) ----
+    async function unlock(){
+      var v = $("passcode").value.trim();
+      var m = $("lockmsg");
+      if(!v){ m.className="inv-msg err"; m.textContent="Please enter the access code."; return; }
+      m.className="inv-msg"; m.textContent="Checking…";
+      try {
+        var r = await sb("/rest/v1/rpc/verify_investor_passcode", { method:"POST", body: JSON.stringify({ code: v }) });
+        var ok = await r.json();
+        if(ok === true){
+          VERIFIED_CODE = v;
+          $("lock").style.display = "none";
+          $("gate").style.display = "block";
+          $("g-name").focus();
+        } else {
+          m.className = "inv-msg err"; m.textContent = "That code isn't right. Please check with the founders.";
+        }
+      } catch(e){
+        m.className = "inv-msg err"; m.textContent = "Couldn't verify right now — please try again.";
+      }
+    }
+    // shareable link: investor.html#<code> tries to auto-unlock (still verified server-side)
+    (function(){
+      var h = decodeURIComponent((location.hash||"").replace(/^#/,""));
+      if(h){ $("passcode").value = h; unlock(); }
+    })();
+
+    // ---- 2. identify → log visit → open room ----
+    async function enterRoom(){
+      var name = $("g-name").value.trim(), email = $("g-email").value.trim(), firm = $("g-firm").value.trim();
+      var m = $("gatemsg");
+      if(name.length < 2){ m.className="inv-msg err"; m.textContent="Please enter your name."; return; }
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ m.className="inv-msg err"; m.textContent="Please enter a valid email."; return; }
+      m.className="inv-msg"; m.textContent="Opening…";
+      visitor = {name:name, email:email, firm:firm};
+      try {
+        await sb("/rest/v1/investor_leads", {
+          method:"POST",
+          headers:{Prefer:"return=minimal"},
+          body: JSON.stringify({ name:name, email:email, firm:firm||null, role:"investor",
+            message:"Entered data room", passcode_ok:true, user_agent: navigator.userAgent })
+        });
+      } catch(e){ /* logging must never block access */ }
+      $("gate").style.display = "none";
+      $("room").style.display = "block";
+      $("who-email").textContent = email;
+      loadDocs();
+      loadTraction();
+    }
+
+    // ---- 3a. traction ----
+    async function loadTraction(){
+      try {
+        var r = await sb("/rest/v1/rpc/waitlist_public_stats", {method:"POST", body:"{}"});
+        var d = await r.json();
+        var rows = d.recent || [];
+        $("st-total").textContent = (d.total||0).toLocaleString("en-IN");
+        var cities = {}, langs = {};
+        rows.forEach(function(x){ if(x.city) cities[x.city.toLowerCase()]=1; if(x.language) langs[x.language.toLowerCase()]=1; });
+        $("st-cities").textContent = Object.keys(cities).length || "—";
+        $("st-langs").textContent = Object.keys(langs).length || "—";
+        var body = $("wl-body");
+        if(!rows.length){ body.innerHTML = '<tr><td colspan="6" style="color:var(--ink-3)">No signups yet — be the first to share the site.</td></tr>'; return; }
+        body.innerHTML = rows.map(function(x){
+          return "<tr><td>"+esc(x.name||"Someone")+"</td><td>"+esc(x.city||"—")+"</td><td>"+esc(x.language||"—")+
+                 "</td><td class='mask'>+91 •••• ••" + "</td><td class='mask'>•••@•••</td><td style='color:var(--ink-3)'>"+esc(x.joined||"")+"</td></tr>";
+        }).join("");
+      } catch(e){
+        $("wl-body").innerHTML = '<tr><td colspan="6" style="color:#ff9db0">Couldn\'t load traction. Refresh to retry.</td></tr>';
+      }
+    }
+    function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+    // ---- 3b. data room (read + download; passcode-gated signed URLs, downloads logged) ----
+    async function loadDocs(){
+      var box = $("docs");
+      try {
+        var r = await sb("/rest/v1/rpc/get_data_room", { method:"POST", body: JSON.stringify({ code: VERIFIED_CODE }) });
+        var d = await r.json();
+        if(!d || d.ok !== true || !d.docs || !d.docs.length){ box.innerHTML = '<span style="color:var(--ink-3)">No documents available yet.</span>'; return; }
+        var cats = {};
+        d.docs.forEach(function(doc){ (cats[doc.category] = cats[doc.category] || []).push(doc); });
+        box.innerHTML = Object.keys(cats).map(function(cat){
+          return '<div style="font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:18px 0 8px">'+esc(cat)+'</div>' +
+            cats[cat].map(function(doc){
+              return '<div class="doc-row"><div class="meta"><b>📄 '+esc(doc.title)+'</b><span>'+esc(doc.subtitle||"")+'</span></div>'+
+                     '<div style="display:flex;gap:8px;flex:0 0 auto">'+
+                     '<a class="btn sm ghost" href="'+doc.url+'" target="_blank" rel="noopener" onclick="noteRead(\''+esc(doc.title).replace(/\x27/g,"")+'\')">Read</a>'+
+                     '<button class="btn sm" onclick="doDownload(\''+encodeURIComponent(doc.url)+'\',\''+esc(doc.title).replace(/\x27/g,"")+'\',this)">Download</button>'+
+                     '</div></div>';
+            }).join("");
+        }).join("");
+      } catch(e){
+        box.innerHTML = '<span style="color:#ff9db0">Couldn\'t load the data room. Please refresh.</span>';
+      }
+    }
+    function logDoc(action, title){
+      try { return sb("/rest/v1/rpc/log_data_room_download", { method:"POST",
+        body: JSON.stringify({ code: VERIFIED_CODE, iname: visitor.name, iemail: visitor.email, doc: action+": "+title }) }); } catch(e){}
+    }
+    function noteRead(title){ logDoc("Read", title); }
+    async function doDownload(encUrl, title, btn){
+      var url = decodeURIComponent(encUrl);
+      btn.disabled = true; var orig = btn.textContent; btn.textContent = "…";
+      try {
+        var resp = await fetch(url);
+        var blob = await resp.blob();
+        var obj = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = obj; a.download = title.replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".pdf";
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(obj);
+      } catch(e){
+        window.open(url, "_blank", "noopener");   // CORS/blob fallback
+      }
+      await logDoc("Download", title);
+      btn.disabled = false; btn.textContent = orig;
+      var m = $("docmsg"); m.className = "inv-msg ok"; m.textContent = "Downloaded “"+title+"” — noted, thank you.";
+    }
+  </script>
+</body>
+</html>

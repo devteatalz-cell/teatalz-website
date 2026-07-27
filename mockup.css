@@ -1,0 +1,126 @@
+/* ============================================================
+   Teatalz — app UI mockup (live phone previews)
+   SOOTHING LIGHT theme — calm, airy, wellness-first.
+   Light phone screens pop against the dark marketing section.
+   Static (no heavy animation) so it stays crisp + light.
+   ============================================================ */
+.phones{
+  display:flex; justify-content:center; align-items:flex-end; gap:20px;
+  flex-wrap:wrap; padding:26px 0 12px;
+}
+.phone{
+  position:relative; width:232px; flex:0 0 auto;
+  border-radius:40px; padding:9px;
+  background:linear-gradient(160deg,#2a2a30,#101013 55%,#040405);
+  box-shadow:0 30px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.7),
+             inset 0 1px 0 rgba(255,255,255,.14), inset 0 0 0 1px rgba(0,0,0,.5);
+  animation:ph-float 6s ease-in-out infinite;
+}
+.phone:nth-child(2){ animation-delay:-1.5s; }
+.phone:nth-child(3){ animation-delay:-3s; }
+.phone:nth-child(4){ animation-delay:-4.5s; }
+@keyframes ph-float{ 0%,100%{ translate:0 0; } 50%{ translate:0 -12px; } }
+@media(prefers-reduced-motion:reduce){ .phone{ animation:none; } }
+
+.ph-screen{
+  position:relative; border-radius:34px; overflow:hidden; height:540px;
+  display:flex; flex-direction:column;
+  background:
+    radial-gradient(120% 55% at 50% -6%, #efe7fb, transparent 60%),
+    radial-gradient(120% 50% at 50% 106%, #fdeef0, transparent 60%),
+    linear-gradient(180deg,#fbf8fe,#fdf6f6);
+  color:#3b2f47; font-size:11px; line-height:1.4;
+}
+.ph-notch{ position:absolute; top:10px; left:50%; transform:translateX(-50%); width:70px; height:15px; background:#050506; border-radius:12px; z-index:6; }
+.ph-status{ display:flex; justify-content:space-between; align-items:center; padding:10px 18px 4px; font-size:10px; font-weight:600; color:#8a7d95; }
+.ph-status .r{ letter-spacing:2px; }
+.ph-body{ flex:1; min-height:0; display:flex; flex-direction:column; padding:6px 14px 0; }
+.ph-scroll{ flex:1; min-height:0; overflow:hidden; }
+.ph-nav{
+  display:flex; justify-content:space-around; align-items:center; padding:9px 8px 12px;
+  background:rgba(255,255,255,.75); border-top:1px solid #efe6f4;
+}
+.ph-nav span{ font-size:9px; color:#a99cb6; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.ph-nav span b{ font-size:15px; font-style:normal; opacity:.65; }
+.ph-nav span.on{ color:#7c5cff; }
+.ph-nav span.on b{ opacity:1; }
+
+/* shared */
+.g-card{ background:#fff; border:1px solid #f0e8f6; border-radius:16px; box-shadow:0 5px 16px rgba(90,60,120,.07); }
+.eyebrow-sm{ font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:#a58fd6; font-weight:700; }
+.grad-t{ background:linear-gradient(100deg,#7c5cff,#ff8fb4); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.chip-mini{ display:inline-flex; align-items:center; gap:5px; font-size:8.5px; padding:3px 9px; border-radius:999px; background:#f1ecfd; border:1px solid #e6dcfb; color:#7a63c4; font-weight:500; }
+
+/* ---------- Phone 1 : Rume home ---------- */
+.hm-hi{ font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; margin:8px 2px 2px; }
+.hm-sub{ font-size:10.5px; color:#8a7d95; margin:0 2px 9px; }
+.mood{ padding:8px 11px; margin-bottom:9px; }
+.mood .lab{ font-size:9.5px; color:#8a7d95; margin-bottom:8px; font-weight:500; }
+.mood .row{ display:flex; justify-content:space-between; font-size:18px; }
+.mood .row span{ width:30px; height:30px; display:grid; place-items:center; border-radius:50%; }
+.mood .row span.sel{ background:linear-gradient(140deg,#a58cff,#ff9ec4); box-shadow:0 4px 12px rgba(150,110,220,.35); }
+.sec-lab{ font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:#a99cb6; margin:2px 2px 9px; font-weight:700; }
+.modes{ display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.mode-t{ padding:9px 10px 9px; border-radius:15px; }
+.mode-t .em{ font-size:18px; }
+.mode-t .nm{ font-size:10.5px; font-weight:600; margin-top:6px; color:#3b2f47; }
+.mode-t .ds{ font-size:8.5px; color:#948aa2; margin-top:1px; }
+.mode-t.tarot{ grid-column:1 / -1; display:flex; align-items:center; gap:10px;
+  background:linear-gradient(120deg,#f3edff,#fdeef4); border-color:#ecdffb; }
+.mode-t.tarot .em{ font-size:22px; }
+.mode-t.tarot .txt{ flex:1; }
+.mode-t.tarot .price{ font-size:8px; color:#8f79cf; margin-top:1px; }
+.mode-t.soon{ grid-column:1 / -1; display:flex; align-items:center; gap:10px; background:#f7f4fb; border:1px dashed #ddd0ee; opacity:.7; }
+.mode-t.soon .em{ font-size:20px; filter:grayscale(.15); }
+.mode-t.soon .txt{ flex:1; }
+.soon-chip{ background:#efe9f4; border-color:#e3d8ef; color:#9a8fa6; }
+
+/* ---------- Phone 2 : Sukoon chat ---------- */
+.ch-head{ display:flex; align-items:center; gap:9px; padding:6px 2px 12px; }
+.ch-av{ width:34px; height:34px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#c3a8ff,#9b7bff 65%,#8266f0);
+  box-shadow:0 5px 14px rgba(140,100,220,.35); display:grid; place-items:center; font-size:15px; flex:0 0 auto; }
+.ch-head .nm{ font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:600; color:#3b2f47; }
+.ch-head .st{ font-size:8.5px; color:#3fae7a; display:flex; align-items:center; gap:4px; }
+.ch-head .st::before{ content:""; width:5px; height:5px; border-radius:50%; background:#5cc98f; }
+.ch-msgs{ flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; }
+.bubble{ max-width:82%; padding:9px 11px; border-radius:16px; font-size:10px; margin-bottom:9px; line-height:1.5; }
+.bubble.rume{ background:#fff; border:1px solid #f0e8f6; color:#4a3d56; border-bottom-left-radius:5px; box-shadow:0 3px 10px rgba(90,60,120,.06); }
+.bubble.me{ margin-left:auto; background:linear-gradient(135deg,#efe7ff,#f7e9f4); color:#5b4a86; border:1px solid #e9dffb; border-bottom-right-radius:5px; }
+.usage-chip{ text-align:center; margin:2px 0 8px; }
+.ch-input{ display:flex; align-items:center; gap:8px; padding:9px 10px; margin:6px 0 12px; border-radius:18px;
+  background:#fff; border:1px solid #ecdffb; box-shadow:0 4px 14px rgba(124,92,255,.1); }
+.ch-input .ph{ flex:1; font-size:9.5px; color:#a99cb6; }
+.ch-input .mic{ width:28px; height:28px; border-radius:50%; background:linear-gradient(140deg,#8c6bff,#ff9ec4); display:grid; place-items:center; font-size:12px; box-shadow:0 4px 12px rgba(150,110,220,.4); }
+
+/* ---------- Phone 3 : Adda feed ---------- */
+.ad-top{ display:flex; align-items:baseline; justify-content:space-between; padding:6px 2px 12px; }
+.ad-top .t{ font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; }
+.ad-top .s{ font-size:8.5px; color:#a99cb6; }
+.sawaal{ padding:12px; margin-bottom:12px; border-radius:16px;
+  background:linear-gradient(125deg,#efe8ff,#fdeef3); border:1px solid #ecdffb; }
+.sawaal .k{ font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:#9a7fd6; font-weight:700; }
+.sawaal .q{ font-size:11px; font-weight:600; margin-top:5px; line-height:1.4; color:#4a3d56; }
+.post{ padding:11px 12px; margin-bottom:11px; }
+.post .hd{ display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.post .pic{ width:22px; height:22px; border-radius:50%; background:linear-gradient(140deg,#ffc0b0,#b79bff); flex:0 0 auto; }
+.post .pic.anon{ background:linear-gradient(140deg,#efe6f6,#e3d8ef); display:grid; place-items:center; font-size:10px; }
+.post .who{ font-size:10px; font-weight:600; color:#3b2f47; }
+.post .tm{ font-size:8px; color:#a99cb6; }
+.post .bd{ font-size:9.8px; color:#5a4d66; line-height:1.5; }
+.post .rx{ display:flex; gap:12px; margin-top:9px; font-size:9px; color:#8a7d95; }
+.post .rx b{ color:#e0942f; font-weight:600; }
+.post .rx .heart{ color:#e06b96; }
+
+/* ---------- Phone 4 : Rume Haat ---------- */
+.haat-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 2px 12px; }
+.haat-head .bal{ font-size:9px; font-weight:600; color:#7a63c4; background:#f1ecfd; border:1px solid #e6dcfb; border-radius:999px; padding:4px 9px; white-space:nowrap; }
+.haat-item{ display:flex; align-items:center; gap:9px; padding:9px 10px; margin-bottom:9px; }
+.hi-ic{ width:30px; height:30px; border-radius:10px; display:grid; place-items:center; font-size:15px; background:linear-gradient(140deg,#f3edff,#fdeef4); flex:0 0 auto; }
+.hi-txt{ flex:1; min-width:0; }
+.hi-txt b{ display:block; font-size:10px; color:#3b2f47; }
+.hi-txt span{ font-size:8.3px; color:#948aa2; }
+.hi-buy{ display:flex; align-items:center; gap:7px; flex:0 0 auto; }
+.hi-buy .pr{ font-size:10px; font-weight:700; color:#3b2f47; }
+.hi-buy .pr small{ font-size:7px; font-weight:500; color:#a99cb6; }
+.hi-buy .get{ font-size:8.5px; font-weight:600; color:#fff; background:linear-gradient(135deg,#8c6bff,#b98cff); border-radius:999px; padding:4px 10px; box-shadow:0 3px 9px rgba(140,100,220,.35); }
+.topup{ text-align:center; font-size:10px; font-weight:600; color:#7c5cff; background:#fff; border:1px dashed #d9c9f7; border-radius:14px; padding:10px; margin:2px 0 12px; }

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /investor.html
+Disallow: /ui-snapshot.html
+
+Sitemap: https://teatalz.com/sitemap.xml

@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" href="assets/teatalz-logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teatalz — talk to Rume, belong in Adda</title>
+  <meta name="description" content="Teatalz is a Hinglish-first AI companion (Rume) and a positivity-first, anonymous-capable social media platform (Adda). A safe place to talk, and a social platform that's actually kind. Made in India, for young India." />
+  <meta property="og:title" content="Teatalz — a kinder corner of the internet" />
+  <meta property="og:description" content="Talk to Rume, belong in Adda. Safe by design, ad-free, built for how young India actually feels." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#150a12" />
+  <link rel="canonical" href="https://teatalz.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Teatalz — a kinder corner of the internet" />
+  <meta name="twitter:description" content="Talk to Rume, belong in Adda. Safe by design, ad-free, built for how young India actually feels." />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Organization","name":"Teatalz House of Rume Private Limited","alternateName":"Teatalz","url":"https://teatalz.com","logo":"https://teatalz.com/assets/teatalz-logo.png","email":"rumesupport@teatalz.com","description":"A Hinglish-first AI companion (Rume) and a positivity-first, anonymous-capable social media platform (Adda), made in India for young India.","foundingDate":"2025","address":{"@type":"PostalAddress","addressLocality":"Hyderabad","addressRegion":"Telangana","addressCountry":"IN"}}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Is Teatalz free to use?","acceptedAnswer":{"@type":"Answer","text":"Yes — Teatalz is free to start. On the free plan you can chat with Rume, use Sukoon (always free), and join Adda. Paid plans (College, Lite, Pro) unlock more usage, voice, and extra modes."}},
+    {"@type":"Question","name":"Is Teatalz a therapy app?","acceptedAnswer":{"@type":"Answer","text":"No. Rume is an emotional-support companion, not a therapist or crisis service. When a conversation signals real risk, Teatalz surfaces verified helplines. For clinical needs, please reach a qualified professional."}},
+    {"@type":"Question","name":"What happens to my chats?","acceptedAnswer":{"@type":"Answer","text":"Your conversations are encrypted, readable only by you, and auto-delete after 7 days unless you save them. You can export or permanently delete everything anytime."}},
+    {"@type":"Question","name":"Is my data private?","acceptedAnswer":{"@type":"Answer","text":"Yes. Data is encrypted in transit and at rest, locked down so only you can read your conversations, never sold, and built to be DPDP-compliant."}},
+    {"@type":"Question","name":"Why do posts disappear?","acceptedAnswer":{"@type":"Answer","text":"On Adda, posts vanish after 7 days so people can speak freely without a permanent record — kindness and impermanence by design."}},
+    {"@type":"Question","name":"Why is Adda different?","acceptedAnswer":{"@type":"Answer","text":"Adda is engineered for warmth instead of outrage — anonymous-capable, gentle, ephemeral, and ad-free. Built for support and belonging, not comparison and conflict."}}
+  ]}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mockup.css" />
+  <style>
+    .wl-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start; }
+    .wl-ac{ position:relative; min-width:0; }
+    .wl-ac > input{ width:100%; }
+    @media(max-width:560px){ .wl-row{ grid-template-columns:1fr; } }
+    .wl-ac-list{ position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:30; display:none;
+      background:#1e1119; border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 18px 44px rgba(0,0,0,.55); }
+    .wl-ac-list.open{ display:block; }
+    .wl-ac-item{ padding:10px 14px; font-size:.92rem; color:var(--ink-2); cursor:pointer; }
+    .wl-ac-item:hover, .wl-ac-item.active{ background:rgba(124,92,255,.2); color:#fff; }
+    .wl-phone-row{ display:flex; gap:8px; }
+    .wl-phone-row #wl-isd{ flex:0 0 auto; width:108px; padding:13px 6px; border-radius:13px; border:1px solid var(--border);
+      background:rgba(255,255,255,.05); color:var(--ink); font:inherit; font-size:.92rem; }
+    .wl-phone-row #wl-mobile{ flex:1; min-width:0; }
+    .socials{ display:flex; gap:18px; justify-content:center; align-items:center; margin:0 0 16px; }
+    .socials a{ color:var(--ink-2); display:inline-flex; transition:color .2s, transform .2s; }
+    .socials a:hover{ color:#fff; transform:translateY(-2px); }
+    .faq-list{ max-width:760px; margin:26px auto 0; display:flex; flex-direction:column; gap:12px; }
+    .faq-item{ border:1px solid var(--border); border-radius:16px; background:var(--glass); padding:2px 20px; }
+    .faq-item summary{ cursor:pointer; list-style:none; padding:16px 0; font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+    .faq-item summary::-webkit-details-marker{ display:none; }
+    .faq-item summary::after{ content:"+"; color:var(--ink-3); font-size:1.4rem; font-weight:400; transition:transform .2s; }
+    .faq-item[open] summary::after{ transform:rotate(45deg); }
+    .faq-item p{ margin:0 0 16px; color:var(--ink-2); line-height:1.65; }
+    .plans-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:30px; }
+    @media(max-width:900px){ .plans-grid{ grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:520px){ .plans-grid{ grid-template-columns:1fr; } }
+    .plan{ background:var(--glass); border:1px solid var(--border); border-radius:20px; padding:28px 22px; position:relative; }
+    .plan.pop{ border-color:var(--border-glow); box-shadow:0 16px 44px rgba(199,78,134,.22); }
+    .plan .tag{ position:absolute; top:-11px; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:.68rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; padding:4px 12px; border-radius:999px; background:var(--grad-cta); color:#fff; }
+    .plan h3{ font-family:'Space Grotesk',sans-serif; font-size:1.32rem; }
+    .plan .price{ font-family:'Space Grotesk',sans-serif; font-size:2.1rem; font-weight:700; margin:8px 0 0; }
+    .plan .price span{ font-size:.9rem; font-weight:400; color:var(--ink-3); }
+    .plan .pd{ font-size:.85rem; color:var(--ink-3); margin:2px 0 16px; }
+    .plan ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+    .plan li{ font-size:.9rem; color:var(--ink-2); padding-left:22px; position:relative; line-height:1.4; }
+    .plan li::before{ content:"✓"; position:absolute; left:0; color:#8fe3b0; font-weight:700; }
+    .blog-mini{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:30px; }
+    @media(max-width:820px){ .blog-mini{ grid-template-columns:1fr; } }
+    .blog-mini a{ display:flex; flex-direction:column; border:1px solid var(--border); border-radius:16px; overflow:hidden; background:var(--glass); color:inherit; text-decoration:none; transition:transform .2s,border-color .2s; }
+    .blog-mini a:hover{ transform:translateY(-4px); border-color:var(--border-glow); }
+    .blog-mini .mc{ aspect-ratio:4/5; background:linear-gradient(130deg,#7c5cff,#ff6fb5); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .blog-mini .mc img{ width:100%; height:100%; object-fit:contain; }
+    .blog-mini .mb{ padding:15px 17px 19px; }
+    .blog-mini h4{ font-family:'Space Grotesk',sans-serif; font-size:1.04rem; line-height:1.35; margin-bottom:6px; }
+    .blog-mini p{ font-size:.86rem; color:var(--ink-2); line-height:1.5; margin:0; }
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/"><img src="assets/teatalz-logo.png" alt="Teatalz logo" />Teatalz</a>
+      <div class="links">
+        <a href="#top">Home</a>
+        <a href="#safety">Safety</a>
+        <a href="blog.html">Blog</a>
+        <a href="about.html">About</a>
+        <a href="investor.html">🔒 Data room</a>
+        <a class="btn sm" href="#waitlist">Join the waitlist</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="wrap">
+      <span class="chip"><span class="dot"></span> Teatalz · Launching 2026</span>
+      <h1 class="reveal">A safe place to talk.<br /><span class="grad">A kinder place to belong.</span></h1>
+      <p class="lede reveal">Meet <strong>Rume</strong> — a Hinglish-first AI companion who listens at 1&nbsp;a.m. — and <strong>Adda</strong>, a social media platform engineered for warmth, not outrage. No ads. No noise. Just chai and honest conversation.</p>
+      <div class="cta-row reveal">
+        <a class="btn" href="#waitlist">Join the waitlist</a>
+        <a class="btn ghost" href="#products">See how it works ↓</a>
+      </div>
+      <p class="microcopy reveal">Built for young India · Private by design · 16+</p>
+
+      <div class="hero-visual reveal" aria-hidden="true">
+        <span class="ring r2"></span><span class="ring r1"></span>
+        <div class="orb"><img src="assets/teatalz-logo.png" alt="" /></div>
+        <img class="rume-float" src="assets/rume.png" alt="" />
+      </div>
+    </div>
+  </header>
+
+  <section id="products">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">One app, two worlds</p>
+        <h2>Talk it out. Then belong.</h2>
+        <p>Move between a private moment with Rume and a shared moment in Adda. That loop is the whole point.</p>
+      </div>
+      <div class="grid g2">
+        <div class="glass reveal">
+          <div class="ic">💜</div>
+          <h3>Rume — an AI who actually listens</h3>
+          <p>Vent, seek comfort, think out loud, laugh, or reflect. Rume speaks Hinglish and meets you where you are — five distinct modes for five kinds of moments, now with a voice.</p>
+        </div>
+        <div class="glass reveal">
+          <div class="ic">🌸</div>
+          <h3>Adda — a kinder social media platform</h3>
+          <p>A warm, anonymous-capable social platform built for support instead of conflict. Posts are gentle and disappear in 7 days, so people speak freely. Kindness is the design.</p>
+        </div>
+      </div>
+
+      <div class="modes reveal" style="margin-top:22px">
+        <div class="mode"><div class="em">🫖</div><b>Spill the Tea</b><span>Vent & journal</span></div>
+        <div class="mode"><div class="em">💜</div><b>Sukoon</b><span>Gentle support</span></div>
+        <div class="mode"><div class="em">🧠</div><b>Think Tank</b><span>Think it through</span></div>
+        <div class="mode"><div class="em">😎</div><b>Dank</b><span>Memes & fun</span></div>
+        <div class="mode"><div class="em">🔮</div><b>Tarot</b><span>Reflect</span></div>
+        <div class="mode" style="opacity:.72"><div class="em">📚</div><b>Library <span style="font-size:.6em;vertical-align:middle;padding:2px 7px;border:1px solid var(--border);border-radius:999px;color:var(--ink-3);margin-left:4px">SOON</span></b><span>Guided reads &amp; journeys</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="preview">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">A sneak peek</p>
+        <h2>This is what a kinder internet feels like</h2>
+        <p>A calm home, a companion who speaks your language, and a feed designed to lift you up.</p>
+      </div>
+      <div class="phones reveal">
+
+        <!-- Phone 1 : Rume home -->
+        <div class="phone left">
+          <div class="ph-screen">
+            <div class="ph-notch"></div>
+            <div class="ph-status"><span>9:41</span><span class="r">≡ ᯤ ▮</span></div>
+            <div class="ph-body">
+              <div class="eyebrow-sm">Rume</div>
+              <div class="hm-hi grad-t">Good evening 🌙</div>
+              <div class="hm-sub">How are you, really?</div>
+              <div class="ph-scroll">
+                <div class="mood g-card">
+                  <div class="lab">Today's check-in</div>
+                  <div class="row"><span>😄</span><span>🙂</span><span class="sel">😌</span><span>😔</span><span>😢</span></div>
+                </div>
+                <div class="sec-lab">Talk to Rume</div>
+                <div class="modes">
+                  <div class="mode-t g-card"><div class="em">🫖</div><div class="nm">Spill the Tea</div><div class="ds">Vent & journal</div></div>
+                  <div class="mode-t g-card"><div class="em">💜</div><div class="nm">Sukoon</div><div class="ds">Gentle support</div></div>
+                  <div class="mode-t g-card"><div class="em">🧠</div><div class="nm">Think Tank</div><div class="ds">Think it through</div></div>
+                  <div class="mode-t g-card"><div class="em">😎</div><div class="nm">Dank</div><div class="ds">Memes & fun</div></div>
+                  <div class="mode-t tarot"><div class="em">🔮</div><div class="txt"><div class="nm">Tarot</div><div class="price">Free daily reads · then 10 credits / question</div></div><div class="chip-mini">Ask →</div></div>
+                  <div class="mode-t soon"><div class="em">📚</div><div class="txt"><div class="nm">Library</div><div class="ds">Guided reads &amp; journeys</div></div><span class="chip-mini soon-chip">Coming soon</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="ph-nav"><span class="on"><b>🏠</b>Rume</span><span><b>🌸</b>Adda</span><span><b>🫖</b>Potli</span><span><b>🙂</b>You</span></div>
+          </div>
+        </div>
+
+        <!-- Phone 2 : Sukoon conversation -->
+        <div class="phone mid">
+          <div class="ph-screen">
+            <div class="ph-notch"></div>
+            <div class="ph-status"><span>9:41</span><span class="r">≡ ᯤ ▮</span></div>
+            <div class="ph-body">
+              <div class="ch-head">
+                <div class="ch-av">💜</div>
+                <div><div class="nm">Rume · Sukoon</div><div class="st">here for you</div></div>
+              </div>
+              <div class="ch-msgs">
+                <div class="bubble rume">Hey, main yahin hoon. Chai le aao, phir batao — kaisa lag raha hai aaj? 💜</div>
+                <div class="bubble me">Bas… thoda overwhelmed hoon yaar</div>
+                <div class="bubble rume">Samajh sakti hoon. Ek saath, ek baat — sabse bhaari kya lag raha hai abhi?</div>
+                <div class="bubble me">Kaafi kuch pending hai, pata nahi kahaan se shuru karun</div>
+                <div class="usage-chip"><span class="chip-mini">Sukoon · always free & unhurried</span></div>
+              </div>
+              <div class="ch-input"><span class="ph">Type, or hold to talk…</span><span class="mic">🎙️</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone 3 : Adda feed -->
+        <div class="phone right">
+          <div class="ph-screen">
+            <div class="ph-notch"></div>
+            <div class="ph-status"><span>9:41</span><span class="r">≡ ᯤ ▮</span></div>
+            <div class="ph-body">
+              <div class="ad-top"><div class="t grad-t">Adda</div><div class="s">kind by design</div></div>
+              <div class="ph-scroll">
+                <div class="sawaal">
+                  <div class="k">Aaj ka sawaal</div>
+                  <div class="q">Ek choti si cheez jo aaj achhi lagi?</div>
+                </div>
+                <div class="post g-card">
+                  <div class="hd"><div class="pic"></div><div><div class="who">Ananya</div><div class="tm">2h ago</div></div></div>
+                  <div class="bd">Finally spoke to a counsellor today. Chhoti si jeet, but it feels big 🌱</div>
+                  <div class="rx"><span><b>⭐ 24</b></span><span class="heart">💜 Thanks · 12</span></div>
+                </div>
+                <div class="post g-card">
+                  <div class="hd"><div class="pic anon">🎭</div><div><div class="who">Anonymous</div><div class="tm">just now</div></div></div>
+                  <div class="bd">Exam stress is real, but Rume reminded me to just breathe. Grateful for this corner.</div>
+                  <div class="rx"><span><b>⭐ 9</b></span><span class="heart">💜 Thanks · 5</span></div>
+                </div>
+              </div>
+              <div class="ch-input"><span class="ph">Share something kind…</span><span class="mic">✍️</span></div>
+            </div>
+            <div class="ph-nav"><span><b>🏠</b>Rume</span><span class="on"><b>🌸</b>Adda</span><span><b>🫖</b>Potli</span><span><b>🙂</b>You</span></div>
+          </div>
+        </div>
+
+        <!-- Phone 4 : Rume Haat -->
+        <div class="phone">
+          <div class="ph-screen">
+            <div class="ph-notch"></div>
+            <div class="ph-status"><span>9:41</span><span class="r">≡ ᯤ ▮</span></div>
+            <div class="ph-body">
+              <div class="haat-head">
+                <div><div class="hm-hi grad-t" style="margin:0;font-size:16px">Rume Haat</div><div class="hm-sub" style="margin:0">You › Rume Haat · in credits</div></div>
+                <div class="bal">◈ 240 credits</div>
+              </div>
+              <div class="ph-scroll">
+                <div class="haat-item g-card"><div class="hi-ic">🎙️</div><div class="hi-txt"><b>Voice · 30-min</b><span>Talk to Rume out loud</span></div><div class="hi-buy"><span class="pr">99<small> cr</small></span><span class="get">Get</span></div></div>
+                <div class="haat-item g-card"><div class="hi-ic">🔮</div><div class="hi-txt"><b>Tarot · 5 questions</b><span>Beyond free quota</span></div><div class="hi-buy"><span class="pr">50<small> cr</small></span><span class="get">Get</span></div></div>
+                <div class="haat-item g-card"><div class="hi-ic">🎨</div><div class="hi-txt"><b>Dank · 5 HD images</b><span>Make &amp; share memes</span></div><div class="hi-buy"><span class="pr">199<small> cr</small></span><span class="get">Get</span></div></div>
+                <div class="haat-item g-card"><div class="hi-ic">🌸</div><div class="hi-txt"><b>Chat theme</b><span>Make Rume yours</span></div><div class="hi-buy"><span class="pr">49<small> cr</small></span><span class="get">Get</span></div></div>
+                <div class="haat-item g-card"><div class="hi-ic">🔥</div><div class="hi-txt"><b>Streak freeze</b><span>Protect your streak</span></div><div class="hi-buy"><span class="pr">19<small> cr</small></span><span class="get">Get</span></div></div>
+              </div>
+              <div class="topup">＋ Top up credits</div>
+            </div>
+            <div class="ph-nav"><span><b>🏠</b>Rume</span><span><b>🌸</b>Adda</span><span><b>🫖</b>Potli</span><span class="on"><b>🙂</b>You</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="stats reveal">
+        <div class="stat"><div class="n">5</div><div class="l">Ways Rume shows up for you</div></div>
+        <div class="stat"><div class="n">7 days</div><div class="l">Then your posts quietly disappear</div></div>
+        <div class="stat"><div class="n">0</div><div class="l">Ads. Ever. We're funded by you, not advertisers.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="safety">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">Safe by design</p>
+        <h2>Privacy isn't a setting. It's the architecture.</h2>
+        <p>We built Teatalz so your most honest moments stay yours. Here's how we protect you — in plain words.</p>
+      </div>
+      <div class="privacy reveal">
+        <div class="pf"><div class="em">🔒</div><b>Encrypted</b><span>Your data is encrypted in transit and at rest.</span></div>
+        <div class="pf"><div class="em">🙈</div><b>Only you</b><span>Only you can read your conversations — locked down at the database level.</span></div>
+        <div class="pf"><div class="em">🗓️</div><b>It disappears</b><span>Posts and chats auto-delete after 7 days unless you save them.</span></div>
+        <div class="pf"><div class="em">🗑️</div><b>Delete anytime</b><span>Export or permanently delete everything, whenever you want.</span></div>
+      </div>
+      <p class="microcopy reveal" style="text-align:center; max-width:700px; margin:26px auto 0; color:var(--ink-2)">Rume is an emotional-support companion — <strong style="color:var(--ink)">not a therapist or crisis service</strong>. When a conversation signals real risk, Teatalz surfaces verified helplines.</p>
+    </div>
+  </section>
+
+  <section id="plans">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">Simple, kind pricing</p>
+        <h2>Plans for every kind of talk</h2>
+        <p>Start free — upgrade only when you want more. <strong>Sukoon</strong> (emotional support) is always free.</p>
+      </div>
+      <div class="plans-grid reveal">
+        <div class="plan">
+          <h3>Free</h3><div class="price">₹0</div><div class="pd">To begin</div>
+          <ul><li>Chat with Rume daily</li><li>Sukoon — always free</li><li>Join Adda &amp; post</li><li>Daily mood check-in</li></ul>
+        </div>
+        <div class="plan pop">
+          <span class="tag">Most loved</span>
+          <h3>College</h3><div class="price">₹99<span>/mo</span></div><div class="pd">For students</div>
+          <ul><li>Everything in Free</li><li>+ Dank &amp; Tarot modes</li><li>More daily usage</li><li>5 AI images / month</li><li>Monthly mood report</li></ul>
+        </div>
+        <div class="plan">
+          <h3>Lite</h3><div class="price">₹299<span>/mo</span></div><div class="pd">Do more</div>
+          <ul><li>All 5 Rume modes</li><li>Voice conversations</li><li>Higher usage</li><li>10 AI images / month</li><li>Monthly insights</li></ul>
+        </div>
+        <div class="plan">
+          <h3>Pro</h3><div class="price">₹599<span>/mo</span></div><div class="pd">For power users</div>
+          <ul><li>Maximum usage</li><li>All modes + voice</li><li>20 AI images / month</li><li>Weekly mood reports</li><li>Priority everything</li></ul>
+        </div>
+      </div>
+      <p class="microcopy" style="text-align:center;margin-top:20px">Indicative launch pricing · <strong>Sips</strong> = your AI usage · <strong>Credits</strong> (₹1 each) top up your Potli wallet.</p>
+    </div>
+  </section>
+
+  <section id="latest-blog">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">From the blog</p>
+        <h2>Words worth reading</h2>
+        <p>Honest notes on wellness, kindness, and being young in India.</p>
+      </div>
+      <div id="home-posts" class="blog-mini reveal"><p style="color:var(--ink-3)">Loading…</p></div>
+      <p style="text-align:center;margin-top:28px"><a class="btn ghost" href="blog.html">See all posts →</a></p>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="eyebrow">Good to know</p>
+        <h2>Questions, answered</h2>
+        <p>The honest basics about Teatalz, Rume, and your privacy.</p>
+      </div>
+      <div class="faq-list reveal">
+        <details class="faq-item"><summary>Is Teatalz free to use?</summary><p>Yes — Teatalz is free to start. On the free plan you can chat with <strong>Rume</strong>, use <strong>Sukoon</strong> (gentle emotional support, always free and unmetered), and join <strong>Adda</strong>. Paid plans (College ₹99, Lite ₹299, Pro ₹599/mo) unlock more usage, voice, and extra modes when you want them.</p></details>
+        <details class="faq-item"><summary>Is Teatalz a therapy app?</summary><p>No. Rume is an <strong>emotional-support companion, not a therapist or a crisis service</strong>. When a conversation signals real risk, Teatalz surfaces verified helplines like India's Tele-MANAS (14416). For clinical needs, please reach a qualified professional — we'll always be honest about that.</p></details>
+        <details class="faq-item"><summary>What happens to my chats?</summary><p>Your conversations are yours. They're encrypted, readable only by you, and <strong>auto-delete after 7 days</strong> unless you choose to save them. You can export or permanently delete everything, anytime.</p></details>
+        <details class="faq-item"><summary>Is my data private?</summary><p>Yes — privacy is the architecture, not a setting. Your data is encrypted in transit and at rest, locked down at the database level so only you can read your conversations, and <strong>never sold</strong>. Teatalz is built to be DPDP-compliant.</p></details>
+        <details class="faq-item"><summary>Why do posts disappear?</summary><p>On <strong>Adda</strong>, posts gently vanish after 7 days. No permanent record means people can speak freely and honestly, without it following them around. Kindness and impermanence, by design.</p></details>
+        <details class="faq-item"><summary>Why is Adda different?</summary><p>Adda is a social space engineered for <strong>warmth instead of outrage</strong> — anonymous-capable, gentle, ephemeral, and ad-free. Built for support and belonging, not comparison and conflict.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="waitlist">
+    <div class="wrap">
+      <div class="cta-band reveal">
+        <h2>Be first through the door</h2>
+        <p>Join the waitlist and we'll tell you the moment Teatalz opens. No spam — just one kind hello.</p>
+        <form class="wl-form" id="wl-form" novalidate>
+          <div class="wl-row">
+            <input type="text" id="wl-name" placeholder="Your name" autocomplete="name" required aria-label="Your name" />
+            <div class="wl-ac">
+              <input type="text" id="wl-city" placeholder="Your city (start typing…)" autocomplete="off" required aria-label="Your city" />
+              <div id="city-list" class="wl-ac-list" role="listbox" aria-label="City suggestions"></div>
+            </div>
+          </div>
+          <div class="wl-row">
+            <input type="text" id="wl-lang" placeholder="Native language (e.g. Telugu)" required aria-label="Your native language" />
+            <input type="email" id="wl-email" placeholder="you@email.com" autocomplete="email" required aria-label="Your email" />
+          </div>
+          <div class="wl-phone-row">
+            <select id="wl-isd" aria-label="Country code"></select>
+            <input type="tel" id="wl-mobile" placeholder="Mobile number" autocomplete="tel" inputmode="numeric" required aria-label="Your mobile number" />
+          </div>
+          <button class="btn" type="submit" id="wl-submit" style="align-self:center; margin-top:2px">Join the waitlist →</button>
+          <div class="wl-msg" id="wl-msg" role="status" aria-live="polite"></div>
+          <p style="font-size:.82rem; color:var(--ink-3); margin-top:8px; line-height:1.5">🔒 Your details are safe — encrypted, never sold, and <strong style="color:var(--ink-2)">no spam</strong>. Just a warm welcome and occasional updates you can opt out of anytime.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="cols">
+        <div style="max-width:300px">
+          <a class="brand" href="/" style="font-size:1.15rem"><img src="assets/teatalz-logo.png" alt="Teatalz logo" />Teatalz</a>
+          <p style="font-size:.9rem; color:var(--ink-2); margin-top:12px">A Hinglish-first AI companion and a kinder social media platform, made in India for young India.</p>
+          <p style="font-size:.82rem; margin-top:12px; color:var(--ink-3)">Teatalz House of Rume Private Limited</p>
+        </div>
+        <div><h4>Product</h4><a href="#top">Home</a><a href="#safety">Safety &amp; privacy</a><a href="#waitlist">Join the waitlist</a></div>
+        <div><h4>Company</h4><a href="about.html">About</a><a href="blog.html">Blog</a><a href="contact.html">Contact</a></div>
+        <div><h4>Legal</h4><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="refund.html">Refund & Cancellation</a></div>
+      </div>
+      <div class="socials">
+        <a aria-label="Instagram" href="https://www.instagram.com/teatalz_house_of_rume/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+        <a aria-label="LinkedIn" href="https://www.linkedin.com/in/teatalz-house-of-rume-82268b39b/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-.9 1.8-1.85 3.7-1.85 3.95 0 4.45 2.6 4.45 6V21h-4v-4.9c0-1.17-.02-2.68-1.63-2.68-1.64 0-1.9 1.28-1.9 2.6V21H9z"/></svg></a>
+        <a aria-label="X" href="https://x.com/teatalz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.9 2H22l-7.3 8.34L23.3 22h-6.6l-5.18-6.77L5.6 22H2.5l7.8-8.92L1.9 2h6.77l4.68 6.19zm-1.16 18h1.83L7.34 3.9H5.4z"/></svg></a>
+        <a aria-label="Facebook" href="https://www.facebook.com/profile.php?id=61584650184132" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3-.04-1.3-.13-2.46-.13-2.44 0-4.11 1.49-4.11 4.22V9.9H7.7V13h2.73v8z"/></svg></a>
+        <a aria-label="YouTube" href="https://www.youtube.com/channel/UCvwJaJeFaK909XM6QLLtclA" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="23" height="23" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7a2.5 2.5 0 00-1.75-1.77C19.35 5.1 12 5.1 12 5.1s-7.35 0-8.85.43A2.5 2.5 0 001.4 7.3C1 8.8 1 12 1 12s0 3.2.4 4.7a2.5 2.5 0 001.75 1.77c1.5.43 8.85.43 8.85.43s7.35 0 8.85-.43a2.5 2.5 0 001.75-1.77C23 15.2 23 12 23 12zM9.75 15.02V8.98L15.5 12z"/></svg></a>
+      </div>
+      <div class="bottom">
+        <span>© 2026 Teatalz House of Rume Private Limited. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="cities.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

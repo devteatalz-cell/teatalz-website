@@ -1,0 +1,9 @@
+.serve.mjs
+.serve.log
+.serve-design.mjs
+.serve-design.log
+_preview.html
+node_modules/
+.env
+.env.*
+.secrets.local
