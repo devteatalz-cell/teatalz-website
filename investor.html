@@ -65,6 +65,15 @@
     .ms.in_progress .pill{background:rgba(255,111,181,.2);color:#ffc2d8}
     .ms.upcoming .pill{background:rgba(255,255,255,.07);color:var(--ink-3)}
     .upd{border-left:2px solid var(--border-glow);padding:2px 0 2px 16px;margin-bottom:20px}
+    /* walkthrough video */
+    .vid-wrap{margin:22px 0 6px;border:1px solid var(--border);border-radius:20px;overflow:hidden;
+      background:#120a11;box-shadow:0 26px 70px rgba(124,92,255,.2)}
+    .vid-wrap video{display:block;width:100%;height:auto;background:#120a11}
+    .vid-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      padding:11px 16px;border-top:1px solid var(--border);font-size:.82rem;color:var(--ink-3)}
+    .vid-meta a{color:var(--ink-2);text-decoration:none;border:1px solid var(--border);
+      border-radius:999px;padding:6px 13px;font-size:.8rem}
+    .vid-meta a:hover{color:#fff;border-color:var(--border-glow)}
     .upd .d{font-size:.74rem;color:var(--ink-3);letter-spacing:.04em}
     .upd h4{font-family:'Space Grotesk',sans-serif;font-size:1.04rem;margin:3px 0 6px}
     .upd p{font-size:.9rem;color:var(--ink-2);line-height:1.65;margin:0 0 9px;white-space:pre-line}
@@ -130,6 +139,11 @@
         <span class="badge">🔒 Private · Invited investors only</span>
       </div>
       <p style="color:var(--ink-2);max-width:620px">A Hinglish-first AI companion (Rume) and a kinder social media platform (Adda), built for young India. Below: live waitlist traction and the data room.</p>
+
+      <!-- Product walkthrough -->
+      <h2 style="font-family:'Space Grotesk',sans-serif;margin:30px 0 2px;font-size:1.3rem">See the product</h2>
+      <p class="note" style="margin-top:2px">A 77-second walkthrough of the built app — every screen here is the real design, not a concept.</p>
+      <div id="video-slot"></div>
 
       <!-- Build progress -->
       <div class="bp-head">
@@ -296,8 +310,23 @@
         var r = await sb("/rest/v1/rpc/get_data_room", { method:"POST", body: JSON.stringify({ code: VERIFIED_CODE }) });
         var d = await r.json();
         if(!d || d.ok !== true || !d.docs || !d.docs.length){ box.innerHTML = '<span style="color:var(--ink-3)">No documents available yet.</span>'; return; }
+
+        // the walkthrough gets its own player at the top, not a download row
+        var vid = d.docs.filter(function(x){ return x.category === "Video"; })[0];
+        var slot = $("video-slot");
+        if(vid && slot){
+          slot.innerHTML =
+            '<div class="vid-wrap"><video id="wt-video" controls preload="metadata" playsinline src="'+vid.url+'"></video>'+
+            '<div class="vid-meta"><span>'+esc(vid.subtitle||"")+'</span>'+
+            '<a href="'+vid.url+'" download="Teatalz-Product-Walkthrough.mp4" onclick="logDoc(\'Download\',\'Product Walkthrough (video)\')">Download video</a>'+
+            '</div></div>';
+          var v = document.getElementById("wt-video");
+          if(v) v.addEventListener("play", function once(){ v.removeEventListener("play", once); logDoc("Watched", "Product Walkthrough"); });
+        }
+
         var cats = {};
-        d.docs.forEach(function(doc){ (cats[doc.category] = cats[doc.category] || []).push(doc); });
+        d.docs.filter(function(x){ return x.category !== "Video"; })
+              .forEach(function(doc){ (cats[doc.category] = cats[doc.category] || []).push(doc); });
         box.innerHTML = Object.keys(cats).map(function(cat){
           return '<div style="font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:18px 0 8px">'+esc(cat)+'</div>' +
             cats[cat].map(function(doc){
