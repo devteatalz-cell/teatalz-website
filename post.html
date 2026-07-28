@@ -23,6 +23,9 @@
       padding:9px 14px; border-radius:999px; border:1px solid var(--border); background:var(--glass); color:var(--ink-2); text-decoration:none; transition:.2s; }
     .share-bar a:hover, .share-bar button:hover{ color:#fff; border-color:var(--border-glow); }
     .share-bar .wa:hover{ background:rgba(37,211,102,.2); color:#fff; }
+    .share-bar .ig:hover{ background:linear-gradient(45deg,rgba(240,148,51,.28),rgba(220,39,67,.28),rgba(188,24,136,.28)); color:#fff; border-color:rgba(220,39,67,.5); }
+    .ig-hint{ font-size:.85rem; color:var(--ink-2); margin-top:10px; line-height:1.6; }
+    .ig-hint a{ color:var(--rose); font-weight:500; }
     .post-body{ font-size:1.05rem; line-height:1.8; color:var(--ink); }
     .post-body h2{ font-family:'Space Grotesk',sans-serif; margin:32px 0 10px; }
     .post-body h3{ font-family:'Space Grotesk',sans-serif; margin:24px 0 8px; }
@@ -44,6 +47,31 @@
     var URL="https://zoceydoogxrpmmlxwhvd.supabase.co";
     var ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvY2V5ZG9vZ3hycG1tbHh3aHZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODQ1NDMsImV4cCI6MjEwMDc2MDU0M30.kWNjl0Pqvno7pyiFFmHVScBZGmJ6mqoxoVQMrHbK5eQ";
     function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+    function copyLink(btn){
+      navigator.clipboard.writeText(window.__share.url);
+      var o=btn.textContent; btn.textContent="Copied ✓";
+      setTimeout(function(){ btn.textContent=o; },2000);
+    }
+
+    /* Instagram has no web "share this link" endpoint (unlike WhatsApp/X/FB).
+       On mobile the OS share sheet DOES include Instagram, so use the Web Share
+       API there. On desktop, copy the link and point them to Instagram. */
+    function shareInstagram(btn){
+      var s = window.__share, hint = document.getElementById("ig-hint");
+      if (navigator.share) {
+        navigator.share({ title: s.title, text: s.text, url: s.url })
+          .then(function(){ hint.textContent=""; })
+          .catch(function(){ /* user dismissed — say nothing */ });
+      } else {
+        navigator.clipboard.writeText(s.text + "  " + s.url);
+        hint.innerHTML = "Link copied. Instagram doesn't allow posting from a browser — " +
+          "paste it into your Instagram story or bio. " +
+          "<a href=\"https://www.instagram.com/teatalz_house_of_rume/\" target=\"_blank\" rel=\"noopener\">Open Instagram ↗</a>";
+        btn.textContent = "Copied ✓";
+        setTimeout(function(){ btn.textContent="Instagram"; },2500);
+      }
+    }
     function setMeta(id,attr,val){var el=document.getElementById(id); if(el) el.setAttribute(attr,val);}
     var slug=(new URLSearchParams(location.search)).get("slug")||"";
     if(!slug){ document.getElementById("post").innerHTML='<p style="color:#ff9db0">Post not found.</p>'; }
@@ -62,12 +90,15 @@
         var pageUrl="https://teatalz.com/post.html?slug="+encodeURIComponent(slug);
         var shareTxt=p.title+" — via Teatalz House of Rume";
         var eu=encodeURIComponent(pageUrl), et=encodeURIComponent(shareTxt);
+        window.__share = { url: pageUrl, text: shareTxt, title: p.title };
         var share='<div class="share-bar"><span class="lbl">Share:</span>'+
           '<a class="wa" href="https://wa.me/?text='+encodeURIComponent(shareTxt+"  "+pageUrl)+'" target="_blank" rel="noopener">WhatsApp</a>'+
+          '<button class="ig" onclick="shareInstagram(this)">Instagram</button>'+
           '<a href="https://twitter.com/intent/tweet?text='+et+'&url='+eu+'" target="_blank" rel="noopener">X</a>'+
           '<a href="https://www.facebook.com/sharer/sharer.php?u='+eu+'" target="_blank" rel="noopener">Facebook</a>'+
           '<a href="https://www.linkedin.com/sharing/share-offsite/?url='+eu+'" target="_blank" rel="noopener">LinkedIn</a>'+
-          '<button onclick="navigator.clipboard.writeText(\''+pageUrl+'\');this.textContent=\'Copied \\u2713\'">Copy link</button></div>';
+          '<button onclick="copyLink(this)">Copy link</button></div>'+
+          '<div id="ig-hint" class="ig-hint"></div>';
         document.getElementById("post").innerHTML=
           '<h1>'+esc(p.title)+'</h1><p class="post-meta">'+esc(dt)+' · Teatalz House of Rume</p>'+
           (p.cover_url?'<img class="post-cover" src="'+esc(p.cover_url)+'" alt="'+esc(p.title)+'" />':"")+
