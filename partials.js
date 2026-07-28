@@ -9,7 +9,8 @@
   var NAV =
     '<nav class="nav" id="nav"><div class="nav-inner">' +
     '<a class="brand" href="/"><img src="assets/teatalz-logo.png" alt="Teatalz logo" />Teatalz</a>' +
-    '<div class="links">' +
+    '<button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><span></span></button>' +
+    '<div class="links" id="nav-links">' +
     '<a href="/">Home</a>' +
     '<a href="/#safety">Safety</a>' +
     '<a href="blog.html">Blog</a>' +
@@ -41,6 +42,18 @@
       var onScroll = function () { n.classList.toggle("scrolled", window.scrollY > 20); };
       window.addEventListener("scroll", onScroll, { passive: true });
       onScroll();
+
+      var tgl = document.getElementById("nav-toggle");
+      if (tgl) {
+        var setOpen = function (open) {
+          n.classList.toggle("open", open);
+          tgl.setAttribute("aria-expanded", open ? "true" : "false");
+        };
+        tgl.addEventListener("click", function (e) { e.stopPropagation(); setOpen(!n.classList.contains("open")); });
+        n.addEventListener("click", function (e) { if (e.target.closest(".links a")) setOpen(false); });
+        document.addEventListener("click", function (e) { if (n.classList.contains("open") && !e.target.closest(".nav")) setOpen(false); });
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape") setOpen(false); });
+      }
     }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", inject);

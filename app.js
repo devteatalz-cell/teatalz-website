@@ -135,6 +135,27 @@
     onScroll();
   }
 
+  /* ---- mobile hamburger ---- */
+  var navToggle = document.getElementById("nav-toggle");
+  if (nav && navToggle) {
+    var setOpen = function (open) {
+      nav.classList.toggle("open", open);
+      navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    navToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setOpen(!nav.classList.contains("open"));
+    });
+    // close after tapping a link, or tapping outside
+    nav.addEventListener("click", function (e) {
+      if (e.target.closest(".links a")) setOpen(false);
+    });
+    document.addEventListener("click", function (e) {
+      if (nav.classList.contains("open") && !e.target.closest(".nav")) setOpen(false);
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") setOpen(false); });
+  }
+
   /* ---- latest 3 blog posts on the home page ---- */
   var homePosts = document.getElementById("home-posts");
   if (homePosts) {
