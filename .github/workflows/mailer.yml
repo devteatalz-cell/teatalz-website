@@ -5,10 +5,8 @@ name: Teatalz mailer
 # if secrets are missing.
 
 on:
-  schedule:
-    # Off-peak minute offsets. GitHub drops/delays schedules that land on the
-    # top-of-hour rush (:00, :10, :20 ...), which is why '*/10' never fired.
-    - cron: '3,13,23,33,43,53 * * * *'
+  # Scheduled runs REMOVED — email now sends instantly from Postgres via
+  # pg_net -> Resend (migration 0118/0119). Kept for manual backfill only.
   workflow_dispatch: {}        # manual "Run workflow" button
 
 concurrency:
