@@ -5,9 +5,9 @@
 (function () {
   "use strict";
 
-  var SUPABASE_URL = "https://qypuomwxqcothpashfcv.supabase.co";
+  var SUPABASE_URL = "https://zoceydoogxrpmmlxwhvd.supabase.co";
   var SUPABASE_ANON =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5cHVvbXd4cWNvdGhwYXNoZmN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1MDgwMTQsImV4cCI6MjEwMDA4NDAxNH0.krPHLNqi9ROa_W-B-MAtBwOGlTr0Vn088E2hFKJDW1o";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvY2V5ZG9vZ3hycG1tbHh3aHZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODQ1NDMsImV4cCI6MjEwMDc2MDU0M30.kWNjl0Pqvno7pyiFFmHVScBZGmJ6mqoxoVQMrHbK5eQ";
 
   function insert(table, row) {
     return fetch(SUPABASE_URL + "/rest/v1/" + table, {
