@@ -43,6 +43,32 @@
     .doc-row .meta span{font-size:.82rem;color:var(--ink-3)}
     .mask{color:var(--ink-3);font-variant-numeric:tabular-nums}
     .note{font-size:.84rem;color:var(--ink-3);line-height:1.6;margin-top:8px}
+    /* build progress */
+    .bp-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 4px}
+    .bp-cadence{font-size:.76rem;padding:5px 12px;border-radius:999px;background:rgba(124,92,255,.18);
+      border:1px solid rgba(230,184,255,.35);color:#e6d6ff;white-space:nowrap}
+    .bp-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden;margin:14px 0 22px}
+    .bp-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#7c5cff,#ff6fb5)}
+    .ms{display:flex;gap:14px;padding:15px 16px;border:1px solid var(--border);border-radius:16px;
+      background:var(--glass);margin-bottom:10px}
+    .ms.done{border-color:rgba(120,220,150,.3)}
+    .ms.in_progress{border-color:var(--border-glow);box-shadow:0 8px 30px rgba(199,78,134,.14)}
+    .ms .wk{flex:0 0 54px;text-align:center}
+    .ms .wk b{display:block;font-family:'Space Grotesk',sans-serif;font-size:1.02rem}
+    .ms .wk span{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+    .ms .bd{flex:1;min-width:0}
+    .ms .bd h4{font-family:'Space Grotesk',sans-serif;font-size:1.02rem;margin:0 0 3px}
+    .ms .bd p{font-size:.86rem;color:var(--ink-2);line-height:1.55;margin:0}
+    .ms .rt{flex:0 0 auto;text-align:right;font-size:.72rem;color:var(--ink-3);white-space:nowrap}
+    .ms .pill{display:inline-block;font-size:.66rem;padding:3px 9px;border-radius:999px;margin-bottom:5px}
+    .ms.done .pill{background:rgba(120,220,150,.18);color:#8fe3b0}
+    .ms.in_progress .pill{background:rgba(255,111,181,.2);color:#ffc2d8}
+    .ms.upcoming .pill{background:rgba(255,255,255,.07);color:var(--ink-3)}
+    .upd{border-left:2px solid var(--border-glow);padding:2px 0 2px 16px;margin-bottom:20px}
+    .upd .d{font-size:.74rem;color:var(--ink-3);letter-spacing:.04em}
+    .upd h4{font-family:'Space Grotesk',sans-serif;font-size:1.04rem;margin:3px 0 6px}
+    .upd p{font-size:.9rem;color:var(--ink-2);line-height:1.65;margin:0 0 9px;white-space:pre-line}
+    @media(max-width:640px){.ms{flex-wrap:wrap}.ms .rt{text-align:left;width:100%}}
     @media(max-width:640px){.tr-grid{grid-template-columns:1fr;}.wl-table th:nth-child(3),.wl-table td:nth-child(3){display:none}}
   </style>
 </head>
@@ -104,6 +130,18 @@
         <span class="badge">🔒 Private · Invited investors only</span>
       </div>
       <p style="color:var(--ink-2);max-width:620px">A Hinglish-first AI companion (Rume) and a kinder social media platform (Adda), built for young India. Below: live waitlist traction and the data room.</p>
+
+      <!-- Build progress -->
+      <div class="bp-head">
+        <h2 style="font-family:'Space Grotesk',sans-serif;margin:34px 0 2px;font-size:1.3rem">Build progress</h2>
+        <span class="bp-cadence" style="margin-top:32px">🗓 Updated every Sunday, 8 PM IST</span>
+      </div>
+      <p class="note" style="margin-top:2px">A 6-week sprint to launch. Watch it happen rather than take a roadmap on trust.</p>
+      <div class="bp-bar"><i id="bp-fill" style="width:0%"></i></div>
+      <div id="milestones"><span style="color:var(--ink-3)">Loading…</span></div>
+
+      <h3 style="font-family:'Space Grotesk',sans-serif;margin:30px 0 14px;font-size:1.06rem">Latest updates</h3>
+      <div id="updates"></div>
 
       <!-- Traction -->
       <h2 style="font-family:'Space Grotesk',sans-serif;margin:34px 0 2px;font-size:1.3rem">Live traction</h2>
@@ -200,6 +238,32 @@
       $("who-email").textContent = email;
       loadDocs();
       loadTraction();
+      loadBuildProgress();
+    }
+
+    // ---- 3a0. build progress ----
+    async function loadBuildProgress(){
+      var box = $("milestones"), ups = $("updates");
+      try {
+        var r = await sb("/rest/v1/rpc/get_build_progress", { method:"POST", body: JSON.stringify({ code: VERIFIED_CODE }) });
+        var d = await r.json();
+        if(!d || d.ok !== true){ box.innerHTML = '<span style="color:var(--ink-3)">Unavailable.</span>'; return; }
+        var ms = d.milestones || [];
+        var overall = ms.length ? Math.round(ms.reduce(function(s,m){return s+(m.progress||0);},0)/ms.length) : 0;
+        $("bp-fill").style.width = overall + "%";
+        box.innerHTML = ms.map(function(m){
+          var label = m.status === "done" ? "Complete" : (m.status === "in_progress" ? "In progress · " + m.progress + "%" : "Upcoming");
+          return '<div class="ms '+m.status+'">'+
+            '<div class="wk"><b>'+(m.week===0?"—":m.week)+'</b><span>'+(m.week===0?"Pre":"Week")+'</span></div>'+
+            '<div class="bd"><h4>'+esc(m.code)+' · '+esc(m.title)+'</h4><p>'+esc(m.detail)+'</p></div>'+
+            '<div class="rt"><span class="pill">'+label+'</span><br>'+esc(m.starts)+' – '+esc(m.ends)+'</div></div>';
+        }).join("");
+        ups.innerHTML = (d.updates||[]).map(function(u){
+          return '<div class="upd"><div class="d">'+esc(u.when)+'</div><h4>'+esc(u.title)+'</h4><p>'+esc(u.body)+'</p></div>';
+        }).join("") || '<span style="color:var(--ink-3)">First update posts this Sunday.</span>';
+      } catch(e){
+        box.innerHTML = '<span style="color:#ff9db0">Couldn\'t load build progress.</span>';
+      }
     }
 
     // ---- 3a. traction ----
