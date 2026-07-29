@@ -1,3 +1,5 @@
+> **RETIRED.** Transactional email now sends instantly from Postgres via pg_net -> Resend (migrations 0118/0119). This GitHub Action remains only for manual backfill.
+
 # Teatalz mailer (waitlist + investor notifications)
 
 A tiny GitHub Actions job that, every 10 minutes:
@@ -20,7 +22,7 @@ In the GitHub repo → **Settings → Secrets and variables → Actions → New 
 
 | Secret | Value |
 |---|---|
-| `SUPABASE_URL` | `https://qypuomwxqcothpashfcv.supabase.co` |
+| `SUPABASE_URL` | `https://zoceydoogxrpmmlxwhvd.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → **API → service_role** key (the secret JWT). **Never** put this in any client/website file. |
 | `ZOHO_SMTP_HOST` | `smtp.zoho.in` |
 | `ZOHO_SMTP_USER` | `rumesupport@teatalz.com` |
