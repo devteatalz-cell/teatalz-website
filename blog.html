@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <link rel="icon" type="image/png" href="assets/teatalz-logo.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Blog — Teatalz</title>
   <meta name="description" content="Notes on mental wellness, kindness, Hinglish culture, and building Teatalz — a kinder corner of the internet for young India." />
   <link rel="canonical" href="https://teatalz.com/blog.html" />
+  <meta property="og:url" content="https://teatalz.com/blog.html" />
+  <meta property="og:site_name" content="Teatalz" />
   <meta property="og:title" content="The Teatalz Blog" />
   <meta property="og:description" content="Mental wellness, kindness, and building Teatalz for young India." />
   <meta property="og:type" content="website" />
@@ -36,19 +39,21 @@
   </main>
   <script src="partials.js"></script>
   <script>
-    var URL="https://zoceydoogxrpmmlxwhvd.supabase.co";
-    var ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvY2V5ZG9vZ3hycG1tbHh3aHZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODQ1NDMsImV4cCI6MjEwMDc2MDU0M30.kWNjl0Pqvno7pyiFFmHVScBZGmJ6mqoxoVQMrHbK5eQ";
+    /* Reads /blog/posts.json, written by tools/prerender.mjs.
+       This used to query Supabase directly, which meant pulling every cover
+       image as a base64 data URI: 3.3 MB gzipped before a single card could
+       render. posts.json is ~6 KB and the covers are now real lazy-loaded
+       WebP files. */
     function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-    fetch(URL+"/rest/v1/blog_posts?published=eq.true&select=slug,title,excerpt,cover_url,created_at&order=created_at.desc",
-      {headers:{apikey:ANON,Authorization:"Bearer "+ANON}})
-      .then(function(r){return r.json();})
+    fetch("/blog/posts.json")
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(function(posts){
         var box=document.getElementById("posts");
         if(!posts||!posts.length){ box.innerHTML='<p style="color:var(--ink-3)">No posts yet — check back soon. 🌱</p>'; return; }
         box.innerHTML=posts.map(function(p){
-          var cov=p.cover_url?('<img loading="lazy" src="'+esc(p.cover_url)+'" alt="" />'):"";
+          var cov=p.thumb?('<img loading="lazy" decoding="async" width="400" height="500" src="'+esc(p.thumb)+'" alt="'+esc(p.title)+'" />'):"";
           var dt=p.created_at?new Date(p.created_at).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"";
-          return '<a class="blog-card" href="post.html?slug='+encodeURIComponent(p.slug)+'">'+
+          return '<a class="blog-card" href="'+esc(p.url)+'">'+
                  '<div class="cov">'+cov+'</div>'+
                  '<div class="bd"><h3>'+esc(p.title)+'</h3><p>'+esc(p.excerpt||"")+'</p><div class="dt">'+esc(dt)+'</div></div></a>';
         }).join("");

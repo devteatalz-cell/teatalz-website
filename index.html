@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <link rel="icon" type="image/png" href="assets/teatalz-logo.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Teatalz — talk to Rume, belong in Adda</title>
   <meta name="description" content="Teatalz is a Hinglish-first AI companion (Rume) and a positivity-first, anonymous-capable social media platform (Adda). A safe place to talk, and a social platform that's actually kind. Made in India, for young India." />
@@ -11,11 +12,13 @@
   <meta property="og:type" content="website" />
   <meta name="theme-color" content="#150a12" />
   <link rel="canonical" href="https://teatalz.com/" />
+  <meta property="og:url" content="https://teatalz.com/" />
+  <meta property="og:site_name" content="Teatalz" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Teatalz — a kinder corner of the internet" />
   <meta name="twitter:description" content="Talk to Rume, belong in Adda. Safe by design, ad-free, built for how young India actually feels." />
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Organization","name":"Teatalz House of Rume Private Limited","alternateName":"Teatalz","url":"https://teatalz.com","logo":"https://teatalz.com/assets/teatalz-logo.png","email":"rumesupport@teatalz.com","description":"A Hinglish-first AI companion (Rume) and a positivity-first, anonymous-capable social media platform (Adda), made in India for young India.","foundingDate":"2025","address":{"@type":"PostalAddress","addressLocality":"Hyderabad","addressRegion":"Telangana","addressCountry":"IN"}}
+  {"@context":"https://schema.org","@type":"Organization","name":"Teatalz House of Rume Private Limited","alternateName":"Teatalz","url":"https://teatalz.com","logo":"https://teatalz.com/assets/teatalz-logo-512.png","email":"rumesupport@teatalz.com","description":"A Hinglish-first AI companion (Rume) and a positivity-first, anonymous-capable social media platform (Adda), made in India for young India.","foundingDate":"2025","address":{"@type":"PostalAddress","addressLocality":"Hyderabad","addressRegion":"Telangana","addressCountry":"IN"}}
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
@@ -88,14 +91,14 @@
 
   <nav class="nav" id="nav">
     <div class="nav-inner">
-      <a class="brand" href="/"><img src="assets/teatalz-logo.png" alt="Teatalz logo" />Teatalz</a>
+      <a class="brand" href="/"><img src="assets/teatalz-logo.webp" alt="Teatalz logo" />Teatalz</a>
       <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><span></span></button>
       <div class="links" id="nav-links">
         <a href="#top">Home</a>
         <a href="#safety">Safety</a>
         <a href="blog.html">Blog</a>
         <a href="about.html">About</a>
-        <a href="investor.html">🔒 Data room</a>
+        <a href="investor.html" rel="nofollow">🔒 Data room</a>
         <a class="btn sm" href="#waitlist">Join the waitlist</a>
       </div>
     </div>
@@ -114,8 +117,8 @@
 
       <div class="hero-visual reveal" aria-hidden="true">
         <span class="ring r2"></span><span class="ring r1"></span>
-        <div class="orb"><img src="assets/teatalz-logo.png" alt="" /></div>
-        <img class="rume-float" src="assets/rume.png" alt="" />
+        <div class="orb"><img src="assets/teatalz-logo.webp" alt="" /></div>
+        <img class="rume-float" src="assets/rume.webp" alt="" />
       </div>
     </div>
   </header>
@@ -375,6 +378,10 @@
             <select id="wl-isd" aria-label="Country code"></select>
             <input type="tel" id="wl-mobile" placeholder="Mobile number" autocomplete="tel" inputmode="numeric" required aria-label="Your mobile number" />
           </div>
+          <div class="wl-row">
+            <input type="text" id="wl-coupon" placeholder="Coupon code (optional)" autocomplete="off" spellcheck="false" aria-label="Coupon code, optional" style="text-transform:uppercase" />
+            <div class="wl-coupon-note" id="wl-coupon-note" role="status" aria-live="polite"></div>
+          </div>
           <button class="btn" type="submit" id="wl-submit" style="align-self:center; margin-top:2px">Join the waitlist →</button>
           <div class="wl-msg" id="wl-msg" role="status" aria-live="polite"></div>
           <p style="font-size:.82rem; color:var(--ink-3); margin-top:8px; line-height:1.5">🔒 Your details are safe — encrypted, never sold, and <strong style="color:var(--ink-2)">no spam</strong>. Just a warm welcome and occasional updates you can opt out of anytime.</p>
@@ -387,7 +394,7 @@
     <div class="wrap">
       <div class="cols">
         <div style="max-width:300px">
-          <a class="brand" href="/" style="font-size:1.15rem"><img src="assets/teatalz-logo.png" alt="Teatalz logo" />Teatalz</a>
+          <a class="brand" href="/" style="font-size:1.15rem"><img src="assets/teatalz-logo.webp" alt="Teatalz logo" />Teatalz</a>
           <p style="font-size:.9rem; color:var(--ink-2); margin-top:12px">A Hinglish-first AI companion and a kinder social media platform, made in India for young India.</p>
           <p style="font-size:.82rem; margin-top:12px; color:var(--ink-3)">Teatalz House of Rume Private Limited</p>
         </div>

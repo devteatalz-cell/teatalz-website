@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://teatalz.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://teatalz.com/blog.html</loc><lastmod>2026-07-22</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teatalz.com/about.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://teatalz.com/blog.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://teatalz.com/contact.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://teatalz.com/privacy.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://teatalz.com/terms.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://teatalz.com/refund.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://teatalz.com/blog/why-most-people-don-t-need-therapy-they-need-someone-to-listen/</loc><lastmod>2026-07-22</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/why-therapy-alone-cannot-solve-india-s-mental-health-crisis/</loc><lastmod>2026-07-21</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/why-we-built-teatalz-the-missing-layer-in-human-life/</loc><lastmod>2026-07-20</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/i-m-fine-the-most-dangerous-lie-we-tell-ourselves/</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/social-media-was-not-designed-for-your-emotions/</loc><lastmod>2026-07-18</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/can-ai-understand-human-emotions-the-reality-vs-myth/</loc><lastmod>2026-07-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/loneliness-in-a-hyperconnected-world-what-are-we-missing/</loc><lastmod>2026-07-16</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/why-people-don-t-open-up-even-when-they-want-to/</loc><lastmod>2026-07-15</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/why-ai-can-be-a-better-listener-than-humans-sometimes/</loc><lastmod>2026-07-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/the-science-behind-venting-does-it-really-help/</loc><lastmod>2026-07-13</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/from-social-media-to-emotional-media-the-shift-has-begun/</loc><lastmod>2026-07-12</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://teatalz.com/blog/emotional-suppression-the-silent-killer-of-modern-productivity/</loc><lastmod>2026-07-11</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

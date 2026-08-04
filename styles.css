@@ -1,7 +1,24 @@
 /* ============================================================
    Teatalz — marketing site v2 · "warm futurism"
    Deep plum space, warm aurora glow, glassmorphism, motion.
-   Brand: plum #6B2C5E · berry #9B2F66 · rose #C74E86 · violet #7C5CFF · gold #E0A03A
+
+   ⚠️  THIS FILE IS THE COLOUR REFERENCE. Everything else matches it.
+   Founder, 4 Aug 2026: "even color scheme of website is also good match it
+   to docs and app color scheme it matches logo color."
+
+   The tokens below are the identity. Documents, the deck, store listings and
+   the app theme derive FROM here — `sessions/BRAND_SYSTEM.md` records them,
+   it does not overrule them. If a document palette disagrees with this file,
+   the document is wrong.
+
+   Two things that look like defects and are not:
+   • #7C5CFF is shared with the in-app theme ON PURPOSE. Site and app agree.
+   • #6B2C5E is a legitimate deep base, 14 units from the logo's #762857 —
+     a near-neighbour on the same hue, not a foreign colour.
+
+   The four-hue range (berry / violet / rose / gold) is deliberate and load-
+   bearing. Collapsing it to one hue family flattens the aurora into a wash
+   and loses the warmth the whole design rests on. Do not "simplify" it.
    ============================================================ */
 :root {
   --plum: #6B2C5E; --berry: #9B2F66; --rose: #C74E86; --violet: #7C5CFF; --gold: #E0A03A;
@@ -185,6 +202,12 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); }
 input:focus, textarea:focus { outline: 2px solid var(--violet); outline-offset: 1px; border-color: transparent; }
 .wl-msg { margin-top: 14px; font-size: .95rem; min-height: 22px; }
 .wl-msg.ok { color: #A8F0D0; } .wl-msg.err { color: #FFC2CF; }
+
+/* optional coupon field — inline feedback, never a blocker */
+.wl-coupon-note { font-size: .85rem; min-height: 20px; align-self: center; line-height: 1.35; }
+.wl-coupon-note.ok  { color: #A8F0D0; }
+.wl-coupon-note.err { color: #FFC2CF; }
+#wl-coupon::placeholder { text-transform: none; }
 
 /* footer */
 .footer { border-top: 1px solid var(--border); padding: 56px 0 30px; margin-top: 40px; position: relative; z-index: 2; }

@@ -1,6 +1,11 @@
 /* Shared chrome for the secondary pages (legal, about, contact, investor).
  * Injects the aurora background, the real-logo nav, and the footer — so every
- * page matches the homepage and there's a single place to edit them. */
+ * page matches the homepage and there's a single place to edit them.
+ *
+ * All hrefs/srcs here are ROOT-ABSOLUTE ("/about.html", not "about.html").
+ * Generated post pages live at /blog/<slug>/, and relative paths would resolve
+ * against that directory instead of the site root. The site is served from the
+ * apex (CNAME teatalz.com; the github.io URL 301s there), so absolute is safe. */
 (function () {
   var AURORA =
     '<div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span></div>' +
@@ -8,21 +13,21 @@
 
   var NAV =
     '<nav class="nav" id="nav"><div class="nav-inner">' +
-    '<a class="brand" href="/"><img src="assets/teatalz-logo.png" alt="Teatalz logo" />Teatalz</a>' +
+    '<a class="brand" href="/"><img src="/assets/teatalz-logo.webp" alt="Teatalz logo" />Teatalz</a>' +
     '<button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><span></span></button>' +
     '<div class="links" id="nav-links">' +
     '<a href="/">Home</a>' +
     '<a href="/#safety">Safety</a>' +
-    '<a href="blog.html">Blog</a>' +
-    '<a href="about.html">About</a>' +
-    '<a href="investor.html">🔒 Data room</a>' +
+    '<a href="/blog.html">Blog</a>' +
+    '<a href="/about.html">About</a>' +
+    '<a href="/investor.html" rel="nofollow">🔒 Data room</a>' +
     '<a class="btn sm" href="/#waitlist">Join the waitlist</a>' +
     '</div></div></nav>';
 
   var FOOTER =
     '<footer class="footer"><div class="wrap" style="text-align:center">' +
     '<nav style="display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;margin-bottom:14px">' +
-    '<a href="/">Home</a><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="refund.html">Refunds</a><a href="contact.html">Contact</a>' +
+    '<a href="/">Home</a><a href="/about.html">About</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund.html">Refunds</a><a href="/contact.html">Contact</a>' +
     '</nav>' +
     '<div style="display:flex;gap:18px;justify-content:center;margin-bottom:14px">' +
     '<a aria-label="Instagram" href="https://www.instagram.com/teatalz_house_of_rume/" target="_blank" rel="noopener" style="color:var(--ink-2);display:inline-flex"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>' +

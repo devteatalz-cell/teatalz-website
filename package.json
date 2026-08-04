@@ -1,0 +1,14 @@
+{
+  "name": "teatalz-website",
+  "private": true,
+  "type": "module",
+  "description": "Build tooling for the Teatalz marketing site. The site itself is static — nothing here ships to the browser.",
+  "scripts": {
+    "prerender": "node tools/prerender.mjs",
+    "prerender:dry": "node tools/prerender.mjs --dry-run",
+    "optimize-assets": "node tools/optimize-assets.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.35.3"
+  }
+}
