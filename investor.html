@@ -150,7 +150,7 @@
         <h2 style="font-family:'Space Grotesk',sans-serif;margin:34px 0 2px;font-size:1.3rem">Build progress</h2>
         <span class="bp-cadence" style="margin-top:32px">🗓 Updated every Sunday, 8 PM IST</span>
       </div>
-      <p class="note" style="margin-top:2px">A 6-week sprint to launch. Watch it happen rather than take a roadmap on trust.</p>
+      <p class="note" style="margin-top:2px">A 10-week sprint to launch — about seven weeks of feature build and three of hardening, QA and store submission. Watch it happen rather than take a roadmap on trust.</p>
       <div class="bp-bar"><i id="bp-fill" style="width:0%"></i></div>
       <div id="milestones"><span style="color:var(--ink-3)">Loading…</span></div>
 
@@ -311,7 +311,12 @@
         var d = await r.json();
         if(!d || d.ok !== true || !d.docs || !d.docs.length){ box.innerHTML = '<span style="color:var(--ink-3)">No documents available yet.</span>'; return; }
 
-        // the walkthrough gets its own player at the top, not a download row
+        // The walkthrough gets its own player at the top, not a download row.
+        // Only the FIRST video is promoted to the player; every other document —
+        // including any further videos — must still reach the list below. The
+        // previous version took [0] for the player and then excluded the whole
+        // "Video" category from the list, so a second video rendered nowhere and
+        // nothing errored.
         var vid = d.docs.filter(function(x){ return x.category === "Video"; })[0];
         var slot = $("video-slot");
         if(vid && slot){
@@ -324,10 +329,46 @@
           if(v) v.addEventListener("play", function once(){ v.removeEventListener("play", once); logDoc("Watched", "Product Walkthrough"); });
         }
 
+        // Exclude ONLY the document promoted to the player, not its whole category.
+        var listed = d.docs.filter(function(x){ return x !== vid; });
+
+        // Reconciliation: a data room that silently shows fewer documents than the
+        // server returned is the failure mode worth engineering against, not just
+        // the one instance of it above. Rendered = the list, plus the player if it
+        // took a document. If that does not equal what the RPC returned, say so on
+        // the page rather than letting it look complete.
+        var rendered = listed.length + (vid ? 1 : 0);
+        if (rendered !== d.docs.length) {
+          box.innerHTML =
+            '<div style="border:1px solid #ff9db0;border-radius:8px;padding:10px 12px;margin-bottom:14px;color:#ff9db0;font-size:.85rem">' +
+            'Showing ' + rendered + ' of ' + d.docs.length + ' documents. Some are missing — please tell us and we will send them directly.' +
+            '</div>';
+        } else {
+          box.innerHTML = '';
+        }
+
+        // Signed URLs come back byte-identical on every request, so a browser
+        // caches the PDF against that URL and never re-fetches it. When a document
+        // is replaced in storage, anyone who has opened it before keeps seeing the
+        // OLD file — indefinitely, with nothing to tell them. Verified 5 Aug by
+        // requesting the same signed URL twice and getting the same string back.
+        // An hourly stamp keeps caching within a session and guarantees freshness
+        // across one, without depending on a reader knowing to clear anything.
+        var CB = (function(){
+          var d = new Date();
+          return '' + d.getUTCFullYear()
+            + String(d.getUTCMonth() + 1).padStart(2, '0')
+            + String(d.getUTCDate()).padStart(2, '0')
+            + String(d.getUTCHours()).padStart(2, '0');
+        })();
+        var bust = function(u){ return u + (u.indexOf('?') > -1 ? '&' : '?') + 'cb=' + CB; };
+
         var cats = {};
-        d.docs.filter(function(x){ return x.category !== "Video"; })
-              .forEach(function(doc){ (cats[doc.category] = cats[doc.category] || []).push(doc); });
-        box.innerHTML = Object.keys(cats).map(function(cat){
+        listed.forEach(function(doc){
+          doc.url = bust(doc.url);
+          (cats[doc.category] = cats[doc.category] || []).push(doc);
+        });
+        box.innerHTML += Object.keys(cats).map(function(cat){
           return '<div style="font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:18px 0 8px">'+esc(cat)+'</div>' +
             cats[cat].map(function(doc){
               return '<div class="doc-row"><div class="meta"><b>📄 '+esc(doc.title)+'</b><span>'+esc(doc.subtitle||"")+'</span></div>'+
