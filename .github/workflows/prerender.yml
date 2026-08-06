@@ -9,10 +9,20 @@ name: Prerender blog
 # intended upgrade is a Supabase trigger calling repository_dispatch via pg_net
 # (the same mechanism already used for the waitlist emails).
 
+# SCHEDULE DISABLED — founder ruling, 6 August 2026.
+#
+# Asked whether pressing publish in the console counted as his approval for the
+# post reaching teatalz.com, he answered no: "ask me before anything appears".
+# His standing rule is that nothing reaches a live surface without an explicit
+# yes, and an hourly job meant the console button WAS the publish button.
+#
+# The manual trigger stays. Publishing is now: he says yes, someone runs the
+# workflow. To restore automatic publishing, uncomment the schedule block — but
+# that reverses a founder ruling, so do not do it without asking him.
 on:
-  schedule:
-    - cron: '0 * * * *'          # hourly, on the hour (UTC)
-  workflow_dispatch: {}          # manual "Run workflow" button
+  # schedule:
+  #   - cron: '0 * * * *'        # hourly, on the hour (UTC)
+  workflow_dispatch: {}          # manual "Run workflow" button — the only trigger now
 
 concurrency:
   group: teatalz-prerender
