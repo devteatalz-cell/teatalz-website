@@ -373,7 +373,7 @@
             cats[cat].map(function(doc){
               return '<div class="doc-row"><div class="meta"><b>📄 '+esc(doc.title)+'</b><span>'+esc(doc.subtitle||"")+'</span></div>'+
                      '<div style="display:flex;gap:8px;flex:0 0 auto">'+
-                     '<a class="btn sm ghost" href="'+doc.url+'" target="_blank" rel="noopener" onclick="noteRead(\''+esc(doc.title).replace(/\x27/g,"")+'\')">Read</a>'+
+                     '<a class="btn sm ghost" href="doc.html?u='+encodeURIComponent(doc.url)+'&t='+encodeURIComponent(doc.title)+'" target="_blank" rel="noopener" onclick="noteRead(\''+esc(doc.title).replace(/\x27/g,"")+'\')">Read</a>'+
                      '<button class="btn sm" onclick="doDownload(\''+encodeURIComponent(doc.url)+'\',\''+esc(doc.title).replace(/\x27/g,"")+'\',this)">Download</button>'+
                      '</div></div>';
             }).join("");

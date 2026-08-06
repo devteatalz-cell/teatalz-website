@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Document — Teatalz Investor Room</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* A document opened from the data room used to be handed to the browser as a
+       raw PDF in a new tab. Desktop Chrome renders that inline; plenty of mobile
+       browsers download it instead and leave the tab BLANK — reported 6 Aug as
+       "documents are white screen". <object> is the fix: when the browser cannot
+       render the PDF itself, it shows the fallback markup inside instead of
+       nothing. So the worst case becomes a card with two working buttons. */
+    html, body { height: 100%; margin: 0; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-body); display: flex; flex-direction: column; }
+    .bar { display: flex; align-items: center; gap: 14px; padding: 12px 18px;
+           border-bottom: 1px solid var(--border); background: var(--bg-2); flex: 0 0 auto; }
+    .bar a.back { color: var(--ink-2); text-decoration: none; font-size: .9rem; white-space: nowrap; }
+    .bar a.back:hover { color: var(--ink); }
+    .bar h1 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; margin: 0;
+              flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar .dl { background: var(--grad-cta); color: #fff; border: 0; border-radius: 8px;
+               padding: 8px 14px; font-size: .85rem; font-weight: 600; cursor: pointer;
+               text-decoration: none; flex: 0 0 auto; }
+    .stage { flex: 1 1 auto; min-height: 0; }
+    .stage object, .stage iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+    .fb { max-width: 460px; margin: 12vh auto; padding: 26px 24px; text-align: center;
+          background: var(--glass); border: 1px solid var(--border); border-radius: 14px; }
+    .fb h2 { font-family: var(--font-display); font-size: 1.1rem; margin: 0 0 8px; }
+    .fb p { color: var(--ink-2); font-size: .9rem; line-height: 1.55; margin: 0 0 18px; }
+    .fb .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .fb a { display: inline-block; padding: 10px 16px; border-radius: 9px; font-size: .88rem;
+            font-weight: 600; text-decoration: none; }
+    .fb a.primary { background: var(--grad-cta); color: #fff; }
+    .fb a.ghost { border: 1px solid var(--border); color: var(--ink); }
+    .err { max-width: 460px; margin: 14vh auto; text-align: center; color: #ff9db0; font-size: .92rem; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <a class="back" href="investor.html">← Data room</a>
+    <h1 id="t">Document</h1>
+    <a class="dl" id="dl" href="#">Download</a>
+  </div>
+  <div class="stage" id="stage"></div>
+
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var raw = q.get('u') || '';
+      var title = q.get('t') || 'Document';
+
+      /* The URL arrives in a query string, so it is attacker-controllable in
+         principle. Render only our own storage host — otherwise this page is a
+         way to frame arbitrary content under the teatalz.com origin. */
+      var ALLOW = 'https://zoceydoogxrpmmlxwhvd.supabase.co/storage/v1/object/';
+      var url = '';
+      try { url = decodeURIComponent(raw); } catch (e) { url = ''; }
+
+      document.getElementById('t').textContent = title;
+
+      if (!url || url.indexOf(ALLOW) !== 0) {
+        document.getElementById('stage').innerHTML =
+          '<div class="err">That document link is not valid. Go back to the ' +
+          '<a href="investor.html" style="color:inherit">data room</a> and open it again.</div>';
+        document.getElementById('dl').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('dl').setAttribute('href', url);
+      document.getElementById('dl').setAttribute('download', title.replace(/[^\w .-]+/g, '_') + '.pdf');
+
+      /* Built with DOM calls rather than innerHTML so the URL is never parsed as
+         markup. */
+      var obj = document.createElement('object');
+      obj.setAttribute('data', url);
+      obj.setAttribute('type', 'application/pdf');
+
+      var fb = document.createElement('div');
+      fb.className = 'fb';
+      fb.innerHTML =
+        '<h2>This browser can’t show the PDF here</h2>' +
+        '<p>Some mobile browsers won’t display a PDF inside a page. Open it in your ' +
+        'PDF app, or download it — the file is the same either way.</p>' +
+        '<div class="row"></div>';
+      var row = fb.querySelector('.row');
+
+      var a1 = document.createElement('a');
+      a1.className = 'primary'; a1.href = url; a1.target = '_blank';
+      a1.rel = 'noopener'; a1.textContent = 'Open the PDF';
+      var a2 = document.createElement('a');
+      a2.className = 'ghost'; a2.href = url;
+      a2.setAttribute('download', title.replace(/[^\w .-]+/g, '_') + '.pdf');
+      a2.textContent = 'Download';
+      row.appendChild(a1); row.appendChild(a2);
+
+      obj.appendChild(fb);
+      document.getElementById('stage').appendChild(obj);
+    })();
+  </script>
+</body>
+</html>
