@@ -148,7 +148,7 @@
       <!-- Build progress -->
       <div class="bp-head">
         <h2 style="font-family:'Space Grotesk',sans-serif;margin:34px 0 2px;font-size:1.3rem">Build progress</h2>
-        <span class="bp-cadence" style="margin-top:32px">🗓 Updated every Sunday, 8 PM IST</span>
+        <span class="bp-cadence" style="margin-top:32px">🗓 Updated every Monday, 10 PM IST</span>
       </div>
       <p class="note" style="margin-top:2px">A 6-week sprint to launch at 70–84 hours a week — hardening, QA and store submission included. Watch it happen rather than take a roadmap on trust.</p>
       <div class="bp-bar"><i id="bp-fill" style="width:0%"></i></div>
@@ -274,7 +274,7 @@
         }).join("");
         ups.innerHTML = (d.updates||[]).map(function(u){
           return '<div class="upd"><div class="d">'+esc(u.when)+'</div><h4>'+esc(u.title)+'</h4><p>'+esc(u.body)+'</p></div>';
-        }).join("") || '<span style="color:var(--ink-3)">First update posts this Sunday.</span>';
+        }).join("") || '<span style="color:var(--ink-3)">First update posts Monday.</span>';
       } catch(e){
         box.innerHTML = '<span style="color:#ff9db0">Couldn\'t load build progress.</span>';
       }
