@@ -13,6 +13,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* Investor greeting — shown once per visit, after they identify themselves. */
+    .greet-scrim{position:fixed;inset:0;z-index:80;background:rgba(10,5,9,.72);
+      backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:22px}
+    .greet-card{position:relative;max-width:520px;width:100%;background:var(--bg-2);
+      border:1px solid var(--border);border-radius:20px;padding:34px 32px 30px;
+      box-shadow:0 30px 80px rgba(0,0,0,.6)}
+    .greet-eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+      color:var(--rose);font-weight:700;margin-bottom:10px}
+    .greet-card h3{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;margin:0 0 14px;line-height:1.25}
+    .greet-card h3 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .greet-card p{color:var(--ink-2);font-size:.95rem;line-height:1.65;margin:0 0 13px}
+    .greet-card .greet-cta{color:var(--ink);font-size:.95rem;margin:18px 0 20px}
+    .greet-card .greet-cta a{color:var(--rose);font-weight:600}
+    .greet-x{position:absolute;top:14px;right:16px;background:none;border:0;color:var(--ink-3);
+      font-size:1.5rem;line-height:1;cursor:pointer;padding:4px 8px}
+    .greet-x:hover{color:var(--ink)}
+    @media(max-width:520px){ .greet-card{padding:28px 22px 24px} .greet-card h3{font-size:1.3rem} }
     .inv-wrap{max-width:960px;margin:0 auto;padding:120px 22px 90px}
     .lockcard{max-width:440px;margin:6vh auto 0;text-align:center}
     .lockcard .lockicon{font-size:2.4rem;margin-bottom:6px}
@@ -116,6 +133,25 @@
     </section>
 
     <!-- ============ 2. IDENTIFY ============ -->
+    <!-- Shown once, after they identify themselves. The raise is stated plainly:
+         what is open now, what opens later, and one address. No countdown, no
+         urgency device — this is a room for people who are already interested. -->
+    <div id="greeting" class="greet-scrim" style="display:none" onclick="if(event.target===this)closeGreeting()">
+      <div class="greet-card">
+        <button class="greet-x" onclick="closeGreeting()" aria-label="Close">×</button>
+        <div class="greet-eyebrow">👋 Welcome</div>
+        <h3>Good to see you, <span id="greet-name"></span>.</h3>
+        <p>Teatalz launches in the <strong>first week of October 2026</strong>. Ahead of that we are
+           raising a <strong>bridge to fund a soft go-to-market</strong> — the stretch between a
+           finished product and a product people have heard of.</p>
+        <p>I have put <strong>$20,000</strong> of my own into it so far. The pre-seed comes after
+           launch, priced on real usage rather than on a pitch.</p>
+        <p>If you would like to come in early — or help with the bridge — I would like to hear from
+           you. <strong>This room updates every Monday</strong>, so you can watch the build either way.</p>
+        <p class="greet-cta">Let's connect — <a href="mailto:founder@teatalz.com">founder@teatalz.com</a></p>
+      </div>
+    </div>
+
     <section id="gate" class="glass lockcard" style="display:none">
       <div class="lockicon">👋</div>
       <h1 style="font-size:1.4rem;margin-bottom:6px">Welcome. Who's visiting?</h1>
@@ -255,6 +291,32 @@
       loadBuildProgress();
     }
 
+    /* Shown on the FIRST document a visitor opens or downloads, never on entry.
+     *
+     * Founder's call, and it is the better trigger: someone who has just read a
+     * document has shown intent, so the note lands on an interested reader
+     * rather than interrupting the doorway. It fires once — a second document
+     * does not bring it back.
+     *
+     * The name comes from what they typed at the gate, so it cannot greet the
+     * wrong person and never appears for anyone who has not identified
+     * themselves. sessionStorage survives a reload; the in-memory flag covers
+     * the case where storage is blocked. */
+    var greeted = false;
+    function greet(){
+      if (greeted) return;
+      var first = String(visitor.name || "").trim().split(/\s+/)[0] || "";
+      if (!first) return;
+      try {
+        if (sessionStorage.getItem("tz_greeted")) { greeted = true; return; }
+        sessionStorage.setItem("tz_greeted", "1");
+      } catch(e){ /* private mode — the in-memory flag still holds for this visit */ }
+      greeted = true;
+      $("greet-name").textContent = first;
+      $("greeting").style.display = "flex";
+    }
+    function closeGreeting(){ $("greeting").style.display = "none"; }
+
     // ---- 3a0. build progress ----
     async function loadBuildProgress(){
       var box = $("milestones"), ups = $("updates");
@@ -386,7 +448,7 @@
       try { return sb("/rest/v1/rpc/log_data_room_download", { method:"POST",
         body: JSON.stringify({ code: VERIFIED_CODE, iname: visitor.name, iemail: visitor.email, doc: action+": "+title }) }); } catch(e){}
     }
-    function noteRead(title){ logDoc("Read", title); }
+    function noteRead(title){ logDoc("Read", title); greet(); }
     async function doDownload(encUrl, title, btn){
       var url = decodeURIComponent(encUrl);
       btn.disabled = true; var orig = btn.textContent; btn.textContent = "…";
@@ -403,6 +465,7 @@
       await logDoc("Download", title);
       btn.disabled = false; btn.textContent = orig;
       var m = $("docmsg"); m.className = "inv-msg ok"; m.textContent = "Downloaded “"+title+"” — noted, thank you.";
+      greet();
     }
   </script>
 </body>
