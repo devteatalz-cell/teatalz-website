@@ -192,6 +192,22 @@
       <p class="note" style="margin-top:2px">A 3-minute walkthrough of the built app — every screen here is the real design, not a concept.</p>
       <div id="video-slot"></div>
 
+      <!-- Founder ruling, 13 Aug 2026 — his words, and his placement: directly under the
+           walkthrough, so an investor reads the round structure straight after watching the
+           product rather than further down beside the file list.
+
+           White card on a dark page, deliberately. Every other block here is translucent
+           purple and recedes; this one is meant to be the thing you cannot scroll past.
+           Colours are literal rather than var(--ink) because those tokens are tuned for a
+           dark ground and would come out near-white on white.
+
+           Static markup, not a config key: one sentence, not personalised, and a fetch
+           would let the video and the documents render before the framing does. -->
+      <p style="margin-top:18px;padding:16px 18px;background:#ffffff;color:#241a2e;border-radius:12px;line-height:1.7;font-size:.98rem;box-shadow:0 2px 14px rgba(0,0,0,.18)">
+        <strong style="color:#1a1020">Pre-seed opens post-launch.</strong> We are currently raising a bridge for GTM and product readiness.
+        App ready by the second week of September; launch in the first week of October.
+      </p>
+
       <!-- Build progress -->
       <div class="bp-head">
         <h2 style="font-family:'Space Grotesk',sans-serif;margin:34px 0 2px;font-size:1.3rem">Build progress</h2>
@@ -222,14 +238,6 @@
       <!-- Data room -->
       <h2 style="font-family:'Space Grotesk',sans-serif;margin:38px 0 2px;font-size:1.3rem">Data room</h2>
       <p class="note" style="margin-top:2px">Read any document below, or download it — private to invited investors. Your downloads are noted (<strong id="who-email">you</strong>) and the founders are alerted. Links expire and are not public.</p>
-      <!-- Founder ruling, 13 Aug 2026 — his words, placed where the documents start so
-           an investor reads the round structure before opening anything. Static markup
-           rather than another config key: it is one sentence, it is not personalised,
-           and a fetch here would let the documents render before the framing does. -->
-      <p class="note" style="margin-top:14px;padding:12px 14px;border-left:3px solid var(--pur);background:rgba(124,92,255,.06);border-radius:0 8px 8px 0;line-height:1.65">
-        <strong>Pre-seed opens post-launch.</strong> We are currently raising a bridge for GTM and product readiness.
-        App ready by the second week of September; launch in the first week of October.
-      </p>
       <div id="docs" style="margin-top:16px">Loading…</div>
       <div id="docmsg" class="inv-msg ok" style="text-align:center"></div>
 
