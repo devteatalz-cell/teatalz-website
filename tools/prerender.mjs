@@ -34,6 +34,35 @@ const DRY = process.argv.includes('--dry-run');
 const SITE = 'https://teatalz.com';
 const ORG = 'Teatalz House of Rume Private Limited';
 
+/* ── The brand suffix, but only when it will actually be seen ─────────────
+ *
+ * Every post title used to end `" — Teatalz"` unconditionally. Measured on the
+ * live pages, 8 of 12 titles then ran past the ~62 characters a search result
+ * shows, the longest at 73.
+ *
+ * **Google truncates from the END — which is exactly where the suffix sits.**
+ * So on every title that was too long, the ten characters being paid for the
+ * brand were the ten characters not being shown, and they were being paid for
+ * with the tail of the headline. "Why It's Sometimes Easier to Talk to an AI
+ * Than to a…" loses the payoff and the brand dies anyway.
+ *
+ * So the suffix is appended only when the whole thing still fits. The rule is
+ * encoded rather than the eight exceptions, so a long title written next month
+ * gets the same treatment without anybody remembering this.
+ *
+ * ⚠ 62 is a working proxy, not a boundary Google publishes — truncation is by
+ * pixel width, around 600px, so a title of wide characters can clip earlier.
+ * And Google rewrites titles when it prefers its own; shortening reduces the
+ * reason, it does not remove the possibility.
+ */
+const TITLE_BUDGET = 62;
+const BRAND_SUFFIX = ' — Teatalz';
+
+function titleTag(title) {
+  const full = `${title}${BRAND_SUFFIX}`;
+  return full.length <= TITLE_BUDGET ? full : title;
+}
+
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://zoceydoogxrpmmlxwhvd.supabase.co';
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || readAnonFromSite();
 
@@ -153,7 +182,7 @@ function postPage(p, prev, next) {
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${esc(p.title)} — Teatalz</title>
+  <title>${esc(titleTag(p.title))}</title>
   <meta name="description" content="${esc(desc)}" />
   <link rel="canonical" href="${url}" />
   <meta property="og:type" content="article" />
