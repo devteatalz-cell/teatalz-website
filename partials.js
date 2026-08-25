@@ -37,6 +37,7 @@
     '<a aria-label="YouTube" href="https://www.youtube.com/channel/UCvwJaJeFaK909XM6QLLtclA" target="_blank" rel="noopener" style="color:var(--ink-2);display:inline-flex"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7a2.5 2.5 0 00-1.75-1.77C19.35 5.1 12 5.1 12 5.1s-7.35 0-8.85.43A2.5 2.5 0 001.4 7.3C1 8.8 1 12 1 12s0 3.2.4 4.7a2.5 2.5 0 001.75 1.77c1.5.43 8.85.43 8.85.43s7.35 0 8.85-.43a2.5 2.5 0 001.75-1.77C23 15.2 23 12 23 12zM9.75 15.02V8.98L15.5 12z"/></svg></a>' +
     '</div>' +
     '<div style="font-size:.82rem;color:var(--ink-3)">© 2026 Teatalz House of Rume Private Limited</div>' +
+    '<div style="font-size:.82rem;color:var(--ink-3);margin-top:6px">Built by <a href="https://codeupvik.com" target="_blank" rel="noopener" style="color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--border)">CodeUpVik</a></div>' +
     '</div></footer>';
 
   function inject() {
