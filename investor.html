@@ -372,14 +372,25 @@
     // ---- 3a. traction ----
     async function loadTraction(){
       try {
-        var r = await sb("/rest/v1/rpc/waitlist_public_stats", {method:"POST", body:"{}"});
+        var r = await sb("/rest/v1/rpc/waitlist_public_stats", { method:"POST", body: JSON.stringify({ code: VERIFIED_CODE }) });
         var d = await r.json();
+        /* 12 Sep 2026 — 0162 put this endpoint behind the same passcode as its two
+           siblings. Before that it answered {} to anyone holding the public anon key,
+           which is printed in this file, and returned seven real people's first name,
+           city and language with no login at all.
+
+           The ok:false check is NOT optional tidiness. Without it a failed passcode
+           falls through to the empty-rows branch and the page tells an investor
+           "No signups yet" — a false statement about our own traction, caused by an
+           auth failure. Same shape and same handling as loadDocs and loadBuildProgress. */
+        if(!d || d.ok !== true){ $("wl-body").innerHTML = '<tr><td colspan="6" style="color:var(--ink-3)">Traction unavailable — refresh to retry.</td></tr>'; return; }
         var rows = d.recent || [];
         $("st-total").textContent = (d.total||0).toLocaleString("en-IN");
-        var cities = {}, langs = {};
-        rows.forEach(function(x){ if(x.city) cities[x.city.toLowerCase()]=1; if(x.language) langs[x.language.toLowerCase()]=1; });
-        $("st-cities").textContent = Object.keys(cities).length || "—";
-        $("st-langs").textContent = Object.keys(langs).length || "—";
+        /* Counted in the database over EVERY row, not derived from `recent` — that
+           list is capped at 60, so past 60 signups this panel under-reported our own
+           spread and nothing would have said so. Invisible at 7, wrong at 61. */
+        $("st-cities").textContent = (d.cities || 0) || "—";
+        $("st-langs").textContent  = (d.languages || 0) || "—";
         var body = $("wl-body");
         if(!rows.length){ body.innerHTML = '<tr><td colspan="6" style="color:var(--ink-3)">No signups yet — be the first to share the site.</td></tr>'; return; }
         body.innerHTML = rows.map(function(x){
