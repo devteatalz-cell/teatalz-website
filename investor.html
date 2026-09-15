@@ -94,6 +94,14 @@
     .upd .d{font-size:.74rem;color:var(--ink-3);letter-spacing:.04em}
     .upd h4{font-family:'Space Grotesk',sans-serif;font-size:1.04rem;margin:3px 0 6px}
     .upd p{font-size:.9rem;color:var(--ink-2);line-height:1.65;margin:0 0 9px;white-space:pre-line}
+    .room-tabs{display:flex;gap:6px;margin:18px 0 10px;padding:5px;border:1px solid var(--border);border-radius:999px;background:var(--glass);width:max-content;max-width:100%}
+    .room-tab{font:inherit;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.95rem;color:var(--ink-2);
+      background:none;border:0;border-radius:999px;padding:9px 22px;cursor:pointer;transition:background .2s,color .2s}
+    .room-tab:hover{color:#fff}
+    .room-tab.on{background:linear-gradient(90deg,#7c5cff,#ff6fb5);color:#fff}
+    .timeline-line{font-size:.86rem;color:var(--ink-3);margin:0 0 18px}
+    .timeline-line strong{color:var(--ink-2)}
+    .sublock{max-width:440px;padding:20px 20px 14px;border-radius:18px;margin:18px 0}
     @media(max-width:640px){.ms{flex-wrap:wrap}.ms .rt{text-align:left;width:100%}}
     @media(max-width:640px){.tr-grid{grid-template-columns:1fr;}.wl-table th:nth-child(3),.wl-table td:nth-child(3){display:none}}
   </style>
@@ -133,31 +141,22 @@
     </section>
 
     <!-- ============ 2. IDENTIFY ============ -->
-    <!-- Shown once, after they identify themselves. The raise is stated plainly:
-         what is open now, what opens later, and one address. No countdown, no
-         urgency device — this is a room for people who are already interested. -->
+    <!-- Shown once, after they identify themselves. 15 Sep 2026: timeline only —
+         no ask of any kind on this page (founder, 14 Sep: no ask in the docs).
+         No countdown, no urgency device. -->
     <div id="greeting" class="greet-scrim" style="display:none" onclick="if(event.target===this)closeGreeting()">
       <div class="greet-card">
         <button class="greet-x" onclick="closeGreeting()" aria-label="Close">×</button>
         <div class="greet-eyebrow">👋 Welcome</div>
         <h3>Good to see you, <span id="greet-name"></span>.</h3>
-        <p>Teatalz launches in <strong>February 2027</strong>. Ahead of that we are
-           raising a <strong>bridge to fund a soft go-to-market</strong> — the stretch between
-           building a product and a product people have heard of.</p>
+        <p><strong>Ask Ru</strong> launches in <strong>October 2026</strong>, and
+           <strong>Teatalz</strong> in <strong>February 2027</strong>.</p>
         <!-- Founder ruling, 13 Aug 2026: rupees only, and his own capital is Rs 18,00,000
-             everywhere. This line previously carried a dollar figure while the deck, the
-             one-pager and the financial model all stated the rupee one — which implied an
-             exchange rate landing on a round number, and a rate that round reads as chosen
-             rather than paid. An investor checks that in ten seconds.
-
-             The offending figure is deliberately NOT repeated here. The first draft of this
-             comment quoted it to explain the fix, and the sweep then reported the page as
-             still carrying it — a comment is in the source even when it is not on the
-             screen. Same trap as a Postgres function comment, which pg_get_functiondef
-             returns along with the code. Describe the old value; never restate it. -->
-        <p>I have put <strong>₹18,00,000</strong> of my own into it so far. The pre-seed comes after
-           launch, priced on real usage rather than on a pitch.</p>
-        <p>If you would like to come in early — or help with the bridge — I would like to hear from
+             everywhere. An earlier version of this line carried a figure in another
+             currency; it is deliberately not restated here, because a comment is in the
+             source even when it is not on the screen. -->
+        <p>I have put <strong>₹18,00,000</strong> of my own into it so far.</p>
+        <p>If you would like to talk, I would like to hear from
            you. <strong>This room updates every Monday</strong>, so you can watch the build either way.</p>
         <p class="greet-cta">Let's connect — <a href="mailto:founder@teatalz.com">founder@teatalz.com</a></p>
       </div>
@@ -182,9 +181,48 @@
     <!-- ============ 3. ROOM ============ -->
     <section id="room" style="display:none">
       <div class="roomhead">
-        <h1 style="font-size:1.8rem">Teatalz — Investor Room</h1>
+        <h1 style="font-size:1.8rem">Investor Room</h1>
         <span class="badge">🔒 Private · Invited investors only</span>
       </div>
+
+      <!-- Two rooms, one door (founder 15 Sep 2026). Each tab talks to its OWN
+           Supabase project: Teatalz -> teatalz-mumbai, Ask Ru -> the Ask Ru project.
+           Each has its own access code; holding one does not open the other. -->
+      <div class="room-tabs" role="tablist">
+        <button id="tabbtn-teatalz" class="room-tab on" role="tab" aria-selected="true" onclick="showTab('teatalz')">Teatalz</button>
+        <button id="tabbtn-askru" class="room-tab" role="tab" aria-selected="false" onclick="showTab('askru')">Ask Ru</button>
+      </div>
+      <p class="timeline-line">Ask Ru launches <strong>October 2026</strong> · Teatalz launches <strong>February 2027</strong></p>
+
+      <!-- ============ ASK RU TAB ============ -->
+      <div id="tab-askru" role="tabpanel" style="display:none">
+        <p style="color:var(--ink-2);max-width:620px">Ask Ru is a separate app from the same company, with Ru as its face. It launches in October 2026. Its documents are kept in Ask Ru’s own data room.</p>
+        <div id="askru-lock" class="glass sublock" style="display:none">
+          <p style="color:var(--ink-2);font-size:.92rem;margin:0 0 12px">The Ask Ru room has its own access code.</p>
+          <div class="inv-field" style="margin-bottom:10px">
+            <input id="askru-code" class="inv-input" type="password" placeholder="Ask Ru access code" autocomplete="off"
+                   onkeydown="if(event.key==='Enter')unlockAskRu()" />
+          </div>
+          <button class="btn" style="width:100%" onclick="unlockAskRu()">Open Ask Ru room</button>
+          <div id="askru-lockmsg" class="inv-msg"></div>
+        </div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;margin:30px 0 2px;font-size:1.3rem">Data room</h2>
+        <p class="note" style="margin-top:2px">Read any document below, or download it — private to invited investors. Links expire and are not public.</p>
+        <div id="askru-docs" style="margin-top:16px"></div>
+      </div>
+
+      <!-- ============ TEATALZ TAB ============ -->
+      <div id="tab-teatalz" role="tabpanel">
+      <div id="teatalz-lock" class="glass sublock" style="display:none">
+        <p style="color:var(--ink-2);font-size:.92rem;margin:0 0 12px">The Teatalz room has its own access code.</p>
+        <div class="inv-field" style="margin-bottom:10px">
+          <input id="teatalz-code" class="inv-input" type="password" placeholder="Teatalz access code" autocomplete="off"
+                 onkeydown="if(event.key==='Enter')unlockTeatalzTab()" />
+        </div>
+        <button class="btn" style="width:100%" onclick="unlockTeatalzTab()">Open Teatalz room</button>
+        <div id="teatalz-lockmsg" class="inv-msg"></div>
+      </div>
+      <div id="teatalz-body">
       <p style="color:var(--ink-2);max-width:620px">Adda is a social network built for positivity instead of outrage, moderated by AI from the ground up — with Ru, a private companion, inside it. Below: live waitlist traction and the data room.</p>
 
       <!-- Product walkthrough -->
@@ -192,20 +230,12 @@
       <p class="note" style="margin-top:2px">A 3-minute walkthrough of the built app — every screen here is the real design, not a concept.</p>
       <div id="video-slot"></div>
 
-      <!-- Founder ruling, 13 Aug 2026 — his words, and his placement: directly under the
-           walkthrough, so an investor reads the round structure straight after watching the
-           product rather than further down beside the file list.
-
-           White card on a dark page, deliberately. Every other block here is translucent
-           purple and recedes; this one is meant to be the thing you cannot scroll past.
-           Colours are literal rather than var(--ink) because those tokens are tuned for a
-           dark ground and would come out near-white on white.
-
-           Static markup, not a config key: one sentence, not personalised, and a fetch
-           would let the video and the documents render before the framing does. -->
+      <!-- Placement: founder, 13 Aug 2026 — directly under the walkthrough. 15 Sep 2026:
+           the card now states the timeline only; there is no ask on this page.
+           White card on a dark page, deliberately; colours literal because the ink
+           tokens are tuned for a dark ground. -->
       <p style="margin-top:18px;padding:16px 18px;background:#ffffff;color:#241a2e;border-radius:12px;line-height:1.7;font-size:.98rem;box-shadow:0 2px 14px rgba(0,0,0,.18)">
-        <strong style="color:#1a1020">Pre-seed opens post-launch.</strong> We are currently raising a bridge for GTM and product readiness.
-        Launch in February 2027.
+        <strong style="color:#1a1020">Teatalz launches in February 2027.</strong> Ask Ru, from the same company, launches in October 2026.
       </p>
 
       <!-- Build progress -->
@@ -213,7 +243,7 @@
         <h2 style="font-family:'Space Grotesk',sans-serif;margin:34px 0 2px;font-size:1.3rem">Build progress</h2>
         <span class="bp-cadence" style="margin-top:32px">🗓 Updated every Monday, 10 PM IST</span>
       </div>
-      <p class="note" style="margin-top:2px">A 6-week sprint to launch at 70–84 hours a week — hardening, QA and store submission included. Watch it happen rather than take a roadmap on trust.</p>
+      <p class="note" style="margin-top:2px">The build towards launch — hardening, QA and store submission included. Watch it happen rather than take a roadmap on trust.</p>
       <div class="bp-bar"><i id="bp-fill" style="width:0%"></i></div>
       <div id="milestones"><span style="color:var(--ink-3)">Loading…</span></div>
 
@@ -239,6 +269,8 @@
       <h2 style="font-family:'Space Grotesk',sans-serif;margin:38px 0 2px;font-size:1.3rem">Data room</h2>
       <p class="note" style="margin-top:2px">Read any document below, or download it — private to invited investors. Your downloads are noted (<strong id="who-email">you</strong>) and the founders are alerted. Links expire and are not public.</p>
       <div id="docs" style="margin-top:16px">Loading…</div>
+      </div><!-- /teatalz-body -->
+      </div><!-- /tab-teatalz -->
       <div id="docmsg" class="inv-msg ok" style="text-align:center"></div>
 
       <p class="note" style="margin-top:30px;text-align:center">
@@ -254,6 +286,35 @@
     var SUPABASE_URL = "https://zoceydoogxrpmmlxwhvd.supabase.co";
     var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvY2V5ZG9vZ3hycG1tbHh3aHZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODQ1NDMsImV4cCI6MjEwMDc2MDU0M30.kWNjl0Pqvno7pyiFFmHVScBZGmJ6mqoxoVQMrHbK5eQ";
     var VERIFIED_CODE = null;   // set after the server-side passcode check; used to fetch signed doc URLs
+
+    // ---- Ask Ru room: Ask Ru's OWN Supabase project (founder 15 Sep 2026) ----
+    // Public anon key only, like the Teatalz one above.
+    // ⚠️ PLACEHOLDER — BEFORE DEPLOY: paste the Ask Ru project's anon key (Supabase
+    // dashboard -> Ask Ru -> Settings -> API -> anon public). It was not in any app
+    // config at staging time. While empty, the Ask Ru tab says the room is not open.
+    var ASKRU_URL  = "https://hyxkhjxrpsmjztbdtcee.supabase.co";
+    var ASKRU_ANON = "";
+    var ASKRU_CODE = null, ASKRU_DOCS = null;
+    async function ar(path, opts){
+      opts = opts || {};
+      opts.headers = Object.assign({ "apikey": ASKRU_ANON, "Authorization": "Bearer " + ASKRU_ANON,
+        "Content-Type": "application/json" }, opts.headers || {});
+      return fetch(ASKRU_URL + path, opts);
+    }
+    async function askRuRoom(code){           // -> docs array on a valid code, else null
+      if(!ASKRU_ANON) return null;
+      try {
+        var r = await ar("/rest/v1/rpc/get_data_room", { method:"POST", body: JSON.stringify({ code: code }) });
+        var d = await r.json();
+        return (d && d.ok === true) ? (d.docs || []) : null;
+      } catch(e){ return null; }
+    }
+    async function teatalzOk(code){
+      try {
+        var r = await sb("/rest/v1/rpc/verify_investor_passcode", { method:"POST", body: JSON.stringify({ code: code }) });
+        return (await r.json()) === true;
+      } catch(e){ return null; }            // null = could not check (network), not "wrong"
+    }
     var visitor = {name:"", email:"", firm:""};
 
     function $(id){return document.getElementById(id);}
@@ -273,20 +334,60 @@
       var m = $("lockmsg");
       if(!v){ m.className="inv-msg err"; m.textContent="Please enter the access code."; return; }
       m.className="inv-msg"; m.textContent="Checking…";
-      try {
-        var r = await sb("/rest/v1/rpc/verify_investor_passcode", { method:"POST", body: JSON.stringify({ code: v }) });
-        var ok = await r.json();
-        if(ok === true){
-          VERIFIED_CODE = v;
-          $("lock").style.display = "none";
-          $("gate").style.display = "block";
-          $("g-name").focus();
-        } else {
-          m.className = "inv-msg err"; m.textContent = "That code isn't right. Please check with the founders.";
-        }
-      } catch(e){
+      // The code may open either room, or both. Each project checks its own.
+      var res = await Promise.all([teatalzOk(v), askRuRoom(v)]);
+      if(res[0] === true){ VERIFIED_CODE = v; }
+      if(res[1]){ ASKRU_CODE = v; ASKRU_DOCS = res[1]; }
+      if(VERIFIED_CODE || ASKRU_CODE){
+        $("lock").style.display = "none";
+        $("gate").style.display = "block";
+        $("g-name").focus();
+      } else if(res[0] === null){
         m.className = "inv-msg err"; m.textContent = "Couldn't verify right now — please try again.";
+      } else {
+        m.className = "inv-msg err"; m.textContent = "That code isn't right. Please check with the founders.";
       }
+    }
+
+    // ---- tabs ----
+    function showTab(name){
+      ["teatalz","askru"].forEach(function(t){
+        var on = t === name;
+        $("tab-"+t).style.display = on ? "block" : "none";
+        $("tabbtn-"+t).classList.toggle("on", on);
+        $("tabbtn-"+t).setAttribute("aria-selected", on ? "true" : "false");
+      });
+    }
+    function openTeatalz(){
+      $("teatalz-lock").style.display = "none";
+      $("teatalz-body").style.display = "block";
+      loadDocs(); loadTraction(); loadBuildProgress();
+    }
+    async function unlockTeatalzTab(){
+      var v = $("teatalz-code").value.trim(), m = $("teatalz-lockmsg");
+      if(!v) return;
+      m.className="inv-msg"; m.textContent="Checking…";
+      var ok = await teatalzOk(v);
+      if(ok === true){ VERIFIED_CODE = v; m.textContent=""; openTeatalz(); }
+      else { m.className="inv-msg err"; m.textContent = ok === null ? "Couldn't verify right now — please try again." : "That code isn't right for the Teatalz room."; }
+    }
+    function openAskRu(){
+      $("askru-lock").style.display = "none";
+      renderAskRuDocs(ASKRU_DOCS || []);
+    }
+    async function unlockAskRu(){
+      var v = $("askru-code").value.trim(), m = $("askru-lockmsg");
+      if(!v) return;
+      if(!ASKRU_ANON){ m.className="inv-msg err"; m.textContent="The Ask Ru room is not open yet."; return; }
+      m.className="inv-msg"; m.textContent="Checking…";
+      var docs = await askRuRoom(v);
+      if(docs){ ASKRU_CODE = v; ASKRU_DOCS = docs; m.textContent=""; openAskRu(); }
+      else { m.className="inv-msg err"; m.textContent="That code isn't right for the Ask Ru room."; }
+    }
+    function renderAskRuDocs(docs){
+      var box = $("askru-docs");
+      if(!docs.length){ box.innerHTML = '<span style="color:var(--ink-3)">No documents available yet.</span>'; return; }
+      box.innerHTML = docListHtml(docs.map(function(x){ return Object.assign({}, x, { url: bust(x.url), logAs: "Ask Ru — " + x.title }); }));
     }
     // shareable link: investor.html#<code> tries to auto-unlock (still verified server-side)
     (function(){
@@ -313,9 +414,11 @@
       $("gate").style.display = "none";
       $("room").style.display = "block";
       $("who-email").textContent = email;
-      loadDocs();
-      loadTraction();
-      loadBuildProgress();
+      if(VERIFIED_CODE){ openTeatalz(); }
+      else { $("teatalz-body").style.display = "none"; $("teatalz-lock").style.display = "block"; }
+      if(ASKRU_CODE){ openAskRu(); }
+      else { $("askru-lock").style.display = "block"; }
+      showTab(VERIFIED_CODE ? "teatalz" : "askru");
     }
 
     /* Shown on the FIRST document a visitor opens or downloads, never on entry.
@@ -454,33 +557,40 @@
         // requesting the same signed URL twice and getting the same string back.
         // An hourly stamp keeps caching within a session and guarantees freshness
         // across one, without depending on a reader knowing to clear anything.
-        var CB = (function(){
-          var d = new Date();
-          return '' + d.getUTCFullYear()
-            + String(d.getUTCMonth() + 1).padStart(2, '0')
-            + String(d.getUTCDate()).padStart(2, '0')
-            + String(d.getUTCHours()).padStart(2, '0');
-        })();
-        var bust = function(u){ return u + (u.indexOf('?') > -1 ? '&' : '?') + 'cb=' + CB; };
-
-        var cats = {};
-        listed.forEach(function(doc){
-          doc.url = bust(doc.url);
-          (cats[doc.category] = cats[doc.category] || []).push(doc);
-        });
-        box.innerHTML += Object.keys(cats).map(function(cat){
-          return '<div style="font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:18px 0 8px">'+esc(cat)+'</div>' +
-            cats[cat].map(function(doc){
-              return '<div class="doc-row"><div class="meta"><b>📄 '+esc(doc.title)+'</b><span>'+esc(doc.subtitle||"")+'</span></div>'+
-                     '<div style="display:flex;gap:8px;flex:0 0 auto">'+
-                     '<a class="btn sm ghost" href="doc.html?u='+encodeURIComponent(doc.url)+'&t='+encodeURIComponent(doc.title)+'" target="_blank" rel="noopener" onclick="noteRead(\''+esc(doc.title).replace(/\x27/g,"")+'\')">Read</a>'+
-                     '<button class="btn sm" onclick="doDownload(\''+encodeURIComponent(doc.url)+'\',\''+esc(doc.title).replace(/\x27/g,"")+'\',this)">Download</button>'+
-                     '</div></div>';
-            }).join("");
-        }).join("");
+        box.innerHTML += docListHtml(listed.map(function(doc){ doc.url = bust(doc.url); return doc; }));
       } catch(e){
         box.innerHTML = '<span style="color:#ff9db0">Couldn\'t load the data room. Please refresh.</span>';
       }
+    }
+    var CB = (function(){
+      var d = new Date();
+      return '' + d.getUTCFullYear()
+        + String(d.getUTCMonth() + 1).padStart(2, '0')
+        + String(d.getUTCDate()).padStart(2, '0')
+        + String(d.getUTCHours()).padStart(2, '0');
+    })();
+    function bust(u){ return u + (u.indexOf('?') > -1 ? '&' : '?') + 'cb=' + CB; }
+    // file extension from the signed URL's object path (the Ask Ru room carries an .xlsx)
+    function extOf(u){ var m = String(u).split('?')[0].match(/\.([a-z0-9]+)$/i); return m ? m[1].toLowerCase() : "pdf"; }
+
+    // Shared by both rooms. doc.logAs (optional) is the name written to the download log.
+    function docListHtml(docs){
+      var cats = {};
+      docs.forEach(function(doc){ (cats[doc.category] = cats[doc.category] || []).push(doc); });
+      return Object.keys(cats).map(function(cat){
+        return '<div style="font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:18px 0 8px">'+esc(cat)+'</div>' +
+          cats[cat].map(function(doc){
+            var ext = extOf(doc.url), logName = esc(doc.logAs || doc.title).replace(/\x27/g,"");
+            // doc.html renders PDFs; anything else is download-only.
+            var read = ext === "pdf"
+              ? '<a class="btn sm ghost" href="doc.html?u='+encodeURIComponent(doc.url)+'&t='+encodeURIComponent(doc.title)+'" target="_blank" rel="noopener" onclick="noteRead(\''+logName+'\')">Read</a>'
+              : '';
+            return '<div class="doc-row"><div class="meta"><b>'+(ext === "xlsx" ? "📊 " : "📄 ")+esc(doc.title)+'</b><span>'+esc(doc.subtitle||"")+'</span></div>'+
+                   '<div style="display:flex;gap:8px;flex:0 0 auto">'+ read +
+                   '<button class="btn sm" onclick="doDownload(\''+encodeURIComponent(doc.url)+'\',\''+logName+'\',this)">Download</button>'+
+                   '</div></div>';
+          }).join("");
+      }).join("");
     }
     function logDoc(action, title){
       try { return sb("/rest/v1/rpc/log_data_room_download", { method:"POST",
@@ -495,7 +605,7 @@
         var blob = await resp.blob();
         var obj = URL.createObjectURL(blob);
         var a = document.createElement("a");
-        a.href = obj; a.download = title.replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".pdf";
+        a.href = obj; a.download = title.replace(/[^a-z0-9]+/gi,"-").toLowerCase()+"."+extOf(url);
         document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(obj);
       } catch(e){
         window.open(url, "_blank", "noopener");   // CORS/blob fallback
