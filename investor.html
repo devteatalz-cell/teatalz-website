@@ -592,7 +592,7 @@
     function normStatus(s){ return (s === "done" || s === "achieved") ? "achieved" : (s === "in_progress" ? "in_progress" : "upcoming"); }
     function buildStatusHtml(d, launch){
       var ms = (d && d.milestones) || [];
-      if(!ms.length) return '<div class="soonbox"><b>Milestones are being added.</b> Please check back on Monday.</div>';
+      if(!ms.length) return '<div class="soonbox"><b>Milestones are being added.</b> Please check back soon.</div>';
       var n = { achieved: 0, in_progress: 0, upcoming: 0 };
       ms.forEach(function(m){ n[normStatus(m.status)]++; });
       var pct = Math.round(n.achieved * 100 / ms.length);
@@ -626,7 +626,7 @@
         box.innerHTML = buildStatusHtml(d, "Feb 2027");
         ups.innerHTML = (d.updates||[]).map(function(u){
           return '<div class="upd"><div class="d">'+esc(u.when)+'</div><h4>'+esc(u.title)+'</h4><p>'+esc(u.body)+'</p></div>';
-        }).join("") || '<span class="muted">First update posts Monday.</span>';
+        }).join("") || '<span class="muted">No updates yet.</span>';
       } catch(e){
         box.innerHTML = '<span class="errtxt">Couldn\'t load build status.</span>';
       }
@@ -653,7 +653,7 @@
       try {
         var r = await rpc("get_build_progress", { code: CODE }, true);
         var d = r.ok ? await r.json() : null;
-        if(!d || d.ok !== true){ box.innerHTML = '<div class="soonbox"><b>Build status is opening soon.</b> Please check back on Monday.</div>'; return; }
+        if(!d || d.ok !== true){ box.innerHTML = '<div class="soonbox"><b>Build status is opening soon.</b> Please check back soon.</div>'; return; }
         box.innerHTML = buildStatusHtml(d, "Oct 2026");
       } catch(e){
         box.innerHTML = '<span class="errtxt">Couldn\'t load build status.</span>';
