@@ -51,7 +51,7 @@
 .grad-t{ background:linear-gradient(100deg,#7c5cff,#ff8fb4); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
 .chip-mini{ display:inline-flex; align-items:center; gap:5px; font-size:8.5px; padding:3px 9px; border-radius:999px; background:#f1ecfd; border:1px solid #e6dcfb; color:#7a63c4; font-weight:500; }
 
-/* ---------- Phone 1 : Rume home ---------- */
+/* ---------- Phone 1 : Ru home ---------- */
 .hm-hi{ font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; margin:8px 2px 2px; }
 .hm-sub{ font-size:10.5px; color:#8a7d95; margin:0 2px 9px; }
 .mood{ padding:8px 11px; margin-bottom:9px; }
@@ -111,7 +111,7 @@
 .post .rx b{ color:#e0942f; font-weight:600; }
 .post .rx .heart{ color:#e06b96; }
 
-/* ---------- Phone 4 : Rume Haat ---------- */
+/* ---------- Phone 4 : Ru Haat ---------- */
 .haat-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 2px 12px; }
 .haat-head .bal{ font-size:9px; font-weight:600; color:#7a63c4; background:#f1ecfd; border:1px solid #e6dcfb; border-radius:999px; padding:4px 9px; white-space:nowrap; }
 .haat-item{ display:flex; align-items:center; gap:9px; padding:9px 10px; margin-bottom:9px; }

@@ -7,9 +7,14 @@
 //
 // Why each size: the logo has two display boxes — 34x34 in the nav
 // (styles.css .brand img) and 190x190 in the hero orb (.orb) — so one 512px
-// WebP covers both at well past 2x DPR. rume.png renders at 150px wide (112px
-// on mobile), so 400px covers 2.5x. Serving the 1016px and 1706px originals
-// into those boxes was the whole problem.
+// WebP covers both at well past 2x DPR. Serving the 1016px original into those
+// boxes was the whole problem.
+//
+// The hero figure (assets/ru-standing.webp + .png, 220x680 = 2x of its 330px
+// display height) is NOT made here: it is cut from the 15 Sep Ru art
+// (flood-fill white bg + hair pockets + colour-to-alpha edge ring, after
+// design/assets/_ru-cutout-15sep.mjs), then scaled with ffmpeg. The old
+// rume.png / rume.webp character was retired on 15 Sep 2026.
 //
 // teatalz-logo-512.png exists only for the Organization JSON-LD "logo" field —
 // schema consumers are not all WebP-friendly, so that one stays PNG.
@@ -39,10 +44,6 @@ const jobs = [
   { from: logo, out: 'favicon-180.png', op: (s) => s.resize(180, 180, { fit: 'contain', background: { r:0,g:0,b:0,alpha:0 } }).png({ compressionLevel: 9, palette: true, quality: 90 }) },
 ];
 
-const rumeSrc = path.join(ASSETS, 'rume.png');
-if (existsSync(rumeSrc)) {
-  jobs.push({ from: readFileSync(rumeSrc), out: 'rume.webp', op: (s) => s.resize({ width: 400 }).webp({ quality: 86 }) });
-}
 
 let before = 0, after = 0;
 for (const j of jobs) {
@@ -52,7 +53,7 @@ for (const j of jobs) {
   console.log(`${j.out.padEnd(20)} ${String(m.width).padStart(4)}x${String(m.height).padEnd(4)} ${kb(buf.length)}`);
   after += buf.length;
 }
-before = logo.length + (existsSync(rumeSrc) ? readFileSync(rumeSrc).length : 0);
+before = logo.length;
 console.log('\n' + '-'.repeat(50));
 console.log(`originals (still on disk): ${kb(before)}`);
 console.log(`generated total:           ${kb(after)}`);

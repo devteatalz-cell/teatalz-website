@@ -217,7 +217,7 @@ const EDITS = [
 ...[
   ['why-most-people-don-t-need-therapy-they-need-someone-to-listen', 'Both',
    `<p><strong>What's the last time someone truly listened to you without offering advice? Drop it in the comments — I read every single one.</strong></p>`,
-   `<p><strong>When was the last time someone listened to you without trying to fix it?</strong></p><p>We're building <strong>Teatalz</strong> for that: <strong>Rume</strong>, a Hinglish AI companion you can say it to at 2am — and <strong>Adda</strong>, where other people are working through the same thing. Neither is therapy and neither pretends to be. Arriving the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>When was the last time someone listened to you without trying to fix it?</strong></p><p>We're building <strong>Teatalz</strong> for that: <strong>Ru</strong>, a Hinglish AI companion you can say it to at 2am — and <strong>Adda</strong>, where other people are working through the same thing. Neither is therapy and neither pretends to be. Arriving February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
   ['why-therapy-alone-cannot-solve-india-s-mental-health-crisis', 'No product CTA',
    `<p><strong>Are you working in mental health, policy, or technology in India? I'd love to hear your perspective on what's missing. Let's build this conversation.</strong></p>`,
@@ -225,43 +225,43 @@ const EDITS = [
 
   ['why-we-built-teatalz-the-missing-layer-in-human-life', 'Brand',
    `<p><strong>What would you have done differently in your life if you'd had a genuinely safe space to express yourself emotionally — without judgment, without advice, without an audience? I'm genuinely curious. Share below.</strong></p>`,
-   `<p><strong>What would have been different, if you'd had somewhere to say it out loud — without judgement, without advice, without an audience?</strong></p><p>That question is the whole reason Teatalz exists. It arrives the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>What would have been different, if you'd had somewhere to say it out loud — without judgement, without advice, without an audience?</strong></p><p>That question is the whole reason Teatalz exists. It arrives in February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
-  ['i-m-fine-the-most-dangerous-lie-we-tell-ourselves', 'Rume',
+  ['i-m-fine-the-most-dangerous-lie-we-tell-ourselves', 'Ru',
    `<p><strong>When was the last time you said 'I'm fine' and meant the opposite? You don't have to share the details — just whether it happened. I think the answer might surprise us all.</strong></p>`,
-   `<p><strong>When was the last time you said "I'm fine" and meant the opposite?</strong></p><p>We're building <strong>Rume</strong> for the sentence that comes after it — a Hinglish AI companion you can be honest with at 2am, without managing anyone's reaction or owing them an update tomorrow. Not a therapist, and it won't pretend to be. Arriving the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>When was the last time you said "I'm fine" and meant the opposite?</strong></p><p>We're building <strong>Ru</strong> for the sentence that comes after it — a Hinglish AI companion you can be honest with at 2am, without managing anyone's reaction or owing them an update tomorrow. Not a therapist, and it won't pretend to be. Arriving February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
   ['social-media-was-not-designed-for-your-emotions', 'Adda',
    `<p><strong>Have you ever had the impulse to post something emotionally honest and then stopped yourself? What held you back? I'd be curious to hear — this is a conversation worth having publicly.</strong></p>`,
-   `<p><strong>Have you ever typed something honest, read it back, and deleted it? What stopped you?</strong></p><p>We're building <strong>Adda</strong> for the post you didn't make — anonymous-capable, gently temporary, moderated by people rather than only by filters. Social media built to be safe by design rather than moderated after the fact. Arriving the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>Have you ever typed something honest, read it back, and deleted it? What stopped you?</strong></p><p>We're building <strong>Adda</strong> for the post you didn't make — anonymous-capable, gently temporary, moderated by people rather than only by filters. Social media built to be safe by design rather than moderated after the fact. Arriving February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
-  ['can-ai-understand-human-emotions-the-reality-vs-myth', 'Rume (rule 2)',
+  ['can-ai-understand-human-emotions-the-reality-vs-myth', 'Ru (rule 2)',
    `<p><strong>Where do you stand on AI and emotional support? Skeptical? Cautiously curious? Already a convert? I want to hear the honest take — not the polished version.</strong></p>`,
-   `<p><strong>Where do you land on this — sceptical, cautiously curious, or already convinced?</strong></p><p><strong>Rume</strong> is our attempt at the honest middle: a Hinglish AI companion that listens well and doesn't claim to understand you the way a person does. Judge it yourself when it arrives, the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>Where do you land on this — sceptical, cautiously curious, or already convinced?</strong></p><p><strong>Ru</strong> is our attempt at the honest middle: a Hinglish AI companion that listens well and doesn't claim to understand you the way a person does. Judge it yourself when it arrives in February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
   ['loneliness-in-a-hyperconnected-world-what-are-we-missing', 'Adda',
    `<p><strong>Have you ever felt lonely in a room full of people? Or disconnected even while being technically very well connected? This is more common than we admit — and it deserves a real conversation.</strong></p>`,
-   `<p><strong>Have you ever felt lonely in a room full of people?</strong></p><p>The reason it doesn't feel common is that none of us can see each other doing it. That's a design problem, not a fact about the world — and it's what we're building <strong>Adda</strong> to fix: a social space where "I feel unseen" is a normal thing to say out loud. Arriving the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>Have you ever felt lonely in a room full of people?</strong></p><p>The reason it doesn't feel common is that none of us can see each other doing it. That's a design problem, not a fact about the world — and it's what we're building <strong>Adda</strong> to fix: a social space where "I feel unseen" is a normal thing to say out loud. Arriving February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
   ['why-people-don-t-open-up-even-when-they-want-to', 'Both',
    `<p><strong>What has stopped you from saying something important that you needed to say? I think you'll find you're in vast company. The comments are a safe place for this one.</strong></p>`,
-   `<p><strong>What has stopped you from saying the thing you needed to say?</strong></p><p>You're in vast company, and there are two ways round it. <strong>Rume</strong> — a Hinglish AI companion you can practise the sentence on, with no reaction to manage. And <strong>Adda</strong>, where you can say it without your name attached. Both arrive the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>What has stopped you from saying the thing you needed to say?</strong></p><p>You're in vast company, and there are two ways round it. <strong>Ru</strong> — a Hinglish AI companion you can practise the sentence on, with no reaction to manage. And <strong>Adda</strong>, where you can say it without your name attached. Both arrive in February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
-  ['why-ai-can-be-a-better-listener-than-humans-sometimes', 'Rume',
+  ['why-ai-can-be-a-better-listener-than-humans-sometimes', 'Ru',
    `<p><strong>Have you ever found it easier to be honest in a low-stakes context — with a stranger, a journal, an app — than with the people closest to you? Why do you think that is?</strong></p>`,
-   `<p><strong>Have you ever found it easier to be honest with a stranger, or a journal, than with the people closest to you?</strong></p><p>That's the whole reason <strong>Rume</strong> exists — a Hinglish AI companion for the things that are easier to say to something that isn't keeping score. Not a replacement for the people who know you. A different thing, for a different hour. Arriving the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>Have you ever found it easier to be honest with a stranger, or a journal, than with the people closest to you?</strong></p><p>That's the whole reason <strong>Ru</strong> exists — a Hinglish AI companion for the things that are easier to say to something that isn't keeping score. Not a replacement for the people who know you. A different thing, for a different hour. Arriving February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
-  ['the-science-behind-venting-does-it-really-help', 'Rume',
+  ['the-science-behind-venting-does-it-really-help', 'Ru',
    `<p><strong>Do you feel better or worse after venting? What makes the difference for you? I'd genuinely like to understand your experience — the research tells one story, but individual patterns are always more nuanced.</strong></p>`,
-   `<p><strong>Do you feel better or worse after venting? What makes the difference for you?</strong></p><p>Mostly it's who's listening. We're building <strong>Rume</strong> to be the kind that asks the question underneath rather than agreeing you've been wronged — a Hinglish AI companion, available at the hour you actually need one. Arriving the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>Do you feel better or worse after venting? What makes the difference for you?</strong></p><p>Mostly it's who's listening. We're building <strong>Ru</strong> to be the kind that asks the question underneath rather than agreeing you've been wronged — a Hinglish AI companion, available at the hour you actually need one. Arriving February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 
   ['from-social-media-to-emotional-media-the-shift-has-begun', 'Brand',
    `<p><strong>Where do you see the future of emotional media going? I'm especially curious from founders, investors, and mental health professionals in the room. This is one of the most important design challenges of our time.</strong></p>`,
-   `<p><strong>Where do you think emotional media goes from here?</strong></p><p>We're building one answer to that question. It arrives the first week of October — <a href="/#waitlist">join the waitlist</a> if you'd like to see whether we're right.</p>`],
+   `<p><strong>Where do you think emotional media goes from here?</strong></p><p>We're building one answer to that question. It arrives in February 2027 — <a href="/#waitlist">join the waitlist</a> if you'd like to see whether we're right.</p>`],
 
-  ['emotional-suppression-the-silent-killer-of-modern-productivity', 'Rume',
+  ['emotional-suppression-the-silent-killer-of-modern-productivity', 'Ru',
    `<p>Join our waiting list to be part of our family before the world knows us </p>`,
-   `<p><strong>What are you currently holding down, and how much of your attention is it quietly taking?</strong></p><p>We're building <strong>Rume</strong> for the things that don't get said — a Hinglish AI companion you can put it down with, at whatever hour it surfaces. Arriving the first week of October. <a href="/#waitlist">Join the waitlist</a>.</p>`],
+   `<p><strong>What are you currently holding down, and how much of your attention is it quietly taking?</strong></p><p>We're building <strong>Ru</strong> for the things that don't get said — a Hinglish AI companion you can put it down with, at whatever hour it surfaces. Arriving February 2027. <a href="/#waitlist">Join the waitlist</a>.</p>`],
 ].map(([slug, routing, find, replace]) => ({
   pass: 'C', slug, field: 'content_html',
   why: `Dead CTA — asks for a reply the site cannot receive. Routed: ${routing}.`,
