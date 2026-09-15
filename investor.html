@@ -415,6 +415,11 @@
         <div id="a-bs" aria-live="polite"><span class="muted">Loading…</span></div>
       </section>
 
+      <section class="sec" aria-labelledby="vid-a-h" id="askru-video-sec" hidden>
+        <div class="sec-head"><h2 id="vid-a-h">See the product</h2></div>
+        <div id="askru-video-slot"></div>
+      </section>
+
       <section class="sec" aria-labelledby="dr-a-h">
         <div class="sec-head"><h2 id="dr-a-h">Data room</h2></div>
         <p class="sec-note">Read any document below, or download it — private to invited investors. Links expire and are not public.</p>
@@ -643,6 +648,21 @@
         // ok:false here means the Ask Ru project has no matching passcode yet — "opening soon", not "wrong code".
         if(!d || d.ok !== true || !d.docs || !d.docs.length){ box.innerHTML = SOON; return; }
         loaded.askru = true;
+        // Only the first video goes to the player; the rest of the documents stay in the list.
+        var avid = d.docs.filter(function(x){ return x.category === "Video"; })[0];
+        if(avid){
+          var aurl = bust(avid.url);
+          $("askru-video-slot").innerHTML =
+            '<div class="vid-wrap"><video id="ar-video" controls preload="metadata" playsinline src="'+esc(aurl)+'"></video>'+
+            '<div class="vid-meta"><span>'+esc(avid.subtitle||"")+'</span>'+
+            '<a href="'+esc(aurl)+'" download="Ask-Ru-Showreel.mp4" data-log="Ask Ru — Showreel (video)">Download video</a>'+
+            '</div></div>';
+          $("askru-video-sec").hidden = false;
+          $("askru-video-slot").querySelector("[data-log]").addEventListener("click", function(){ logDoc("Download", "Ask Ru — Showreel (video)"); });
+          var av = $("ar-video");
+          if(av) av.addEventListener("play", function once(){ av.removeEventListener("play", once); logDoc("Watched", "Ask Ru — Showreel"); });
+          d.docs = d.docs.filter(function(x){ return x !== avid; });
+        }
         box.innerHTML = docListHtml(d.docs.map(function(x){ return Object.assign({}, x, { url: bust(x.url), logAs: "Ask Ru — " + x.title }); }));
       } catch(e){
         box.innerHTML = '<span class="errtxt">Couldn\'t load the Ask Ru room. Please try again.</span>';
