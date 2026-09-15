@@ -59,7 +59,7 @@ function welcomeHtml(name) {
     </div>
     <div style="padding:26px 28px;line-height:1.6;color:#eadfe6">
       <p>Hey ${esc(first)},</p>
-      <p>Thank you for joining the <strong>Teatalz</strong> waitlist. You're now among the first who'll meet <strong>Rume</strong> — a Hinglish-first AI companion who listens — and <strong>Adda</strong>, a kinder social space.</p>
+      <p>Thank you for joining the <strong>Teatalz</strong> waitlist. You're now among the first who'll meet <strong>Ru</strong> — a Hinglish-first AI companion who listens — and <strong>Adda</strong>, a kinder social space.</p>
       <p>We'll tell you the moment we open the doors. No spam, ever — just one warm hello and the occasional update you can opt out of anytime.</p>
       <p style="color:#b9a8b4;font-size:13px;margin-top:22px">Your details are safe with us — encrypted and never sold.</p>
       <p style="margin-top:20px">— Team Teatalz</p>
