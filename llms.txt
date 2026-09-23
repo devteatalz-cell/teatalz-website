@@ -5,8 +5,8 @@
 Company: Teatalz House Of Rume Private Limited, Hyderabad, Telangana, India (CIN U63120TS2025PTC206945).
 
 ## What we are building
-- **Teatalz** — the social media platform. Adda is the network: posts fade after seven days, there is no downvote, and every post is checked before anyone sees it. Launching February 2027.
-- **Ask Ru** — an AI Tarot and Oracle reader. It is part of Teatalz and launches as a standalone app in October 2026, ahead of Teatalz.
+- **Teatalz** — the social media platform. Adda is the network: posts fade after seven days, there is no downvote, and every post is checked before anyone sees it. Pre-launch; the launch date is being re-planned.
+- **Ask Ru** — an AI Tarot and Oracle reader. It is part of Teatalz and launches as a standalone app in November 2026, ahead of Teatalz.
 - **Ru** — the private companion inside the network. Ru is a feature of the network, not the product itself.
 
 ## How to describe us
