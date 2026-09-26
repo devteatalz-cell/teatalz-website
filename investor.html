@@ -342,7 +342,7 @@
           <span class="logo askru"><img src="assets/ask-ru-logo.webp" alt="" width="512" height="512" /></span>
           <h2>Ask Ru</h2>
           <p id="d-askru">Tarot readings with Ru.</p>
-          <span id="askru-chip" class="chip">Launches November 2026</span>
+          <span id="askru-chip" class="chip">App ready November 2026</span>
           <span id="askru-go" class="go">Open room <span aria-hidden="true">→</span></span>
         </button>
       </div>
@@ -376,7 +376,7 @@
         <div class="sec-head"><h2 id="vid-h">See the product</h2></div>
         <p class="sec-note">A 3-minute walkthrough of the built app — every screen here is the real design, not a concept.</p>
         <div id="video-slot"></div>
-        <p class="white-note"><strong>Teatalz's launch is being re-planned as funds allow.</strong> Ask Ru, from the same company, launches in November 2026.</p>
+        <p class="white-note"><strong>Teatalz's launch is being re-planned as funds allow.</strong> Ask Ru, from the same company, will be ready by November 2026.</p>
       </section>
 
       <section class="sec" aria-labelledby="tr-h">
@@ -408,14 +408,14 @@
       <button class="backlink" type="button" data-back>← All rooms</button>
       <header class="roomhead">
         <img src="assets/ask-ru-logo.webp" alt="" />
-        <div><h1 id="h-askru">Ask Ru</h1><div class="sub">Launches November 2026</div></div>
+        <div><h1 id="h-askru">Ask Ru</h1><div class="sub">App ready November 2026</div></div>
         <span class="badge">Private · Invited investors</span>
       </header>
       <p class="room-intro">Ask Ru is a separate app from the same company, with Ru as its face. Its build status and documents are kept in Ask Ru’s own data room.</p>
 
       <section class="sec" aria-labelledby="bs-a-h">
         <div class="sec-head"><h2 id="bs-a-h">Build status</h2><span class="cadence">🗓 Updated every Tuesday</span></div>
-        <p class="sec-note">Milestones towards the November 2026 launch. Achieved means built and checked in our records; dates are when that happened.</p>
+        <p class="sec-note">Milestones towards the app being ready by November 2026. Achieved means built and checked in our records; dates are when that happened.</p>
         <div id="a-bs" aria-live="polite"><span class="muted">Loading…</span></div>
       </section>
 
@@ -440,7 +440,7 @@
         <button class="greet-x" type="button" id="greet-x" aria-label="Close">×</button>
         <div class="greet-eyebrow">👋 Welcome</div>
         <h3 id="greet-h">Good to see you, <span id="greet-name"></span>.</h3>
-        <p><strong>Ask Ru</strong> launches in <strong>November 2026</strong>. The <strong>Teatalz</strong> launch is being re-planned as funds allow. Teatalz is a solopreneur project, and I run it myself.</p>
+        <p><strong>Ask Ru</strong> will be <strong>ready by November 2026</strong>. The <strong>Teatalz</strong> launch is being re-planned as funds allow. Teatalz is a solopreneur project, and I run it myself.</p>
         <!-- Founder, 14 Sep 2026: self-investment is now over Rs 24 lakh (matches the data room docs). -->
         <p>I have put <strong>over ₹24 lakh</strong> of my own into it so far.</p>
         <p>If you would like to talk, I would like to hear from
@@ -572,12 +572,12 @@
       var t = $("tile-askru");
       if(askRuReady()){
         t.removeAttribute("aria-disabled");
-        $("askru-chip").className = "chip"; $("askru-chip").textContent = "Launches November 2026";
+        $("askru-chip").className = "chip"; $("askru-chip").textContent = "App ready November 2026";
         $("askru-go").innerHTML = 'Open room <span aria-hidden="true">→</span>';
       } else {
         t.setAttribute("aria-disabled", "true");
         $("askru-chip").className = "chip soon"; $("askru-chip").textContent = "Opening soon";
-        $("askru-go").textContent = "Launches November 2026";
+        $("askru-go").textContent = "App ready November 2026";
       }
     }
     paintAskRuTile();
@@ -598,7 +598,7 @@
     // Server shape (0175 Teatalz / 0003 Ask Ru): milestones[{code,title,detail,status,achieved_on,target}],
     // status achieved | in_progress | upcoming. The bar is achieved ÷ total, never a guessed percentage.
     function normStatus(s){ return (s === "done" || s === "achieved") ? "achieved" : (s === "in_progress" ? "in_progress" : "upcoming"); }
-    function buildStatusHtml(d, launch){
+    function buildStatusHtml(d, launch, launchLabel){
       var ms = (d && d.milestones) || [];
       if(!ms.length) return '<div class="soonbox"><b>Milestones are being added.</b> Please check back soon.</div>';
       var n = { achieved: 0, in_progress: 0, upcoming: 0 };
@@ -608,7 +608,7 @@
       return '<div class="panel bs-summary">' +
           '<div><div class="k">Achieved</div><div class="v">' + n.achieved + ' <small>of ' + ms.length + '</small></div></div>' +
           '<div><div class="k">In progress</div><div class="v">' + n.in_progress + '</div></div>' +
-          '<div><div class="k">Launch</div><div class="v">' + esc(launch) + '</div></div>' +
+          '<div><div class="k">' + esc(launchLabel || "Launch") + '</div><div class="v">' + esc(launch) + '</div></div>' +
           '<div class="bs-bar-row"><div class="bs-bar" role="progressbar" aria-label="Milestones achieved" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></div>' +
           '<div class="bs-bar-cap"><span>' + pct + '% of milestones achieved</span><span>' + n.upcoming + ' upcoming</span></div></div>' +
         '</div>' +
@@ -616,7 +616,7 @@
           var st = normStatus(m.status);
           var when = st === "achieved"
             ? '<span>Date</span>' + esc(m.achieved_on || m.ends || "")
-            : '<span>Target</span>' + esc(m.target || m.ends || "");
+            : ((m.target || m.ends) ? '<span>Target</span>' + esc(m.target || m.ends) : "");
           return '<li class="ms ' + st + '">' +
             '<div class="st"><span class="pill">' + LABEL[st] + '</span></div>' +
             '<div class="bd"><h4>' + (m.code ? '<span class="code">' + esc(m.code) + '</span>' : '') + esc(m.title) + '</h4><p>' + esc(m.detail) + '</p></div>' +
@@ -631,7 +631,7 @@
         var r = await rpc("get_build_progress", { code: CODE });
         var d = await r.json();
         if(!d || d.ok !== true){ box.innerHTML = '<span class="muted">Build status is unavailable right now — refresh to retry.</span>'; return; }
-        box.innerHTML = buildStatusHtml(d, "Re-planning");
+        box.innerHTML = buildStatusHtml(d, "Re-planning", "Launch");
         ups.innerHTML = (d.updates||[]).map(function(u){
           return '<div class="upd"><div class="d">'+esc(u.when)+'</div><h4>'+esc(u.title)+'</h4><p>'+esc(u.body)+'</p></div>';
         }).join("") || '<span class="muted">No updates yet.</span>';
@@ -677,7 +677,7 @@
         var r = await rpc("get_build_progress", { code: CODE }, true);
         var d = r.ok ? await r.json() : null;
         if(!d || d.ok !== true){ box.innerHTML = '<div class="soonbox"><b>Build status is opening soon.</b> Please check back soon.</div>'; return; }
-        box.innerHTML = buildStatusHtml(d, "Nov 2026");
+        box.innerHTML = buildStatusHtml(d, "Nov 2026", "App ready");
       } catch(e){
         box.innerHTML = '<span class="errtxt">Couldn\'t load build status.</span>';
       }
