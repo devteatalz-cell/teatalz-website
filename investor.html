@@ -598,7 +598,10 @@
     // Server shape (0175 Teatalz / 0003 Ask Ru): milestones[{code,title,detail,status,achieved_on,target}],
     // status achieved | in_progress | upcoming. The bar is achieved ÷ total, never a guessed percentage.
     function normStatus(s){ return (s === "done" || s === "achieved") ? "achieved" : (s === "in_progress" ? "in_progress" : "upcoming"); }
-    function buildStatusHtml(d, launch, launchLabel){
+    function buildStatusHtml(d){
+      // The headline comes from the server (get_build_progress), never from this file.
+      // Ask Ru returns "App ready" / "Nov 2026"; Teatalz returns "Launch" / "Re-planning".
+      var launch = (d && d.launch) || "", launchLabel = (d && d.launch_label) || "";
       var ms = (d && d.milestones) || [];
       if(!ms.length) return '<div class="soonbox"><b>Milestones are being added.</b> Please check back soon.</div>';
       var n = { achieved: 0, in_progress: 0, upcoming: 0 };
@@ -608,7 +611,7 @@
       return '<div class="panel bs-summary">' +
           '<div><div class="k">Achieved</div><div class="v">' + n.achieved + ' <small>of ' + ms.length + '</small></div></div>' +
           '<div><div class="k">In progress</div><div class="v">' + n.in_progress + '</div></div>' +
-          '<div><div class="k">' + esc(launchLabel || "Launch") + '</div><div class="v">' + esc(launch) + '</div></div>' +
+          (launch ? '<div><div class="k">' + esc(launchLabel) + '</div><div class="v">' + esc(launch) + '</div></div>' : '') +
           '<div class="bs-bar-row"><div class="bs-bar" role="progressbar" aria-label="Milestones achieved" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></div>' +
           '<div class="bs-bar-cap"><span>' + pct + '% of milestones achieved</span><span>' + n.upcoming + ' upcoming</span></div></div>' +
         '</div>' +
@@ -631,7 +634,7 @@
         var r = await rpc("get_build_progress", { code: CODE });
         var d = await r.json();
         if(!d || d.ok !== true){ box.innerHTML = '<span class="muted">Build status is unavailable right now — refresh to retry.</span>'; return; }
-        box.innerHTML = buildStatusHtml(d, "Re-planning", "Launch");
+        box.innerHTML = buildStatusHtml(d);
         ups.innerHTML = (d.updates||[]).map(function(u){
           return '<div class="upd"><div class="d">'+esc(u.when)+'</div><h4>'+esc(u.title)+'</h4><p>'+esc(u.body)+'</p></div>';
         }).join("") || '<span class="muted">No updates yet.</span>';
@@ -677,7 +680,7 @@
         var r = await rpc("get_build_progress", { code: CODE }, true);
         var d = r.ok ? await r.json() : null;
         if(!d || d.ok !== true){ box.innerHTML = '<div class="soonbox"><b>Build status is opening soon.</b> Please check back soon.</div>'; return; }
-        box.innerHTML = buildStatusHtml(d, "Nov 2026", "App ready");
+        box.innerHTML = buildStatusHtml(d);
       } catch(e){
         box.innerHTML = '<span class="errtxt">Couldn\'t load build status.</span>';
       }
