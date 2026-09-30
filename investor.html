@@ -192,10 +192,21 @@
       .ms .when{grid-column:2;grid-row:1}
       .ms .bd{grid-column:1 / -1}
     }
-    .upd{border-left:2px solid var(--border-glow);padding:2px 0 2px 16px;margin-bottom:20px}
+    /* Har update apna dropdown. Sabse naya khula, baaki band -- 30 Sep,
+       founder: poori list ek saath khuli ho to padhi nahi jaati. */
+    .upd{border-left:2px solid var(--border-glow);padding:2px 0 2px 16px;margin-bottom:12px}
     .upd .d{font-size:.74rem;color:var(--ink-3);letter-spacing:.04em}
-    .upd h4{font-family:'Space Grotesk',sans-serif;font-size:1.02rem;margin:3px 0 6px}
-    .upd p{font-size:.9rem;color:var(--ink-2);line-height:1.65;margin:0;white-space:pre-line}
+    .upd>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;
+      gap:3px;padding:7px 28px 7px 0;position:relative}
+    .upd>summary::-webkit-details-marker{display:none}
+    .upd>summary::after{content:'';position:absolute;right:8px;top:50%;width:7px;height:7px;
+      border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);
+      transform:translateY(-70%) rotate(45deg);transition:transform .18s ease}
+    .upd[open]>summary::after{transform:translateY(-25%) rotate(-135deg)}
+    .upd>summary:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:6px}
+    .upd .ut{font-family:'Space Grotesk',sans-serif;font-size:1.02rem;line-height:1.35}
+    .upd>summary:hover .ut{color:var(--rose)}
+    .upd p{font-size:.9rem;color:var(--ink-2);line-height:1.65;margin:8px 0 10px;white-space:pre-line}
 
     .vid-wrap{border:1px solid var(--border);border-radius:20px;overflow:hidden;
       background:#120a11;box-shadow:0 26px 70px rgba(124,92,255,.2)}
@@ -635,8 +646,13 @@
         var d = await r.json();
         if(!d || d.ok !== true){ box.innerHTML = '<span class="muted">Build status is unavailable right now — refresh to retry.</span>'; return; }
         box.innerHTML = buildStatusHtml(d);
-        ups.innerHTML = (d.updates||[]).map(function(u){
-          return '<div class="upd"><div class="d">'+esc(u.when)+'</div><h4>'+esc(u.title)+'</h4><p>'+esc(u.body)+'</p></div>';
+        // Sabse naya khula, baaki band. <details> khud keyboard aur screen
+        // reader par chalta hai, isliye apna toggle nahi banaya.
+        ups.innerHTML = (d.updates||[]).map(function(u, i){
+          return '<details class="upd"' + (i === 0 ? ' open' : '') + '>' +
+            '<summary><span class="d">'+esc(u.when)+'</span>' +
+            '<span class="ut">'+esc(u.title)+'</span></summary>' +
+            '<p>'+esc(u.body)+'</p></details>';
         }).join("") || '<span class="muted">No updates yet.</span>';
       } catch(e){
         box.innerHTML = '<span class="errtxt">Couldn\'t load build status.</span>';
