@@ -18,7 +18,6 @@
     '<div class="links" id="nav-links">' +
     '<a href="/">Home</a>' +
     '<a href="/#safety">Safety</a>' +
-    '<a href="/blog.html">Blog</a>' +
     '<a href="/about.html">About</a>' +
     '<a href="/investor.html" rel="nofollow">🔒 Data room</a>' +
     '<a class="btn sm" href="/#waitlist">Join the waitlist</a>' +
