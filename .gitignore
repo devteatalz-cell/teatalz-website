@@ -15,3 +15,6 @@ _deckrender.html
 _tmp-*.html
 *-DRAFT.html
 _superseded-*.html
+
+# local dev server config, not part of the site
+.claude/
