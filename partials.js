@@ -17,16 +17,22 @@
     '<button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><span></span></button>' +
     '<div class="links" id="nav-links">' +
     '<a href="/">Home</a>' +
+    '<a href="/#products">Products</a>' +
     '<a href="/#safety">Safety</a>' +
     '<a href="/about.html">About</a>' +
+    '<a href="/founder.html">Founder</a>' +
     '<a href="/investor.html" rel="nofollow">🔒 Data room</a>' +
-    '<a class="btn sm" href="/#waitlist">Join the waitlist</a>' +
+    '<a class="btn sm" href="/#waitlist">Get the launch note</a>' +
     '</div></div></nav>';
 
   var FOOTER =
     '<footer class="footer"><div class="wrap" style="text-align:center">' +
     '<nav style="display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;margin-bottom:14px">' +
-    '<a href="/">Home</a><a href="/about.html">About</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund.html">Refunds</a><a href="/contact.html">Contact</a>' +
+    '<a href="/">Home</a><a href="/about.html">About</a><a href="/founder.html">Founder</a><a href="/contact.html">Contact</a>' +
+    '</nav>' +
+    '<nav style="display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;margin-bottom:14px;font-size:.84rem">' +
+    '<span style="opacity:.6">Ask&nbsp;Ru:</span><a href="/askru-privacy.html">Privacy</a><a href="/askru-terms.html">Terms</a><a href="/askru-refund.html">Refunds</a>' +
+    '<span style="opacity:.6;margin-left:10px">Teatalz:</span><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund.html">Refunds</a>' +
     '</nav>' +
     '<div style="display:flex;gap:18px;justify-content:center;margin-bottom:14px">' +
     '<a aria-label="Instagram" href="https://www.instagram.com/teatalz_house_of_rume/" target="_blank" rel="noopener" style="color:var(--ink-2);display:inline-flex"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>' +

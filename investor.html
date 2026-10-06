@@ -352,7 +352,7 @@
         <button id="tile-askru" class="tile" type="button" aria-describedby="d-askru">
           <span class="logo askru"><img src="assets/ask-ru-logo.webp" alt="" width="512" height="512" /></span>
           <h2>Ask Ru</h2>
-          <p id="d-askru">Tarot readings with Ru.</p>
+          <p id="d-askru">Readings with Ru — from your birth chart, from tarot cards you pick yourself, or from an Oracle card.</p>
           <span id="askru-chip" class="chip">App ready November 2026</span>
           <span id="askru-go" class="go">Open room <span aria-hidden="true">→</span></span>
         </button>
@@ -474,6 +474,11 @@
     // ---- Ask Ru project (its OWN Supabase, founder 15 Sep 2026). It stores the SAME passcode as its own bcrypt hash. ----
     // Ask Ru project's anon (public) key. Never the service key.
     // While empty, the Ask Ru tile says "Opening soon" and does not open.
+    /* 🔴 ONE SWITCH. true = Ask Ru only (Teatalz is parked until 2027);
+       false = the two-tile room exactly as it behaves live today. Nothing
+       is deleted either way, so this reverses by editing one word. */
+    var ASKRU_ONLY = true;
+
     var ASKRU_URL  = "https://hyxkhjxrpsmjztbdtcee.supabase.co";
     var ASKRU_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eGtoanhycHNtanp0YmR0Y2VlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjc3MTgsImV4cCI6MjEwNDg0MzcxOH0.203raeaoCf_t6nawo1IkFm-Ayc5uMti-WkxksYn3ORs";
 
@@ -574,7 +579,14 @@
       setMsg(m, "", "");
       var first = name.split(/\s+/)[0];
       $("rooms-name").textContent = first ? ", " + first : "";
-      show("s-rooms");
+      if(ASKRU_ONLY){
+        /* Straight into the room: a chooser with one tile is a click that
+           asks nothing. */
+        show("s-askru");
+        if(!loaded.askru){ loaded.askru = true; loadAskRu(); loadAskRuBuild(); }
+      } else {
+        show("s-rooms");
+      }
     });
 
     // ---- 3. tiles ----
@@ -591,8 +603,16 @@
         $("askru-go").textContent = "App ready November 2026";
       }
     }
+    /* 🔴 READ THE ELEMENT HERE, do not reuse the `teatalzTile` declared
+       below. `var` hoists, so at this point that name exists and is
+       undefined — the condition was silently false, the tile stayed
+       visible, and NOTHING threw. A clean console said it had worked. */
+    (function(){ var t = document.getElementById("tile-teatalz"); if(ASKRU_ONLY && t) t.hidden = true; })();
     paintAskRuTile();
-    $("tile-teatalz").addEventListener("click", function(){
+    /* 🔴 NULL-GUARDED ON PURPOSE. The bare form throws when the tile is
+       absent and silently kills every listener registered below it. */
+    var teatalzTile = document.getElementById("tile-teatalz");
+    if(teatalzTile) teatalzTile.addEventListener("click", function(){
       show("s-teatalz");
       if(!loaded.teatalz){ loaded.teatalz = true; loadDocs(); loadTraction(); loadBuildProgress(); }
     });
@@ -602,6 +622,11 @@
       if(!loaded.askru){ loadAskRu(); loadAskRuBuild(); }
     });
     Array.prototype.forEach.call(document.querySelectorAll("[data-back]"), function(b){
+      if(ASKRU_ONLY){
+        /* "← All rooms" would lead to a chooser the visitor never saw. */
+        b.hidden = true;
+        return;
+      }
       b.addEventListener("click", function(){ show("s-rooms"); });
     });
 

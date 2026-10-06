@@ -8,3 +8,10 @@ node_modules/
 .env.*
 .secrets.local
 _deckrender.html
+
+# 6 Oct 2026 — working files that must never reach the public site.
+# The DRAFTs are the sources that were copied into index.html / investor.html;
+# publishing them would put a second, unlinked copy of each page on teatalz.com.
+_tmp-*.html
+*-DRAFT.html
+_superseded-*.html
