@@ -57,13 +57,32 @@
       /* The URL arrives in a query string, so it is attacker-controllable in
          principle. Render only our own storage host — otherwise this page is a
          way to frame arbitrary content under the teatalz.com origin. */
-      var ALLOW = 'https://zoceydoogxrpmmlxwhvd.supabase.co/storage/v1/object/';
+      /* 🔴 BOTH PROJECTS — 27 Oct 2026. This held only the Teatalz host, and
+         the data room's documents live in the ASK RU project (its own
+         Supabase, the founder's 15 Sep decision; the two rooms share this
+         domain). So every document opened from the room was refused with
+         "that document link is not valid" — every one of them, which is what
+         he reported: *"online read ka koi bhi option work nahi kar raha hai."*
+
+         ⚠️ STILL AN ALLOWLIST, NOT A LOOSENING. The check exists because the
+         URL arrives in a query string and is attacker-controllable; without it
+         this page frames arbitrary content under the teatalz.com origin. The
+         fix is a second named host, never a wildcard or a weaker test. */
+      var ALLOW = [
+        'https://zoceydoogxrpmmlxwhvd.supabase.co/storage/v1/object/',
+        'https://hyxkhjxrpsmjztbdtcee.supabase.co/storage/v1/object/'
+      ];
       var url = '';
       try { url = decodeURIComponent(raw); } catch (e) { url = ''; }
 
+      var allowed = false;
+      for (var i = 0; i < ALLOW.length; i++) {
+        if (url && url.indexOf(ALLOW[i]) === 0) { allowed = true; break; }
+      }
+
       document.getElementById('t').textContent = title;
 
-      if (!url || url.indexOf(ALLOW) !== 0) {
+      if (!allowed) {
         document.getElementById('stage').innerHTML =
           '<div class="err">That document link is not valid. Go back to the ' +
           '<a href="investor.html" style="color:inherit">data room</a> and open it again.</div>';
