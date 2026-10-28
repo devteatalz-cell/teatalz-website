@@ -600,6 +600,44 @@ h2 {
 header.nav, main, footer { position: relative; z-index: 1; }
 .sky > * { position: absolute; will-change: transform, opacity; }
 
+/* ── the sky by the clock ──────────────────────────────────────────────
+   *"bg time ke hisab se color change karta rahega na"* — now it does.
+
+   🔴 IT STAYS INSIDE THE PLUM FAMILY, AND THAT IS NOT TIMIDITY.
+   The app is cream by day and plum by night. This page is not: every piece
+   of text on it is light ink sitting on a dark ground. Turning the ground
+   cream at 9am would not "change the theme", it would make the entire page
+   unreadable at once — a drifting theme moves every contrast ratio it
+   touches, and there are about twenty of them here.
+
+   So the HUE and the WARMTH move; the darkness does not. Dawn is rose, day
+   is the lightest plum, dusk carries amber, night is deepest. Light ink
+   holds against all four, and the numbers were measured rather than assumed
+   (see the check in ops/, and the ratios in the commit).
+
+   ⚠️ The hour is the VISITOR'S, not ours. Somebody opening this at 9pm in
+   London should see night, not whatever it is in Jaipur. */
+:root[data-sky="dawn"]  { --paper: #2f2138; --paper-alt: #40283f; }
+:root[data-sky="day"]   { --paper: #30254a; --paper-alt: #3d2f5c; }
+:root[data-sky="dusk"]  { --paper: #2e2036; --paper-alt: #402b3c; }
+:root[data-sky="night"] { --paper: #211a2e; --paper-alt: #2b2140; }
+
+/* The two drifting lights take the hour's temperature too, so the movement
+   and the colour are the same weather rather than two effects. */
+:root[data-sky="dawn"]  .drift-a { background: radial-gradient(circle, rgba(255,170,190,.14), rgba(255,170,190,0) 64%); }
+:root[data-sky="day"]   .drift-a { background: radial-gradient(circle, rgba(183,155,255,.18), rgba(183,155,255,0) 64%); }
+:root[data-sky="dusk"]  .drift-a { background: radial-gradient(circle, rgba(224,168,74,.13), rgba(224,168,74,0) 64%); }
+:root[data-sky="night"] .drift-a { background: radial-gradient(circle, rgba(155,123,255,.15), rgba(155,123,255,0) 64%); }
+
+:root[data-sky="dawn"]  .drift-b { background: radial-gradient(circle, rgba(224,168,74,.10), rgba(224,168,74,0) 64%); }
+:root[data-sky="dusk"]  .drift-b { background: radial-gradient(circle, rgba(255,143,180,.12), rgba(255,143,180,0) 64%); }
+:root[data-sky="night"] .drift-b { background: radial-gradient(circle, rgba(120,150,255,.09), rgba(120,150,255,0) 64%); }
+
+/* 🔴 A LONG TRANSITION, SO THE CHANGE IS NEVER SEEN HAPPENING.
+   A background that visibly snaps colour reads as a bug. Eight seconds is
+   slower than anybody watches a background for. */
+body { transition: background-color 8s linear, background-image 8s linear; }
+
 /* ── the slow drift ───────────────────────────────────────────────────
    *"auto bg karo"* — the plum does not sit still any more. Two soft lights
    crossing each other on long, unequal cycles, so the page never repeats a
@@ -1249,6 +1287,47 @@ a { color: var(--plum-deep); }
     }, { rootMargin: "0px 0px -12% 0px", threshold: 0.06 });
     for (var k = 0; k < items.length; k++) io.observe(items[k]);
   }
+</script>
+
+<script>
+  /* ── the sky by the clock ──────────────────────────────────────────────
+   * *"bg time ke hisab se color change karta rahega na"* — yes, now.
+   *
+   * 🔴 THE VISITOR'S HOUR, NOT OURS. `getHours()` is local to whoever is
+   * reading, so somebody opening this at 9pm in London gets night even
+   * though it is morning in Jaipur. A server-side hour would have given
+   * every visitor Indian time, which is the kind of thing that only looks
+   * wrong to the people we are trying to reach.
+   *
+   * ⚠️ IT IS SET ON <html>, NOT <body>, and before paint. On <body> the
+   * first frame renders in the default colour and then jumps — one flash of
+   * the wrong sky on every single load.
+   *
+   * ⚠️ AND IT IS RE-CHECKED. A tab left open across sunset would otherwise
+   * keep yesterday's evening all night. Ten minutes is finer than the bands
+   * themselves, so no boundary is ever missed by more than that, and the
+   * 8-second CSS transition means the change is never seen happening.
+   */
+  (function () {
+    function band(h) {
+      if (h >= 5 && h < 8) return 'dawn';
+      if (h >= 8 && h < 17) return 'day';
+      if (h >= 17 && h < 20) return 'dusk';
+      return 'night';
+    }
+    function apply() {
+      var next = band(new Date().getHours());
+      if (document.documentElement.getAttribute('data-sky') !== next) {
+        document.documentElement.setAttribute('data-sky', next);
+      }
+    }
+    apply();
+    setInterval(apply, 10 * 60 * 1000);
+    /* Coming back to a tab that has been asleep for hours is the one moment
+       the interval cannot cover: timers are throttled or stopped entirely in
+       a backgrounded tab. */
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) apply(); });
+  })();
 </script>
 
 <script>
