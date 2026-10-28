@@ -562,6 +562,33 @@ h2 {
   color: var(--ink-muted); font-size: 14.5px; line-height: 1.55;
 }
 .try-perk strong { color: var(--gold); font-weight: 700; }
+/* The five, face down. Deliberately a real object you touch — a dropdown
+   would have been fewer lines and would not be a choice anybody feels. */
+.try-cards { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-faint); }
+.try-cards-note { margin: 0 0 12px; font-size: 14.5px; color: var(--ink-muted); }
+.try-cards-note strong { color: var(--ink); }
+.try-deck { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.try-card-back {
+  aspect-ratio: 2 / 3; border-radius: 10px; cursor: pointer;
+  border: 1.5px solid rgba(183,155,255,.38);
+  background:
+    repeating-linear-gradient(45deg, rgba(183,155,255,.10) 0 6px, rgba(183,155,255,0) 6px 12px),
+    linear-gradient(160deg, var(--card-alt), var(--card));
+  color: var(--plum); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  /* 44px is the thumb floor the app holds its controls to; on a 320px phone
+     five across is narrower than that, so the aspect ratio carries the height
+     and the gap stays small rather than the targets shrinking further. */
+  min-height: 72px;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.try-card-back:hover { transform: translateY(-4px); border-color: var(--plum); }
+.try-card-back:focus-visible { outline: 2px solid var(--plum); outline-offset: 3px; }
+.try-card-back[aria-pressed="true"] {
+  border-color: var(--gold); color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(224,168,74,.22);
+  transform: translateY(-6px);
+}
 .try-birth { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-faint); }
 .try-birth-note { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-faint); line-height: 1.55; }
 
@@ -1071,6 +1098,27 @@ a { color: var(--plum-deep); }
             <input id="try-tob" type="time" aria-label="Time of birth, if you know it">
           </div>
           <input id="try-pob" type="text" maxlength="120" placeholder="Town or city of birth" aria-label="Place of birth">
+        </div>
+
+        <!-- 🔴 FIVE FACE DOWN, AND THE VISITOR TAPS ONE.
+             The page's own headline says *"I shuffle, and you pick."* A free
+             reading where Ru picks for them argues against the sentence three
+             sections above it. So the choice comes back.
+
+             ⚠️ The page does NOT know which card is where. It sends a
+             POSITION; `try-ru` maps that to a card from a shortlist derived
+             from the session id. A page that held the codes could lay the
+             same flattering card under every finger, and a page that sent a
+             code could simply ask for one. -->
+        <div class="try-cards" id="try-cards" hidden>
+          <p class="try-cards-note">She has shuffled. <strong>Pick one.</strong></p>
+          <div class="try-deck" id="try-deck" role="group" aria-label="Pick a card">
+            <button class="try-card-back" type="button" data-pick="0" aria-label="Card one"><span>✦</span></button>
+            <button class="try-card-back" type="button" data-pick="1" aria-label="Card two"><span>✦</span></button>
+            <button class="try-card-back" type="button" data-pick="2" aria-label="Card three"><span>✦</span></button>
+            <button class="try-card-back" type="button" data-pick="3" aria-label="Card four"><span>✦</span></button>
+            <button class="try-card-back" type="button" data-pick="4" aria-label="Card five"><span>✦</span></button>
+          </div>
         </div>
 
         <form class="try-ask" id="try-form" novalidate>
@@ -1636,6 +1684,8 @@ a { color: var(--plum-deep); }
     var go = document.getElementById('try-go');
     var msg = document.getElementById('try-msg');
 
+    var cards = document.getElementById('try-cards');
+    var deck = document.getElementById('try-deck');
     var out = document.getElementById('try-out');
     var follow = document.getElementById('try-follow');
     var fq = document.getElementById('try-fq');
@@ -1645,6 +1695,9 @@ a { color: var(--plum-deep); }
 
     var chosen = null;
     var token = null;
+    /* Which of the five they tapped — a POSITION, never a card. The page is
+       never told which card is where; `try-ru` maps the position. */
+    var picked = null;
 
     /* localStorage throws in a private window on some browsers, and the page
        must work without it — it only saves somebody re-typing their email. */
@@ -1764,6 +1817,24 @@ a { color: var(--plum-deep); }
       });
       /* Only Vedic needs a birth chart, so only Vedic asks. */
       birth.hidden = chosen !== 'vedic';
+      /* Only Tarot lays cards. Oracle draws one with a breath — that is its
+         own promise, not a choice — and Vedic has no deck at all. */
+      cards.hidden = chosen !== 'tarot';
+      if (chosen !== 'tarot') { picked = null; paintDeck(); }
+      say(msg, '');
+      q.focus();
+    });
+
+    function paintDeck() {
+      Array.prototype.forEach.call(deck.querySelectorAll('.try-card-back'), function (b) {
+        b.setAttribute('aria-pressed', String(Number(b.getAttribute('data-pick')) === picked));
+      });
+    }
+    deck.addEventListener('click', function (e) {
+      var b = e.target.closest('.try-card-back');
+      if (!b) return;
+      picked = Number(b.getAttribute('data-pick'));
+      paintDeck();
       say(msg, '');
       q.focus();
     });
@@ -1809,6 +1880,11 @@ a { color: var(--plum-deep); }
       var text = (q.value || '').trim();
       if (!chosen) { say(msg, 'Pick how you want to be read first.', 'bad'); return; }
       if (text.length < 4) { say(msg, 'Write your question first — a few words is enough.', 'bad'); q.focus(); return; }
+      if (chosen === 'tarot' && picked === null) {
+        say(msg, 'Pick one of the five first — she reads the one you choose.', 'bad');
+        try { deck.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* older browsers */ }
+        return;
+      }
 
       go.disabled = true;
       var was = go.textContent;
@@ -1816,6 +1892,7 @@ a { color: var(--plum-deep); }
       say(msg, '');
 
       var body = { token: token, mode: chosen, question: text };
+      if (chosen === 'tarot' && picked !== null) body.pick = picked;
       if (chosen === 'vedic') {
         /* Sent as typed; the server resolves the place and casts the chart,
            or says plainly that it could not. Nothing is guessed here. */
