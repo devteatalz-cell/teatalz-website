@@ -1282,7 +1282,10 @@ a { color: var(--plum-deep); }
    */
   (function () {
     var KEY = 'askru.ambience';
-    var VOLUME = 0.18;           /* his ruling: 15–25%, no higher */
+    /* 0.18 was his 15–25% ruling; he then asked for 40% less again on the
+       website — a landing page is not the app, and sound you did not ask for
+       has to sit further back than sound you turned on. */
+    var VOLUME = 0.108;
     var btn = document.getElementById('amb');
     if (!btn) return;
     var icon = document.getElementById('amb-icon');
@@ -1302,10 +1305,19 @@ a { color: var(--plum-deep); }
     function element() {
       if (audio) return audio;
       audio = new Audio();
-      audio.src = 'assets/ru-ambience-loop.m4a';
+      /* preload BEFORE src: setting it afterwards is advice the browser has
+         already stopped listening for. */
+      audio.preload = 'auto';
       audio.loop = true;
-      audio.preload = 'none';
       audio.volume = VOLUME;
+      audio.src = 'assets/ru-ambience-loop.m4a';
+
+      /* 🔴 THE ELEMENT IS NEVER IN THE DOCUMENT, so `querySelectorAll('audio')`
+         returns nothing and the obvious debugging move says "it isn't
+         playing" about a track that is. A handle, so the next person can ask
+         it directly: `window.__ambience.currentTime`. */
+      window.__ambience = audio;
+
       /* 🔴 A SWALLOWED ERROR HERE IS INVISIBLE BY DEFINITION — the symptom is
          silence, which is also what "off" looks like. Say it to the console
          so the next person debugging this is not guessing. */
@@ -1313,8 +1325,49 @@ a { color: var(--plum-deep); }
         console.warn('[askru] ambience failed to load', audio && audio.error);
         paint(false);
       });
+      for (var i = 0; i < 2; i++) {
+        audio.addEventListener(['stalled', 'waiting'][i], function (e) {
+          console.warn('[askru] ambience ' + e.type + ' at ' + (audio ? audio.currentTime.toFixed(1) : '?') + 's');
+        });
+      }
       return audio;
     }
+
+    /* ── 🔴 THE WATCHDOG ───────────────────────────────────────────────
+       He reported: *"music bar bar ruk jata hai chalte chalte."* The first
+       cause was measured and was NOT this page — the dev server had no Range
+       support and sent `no-store`, so the browser re-downloaded the whole
+       431 KB file every time the track wrapped. Three full 200 OK fetches
+       where there should have been one.
+
+       ⚠️ But a page that only works on a server that behaves is a page that
+       breaks on a train. A real phone stalls, a network drops, a browser
+       suspends a tab and pauses the element without telling anyone. The
+       symptom of all of them is identical — silence — and silence is also
+       what "the user switched it off" looks like. So the only honest check
+       is: is the clock still moving?
+
+       It asks every 4 seconds, resumes if not, and gives up after a few
+       tries rather than hammering a connection that is genuinely gone. */
+    var stalls = 0;
+    var lastAt = -1;
+    setInterval(function () {
+      if (!wanted || !audio || document.hidden) return;
+      if (audio.paused) {
+        if (stalls++ < 6) { console.warn('[askru] ambience paused itself — resuming'); start(); }
+        return;
+      }
+      /* Playing, but the clock has not moved since the last check: a stall
+         that never fired an event. Nudging the time is what unsticks it. */
+      if (audio.currentTime === lastAt && stalls++ < 6) {
+        console.warn('[askru] ambience stuck at ' + lastAt.toFixed(1) + 's — nudging');
+        try { audio.currentTime = audio.currentTime + 0.01; } catch (e) { /* not seekable yet */ }
+        start();
+      } else if (audio.currentTime !== lastAt) {
+        stalls = 0;
+      }
+      lastAt = audio.currentTime;
+    }, 4000);
 
     function start() {
       var a = element();
