@@ -533,6 +533,15 @@ h2 {
    rather than one choice of three. */
 .try-panel .try-mode { width: auto; margin-top: 0; }
 .try-panel button[disabled] { opacity: .55; cursor: not-allowed; }
+/* The offer. Set apart, because it is the one line on the card that is a
+   promise rather than a description — and quiet, because an offer shouted at
+   somebody who has not been read yet is an advert. */
+.try-perk {
+  margin: 16px 0 0; padding: 12px 14px; border-radius: 12px;
+  background: rgba(224,168,74,.09); border: 1px solid rgba(224,168,74,.28);
+  color: var(--ink-muted); font-size: 14.5px; line-height: 1.55;
+}
+.try-perk strong { color: var(--gold); font-weight: 700; }
 .try-birth { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-faint); }
 .try-birth-note { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-faint); line-height: 1.55; }
 
@@ -687,6 +696,18 @@ footer { border-top: 1px solid var(--line-faint); padding: 30px 0 46px; }
 .foot { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; font-size: 14px; color: var(--ink-faint); }
 .foot a { color: var(--ink-faint); }
 .foot .right { margin-left: auto; }
+/* The dedication. Smaller and fainter than the footer it sits under — it is
+   meant to be found, not announced. */
+/* The closing section centres its text; its button was still flush left,
+   which the eye reads as a stray element rather than a call to action. */
+.close .cta-row { justify-content: center; }
+.tribute {
+  margin-top: 22px; padding-top: 18px;
+  border-top: 1px solid var(--line-faint);
+  text-align: center; font-size: 13px; letter-spacing: .6px;
+  color: color-mix(in srgb, var(--ink-faint) 78%, transparent);
+  font-style: italic;
+}
 a { color: var(--plum-deep); }
 </style>
 <script type="application/ld+json">
@@ -861,6 +882,26 @@ a { color: var(--plum-deep); }
         </div>
         <button class="btn btn-primary" type="submit" id="try-join-go">Join the list &amp; read me</button>
         <p class="wl-msg" id="try-join-msg" role="status" aria-live="polite"></p>
+
+        <!-- 🔴 THE PERK, AND THE WORDS THAT MAKE IT KEEPABLE.
+             Founder, 28 Oct: *"offer daal de — jo bhi waiting list join karega,
+             weekly 1 reading free uske liye for first 3 months."*
+
+             ⚠️ "FROM THE DAY SHE OPENS", NOT FROM TODAY, and that is the whole
+             difference between an offer and a bait. Launch is months away; three
+             months counted from joining would expire before the app existed, and
+             the first thing these people would do on opening it is discover the
+             perk they joined for had already run out.
+
+             ⚠️ It is also a PROMISE, not a config value. The caps on this page
+             can be changed in a second; this cannot. 13 readings a person, at the
+             ₹0.77 we measured, is ~₹10 each — the cost of keeping it is real and
+             it was named before it was written here. -->
+        <p class="try-perk">
+          <strong>Join now and your first three months are on us</strong> —
+          one free reading every week, from the day she opens.
+        </p>
+
         <p class="wl-note">
           One message, on the day it opens. Nothing else, and never to anybody else.
           <a href="https://teatalz.com/askru-privacy.html">Privacy</a>
@@ -1102,6 +1143,19 @@ a { color: var(--plum-deep); }
          opposite of a backlink. -->
     <span>Built by <a href="https://codeupvik.com">CodeUpVik</a></span>
     <span class="right">Made in India</span>
+  </div>
+
+  <!-- 🔴 HIS LINE, IN HIS WORDS, 28 Oct 2026. Set apart from the legal row
+       above it because it is not a credit and not a disclaimer — it is a
+       dedication, and sitting it next to "Made in India" would read as one
+       more footer item. Quiet, centred, with air around it.
+
+       ⚠️ HE HAS WRITTEN IT TWO WAYS TODAY: "A tribute for eternal souls" for
+       the reels, and "A tribute to Eternal Soul" for this page. This is the
+       page's one, verbatim. They should almost certainly match — flagged to
+       him rather than silently picked. -->
+  <div class="wrap tribute">
+    <span>A tribute to Eternal Soul</span>
   </div>
 </footer>
 
