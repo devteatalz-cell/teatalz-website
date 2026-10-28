@@ -494,6 +494,16 @@ h2 {
    only ever asks for one thing at a time — the join card on a phone is
    already most of a screen. */
 .try { padding: 46px 0 10px; }
+/* 🔴 THE HEAD IS CENTRED HERE, UNLIKE EVERY OTHER SECTION — because the card
+   under it is. `.section-head` is left-aligned and 34em wide, which is right
+   where a full-width grid follows it; above a 560px card sitting in the
+   middle of the page it reads as two things that were laid out separately.
+   Founder, 28 Oct: *"website pe alignment fix karo."* */
+.try .section-head { max-width: 30em; margin: 0 auto 26px; text-align: center; }
+/* And the title balanced, so "…with Ru" cannot leave "Ru" alone on its own
+   line the way it did at his window width. Unsupported browsers just wrap
+   normally, which is what they do today. */
+.try h2 { text-wrap: balance; }
 .try-panel {
   max-width: 560px; margin: 22px auto 0; text-align: left;
   background: var(--card); border: 1px solid var(--line);
