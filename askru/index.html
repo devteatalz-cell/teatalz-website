@@ -3,12 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ask Ru</title>
+<title>Ask Ru — Kundli, Tarot and Oracle readings, in plain words</title>
 <meta name="description" content="Ru reads your birth chart, your cards and the question under your question. Vedic, Tarot and Oracle, in plain words. Launching soon.">
 <meta property="og:title" content="Ask Ru">
 <meta property="og:description" content="Vedic, Tarot and Oracle — read in plain words, by Ru.">
-<meta property="og:image" content="assets/ru.webp">
+<meta property="og:image" content="https://teatalz.com/askru/assets/askru-15s-poster.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="Ru, the reader in the Ask Ru app, shown on a phone screen.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://teatalz.com/askru/">
+<meta property="og:site_name" content="Teatalz">
+<meta property="og:locale" content="en_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ask Ru — Vedic, Tarot and Oracle readings, in plain words">
+<meta name="twitter:description" content="You pick your own cards from all 78 — Ru only shuffles. A real birth chart, not a sun sign. One question, one price, shown before you ask.">
+<meta name="twitter:image" content="https://teatalz.com/askru/assets/askru-15s-poster.jpg">
+<!-- 🔴 /askru, /askru/ and /askru/index.html all return 200 with byte-identical content
+     (md5 4637872d16c7, measured 19 Oct 2026). Without this, three URLs compete for one
+     page's signals. The trailing-slash form is canonical because codeupvik.com's
+     SoftwareApplication node already points at it. -->
+<link rel="canonical" href="https://teatalz.com/askru/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <link rel="icon" href="assets/logo.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -449,6 +465,27 @@ h2 {
 .wl button[disabled] { opacity: .55; cursor: not-allowed; }
 .wl-note { margin: 14px 0 0; font-size: 13.5px; color: var(--ink-faint); line-height: 1.55; }
 .wl-msg { margin: 16px 0 0; font-size: 15.5px; min-height: 1.4em; }
+
+/* ── Try Ru (28 Oct 2026) ──────────────────────────────────────────────
+   Three choices, then a question, then what she said. Built from the
+   page's own tokens so it reads as part of the page and not as a widget
+   bolted on. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.try-modes { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 22px 0 0; }
+/* 44px so a thumb can hit it — the same floor the app holds its controls to. */
+.try-mode { min-height: 44px; padding: 0 20px; }
+.try-mode[aria-pressed="true"] { outline: 2px solid currentColor; outline-offset: 2px; }
+#try-form { margin-top: 18px; }
+#try-q { width: 100%; min-height: 88px; padding: 12px 14px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.06);
+  color: inherit; font: inherit; resize: vertical; }
+#try-q:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.try-out { max-width: 620px; margin: 22px auto 0; text-align: left;
+  border: 1px solid rgba(255,255,255,.18); border-radius: 14px; padding: 18px 20px; }
+.try-out p { margin: 0 0 12px; line-height: 1.65; }
+.try-out p:last-child { margin-bottom: 0; }
+.try-card { font-weight: 700; letter-spacing: .3px; margin-bottom: 10px; }
 .wl-msg.ok { color: var(--plum); font-weight: 600; }
 .wl-msg.bad { color: #ff9aa8; }
 
@@ -458,6 +495,33 @@ footer { border-top: 1px solid var(--line-faint); padding: 30px 0 46px; }
 .foot .right { margin-left: auto; }
 a { color: var(--plum-deep); }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Ask Ru",
+  "url": "https://teatalz.com/askru/",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Android",
+  "inLanguage": ["en-IN", "hi-IN"],
+  "contentRating": "14+",
+  "image": "https://teatalz.com/askru/assets/askru-15s-poster.jpg",
+  "description": "Ask Ru reads your real birth chart, the tarot cards you pick yourself from all 78, or a single oracle card — and answers in plain English or Hinglish. Vedic, Tarot and Oracle, one question at a time.",
+  "featureList": [
+    "Vedic: Lagna, Rasi, D9 and D10, with Vimshottari periods and today's transits on your own chart",
+    "Tarot: you shuffle and you pick, from all 78 cards — one card, or a five-card spread",
+    "Oracle: a single card and one short message, with its own deck",
+    "Follow-up questions on the same reading, not a fresh start",
+    "English or Hinglish",
+    "Ru says she is an AI, and says \"I don't know\" when a birth time cannot carry an answer"
+  ],
+  "publisher": {
+    "@type": "Organization",
+    "name": "Teatalz House Of Rume Private Limited",
+    "url": "https://teatalz.com/"
+  }
+}
+</script>
 </head>
 <body>
 <div class="dust" aria-hidden="true"></div>
@@ -656,12 +720,51 @@ a { color: var(--plum-deep); }
       </div>
       <div class="facts">
         <div class="fact reveal"><span class="dot"></span><p><strong>Ru is an AI.</strong> A real one, trained on classical method — not a person, and never presented as one.</p></div>
-        <div class="fact reveal d1"><span class="dot"></span><p><strong>She is a companion, not a therapist.</strong> If something you say sounds like you are in trouble, she will say so and show you who to call.</p></div>
+        <div class="fact reveal d1"><span class="dot"></span><p><strong>She is a companion, not a therapist.</strong> If something you say sounds like you are in trouble, she will say so.</p></div>
         <div class="fact reveal"><span class="dot"></span><p><strong>She will say “I don’t know”.</strong> If your birth time cannot carry an answer, she tells you that instead of inventing one.</p></div>
         <div class="fact reveal d1"><span class="dot"></span><p><strong>Your readings are yours.</strong> They stay in the app for you to come back to, and deleting your account removes them.</p></div>
         <div class="fact reveal"><span class="dot"></span><p><strong>14 and over.</strong> That is who the app is built for.</p></div>
         <div class="fact reveal d1"><span class="dot"></span><p><strong>No endless scroll.</strong> There is no feed here. You come with a question and you leave with an answer.</p></div>
       </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── try Ru ──────────────────────────────────
+       The founder, 28 Oct 2026: *"waha ek feature daal test Ru, jaha user
+       click kare, free mein kisi bhi ek cheez mein se — Vedic, Tarot ya
+       Oracle — ek reading free le sakta hai, and after join waiting list."*
+
+       🔴 ONE READING, THEN THE LIST. The order is his and it is the right way
+       round: somebody who has just been read is a far better person to ask
+       for an email than somebody who has only read a landing page.
+
+       ⚠️ EVERY READING HERE COSTS REAL MONEY AND NOBODY IS SIGNED IN.
+       Measured at ₹0.77 a reading, and the account holds about $20. The page
+       therefore does NOT get to decide how many it may spend — the server
+       does. `try-ru` must carry a per-IP limit and a hard DAILY CAP, and when
+       the cap is reached it says so plainly and still offers the list. A
+       browser-side "one per person" is theatre: a private window defeats it.
+  -->
+  <section class="close" id="try">
+    <div class="wrap">
+      <h2 class="reveal">Try her first.</h2>
+      <p>One reading, free, no sign-up. Pick how you want to be read.</p>
+
+      <div class="try-modes" id="try-modes" role="group" aria-label="Choose a reading">
+        <button class="btn try-mode" type="button" data-mode="vedic">Vedic chart</button>
+        <button class="btn try-mode" type="button" data-mode="tarot">Tarot</button>
+        <button class="btn try-mode" type="button" data-mode="oracle">Oracle card</button>
+      </div>
+
+      <form class="wl" id="try-form" novalidate hidden>
+        <label class="sr-only" for="try-q">Your question</label>
+        <textarea id="try-q" rows="3" maxlength="300"
+                  placeholder="What would you like to ask?" aria-label="Your question"></textarea>
+        <button class="btn btn-primary" type="submit" id="try-go">Ask Ru</button>
+        <p class="wl-msg" id="try-msg" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="try-out" id="try-out" hidden aria-live="polite"></div>
     </div>
   </section>
 
@@ -768,6 +871,113 @@ a { color: var(--plum-deep); }
 </script>
 
 <script src="assets/config.js"></script>
+<script>
+  /* ── Try Ru: one free reading, then the list ───────────────────────────
+   * The founder, 28 Oct 2026. Calls `try-ru`, an UNAUTHENTICATED function.
+   *
+   * 🔴 THE SERVER DECIDES WHAT MAY BE SPENT, NOT THIS PAGE.
+   * Every reading here costs real money (₹0.77 measured) and nobody is
+   * signed in. This file deliberately carries NO "one per browser" check,
+   * because that is not a limit — a private window defeats it in a second,
+   * and a limit that can be defeated silently is worse than none: it reads
+   * as protection while the bill grows. `try-ru` must hold a per-IP limit
+   * and a hard daily cap, and must say which one it hit.
+   *
+   * 🔴 NO FUNCTION, NO SILENCE — the same rule as the waiting list below.
+   * If `try-ru` is not deployed, the button says so. The failure being
+   * guarded against is the quiet one: a form that takes a question, posts
+   * it nowhere, and leaves somebody waiting at a spinner.
+   */
+  (function () {
+    var cfg = window.ASKRU || {};
+    var modes = document.getElementById('try-modes');
+    var form = document.getElementById('try-form');
+    var q = document.getElementById('try-q');
+    var go = document.getElementById('try-go');
+    var msg = document.getElementById('try-msg');
+    var out = document.getElementById('try-out');
+    if (!modes || !form || !q || !go || !msg || !out) return;
+
+    var chosen = null;
+
+    function say(text) { msg.textContent = text || ''; }
+
+    modes.addEventListener('click', function (e) {
+      var b = e.target.closest('.try-mode');
+      if (!b) return;
+      chosen = b.getAttribute('data-mode');
+      Array.prototype.forEach.call(modes.querySelectorAll('.try-mode'), function (x) {
+        x.setAttribute('aria-pressed', String(x === b));
+      });
+      form.hidden = false;
+      say('');
+      q.focus();
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = (q.value || '').trim();
+      if (!chosen) { say('Pick how you want to be read first.'); return; }
+      if (text.length < 4) { say('Write your question first — a few words is enough.'); q.focus(); return; }
+      if (!cfg.url || !cfg.anon) { say('Readings are not switched on yet. Join the list below and we will tell you.'); return; }
+
+      go.disabled = true;
+      var label = go.textContent;
+      go.textContent = 'Ru is reading…';
+      say('');
+      out.hidden = true;
+
+      fetch(cfg.url + '/functions/v1/try-ru', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: cfg.anon, Authorization: 'Bearer ' + cfg.anon },
+        body: JSON.stringify({ mode: chosen, question: text })
+      }).then(function (r) {
+        return r.json().catch(function () { return null; }).then(function (j) { return { status: r.status, body: j }; });
+      }).then(function (res) {
+        go.disabled = false;
+        go.textContent = label;
+
+        /* 🔴 A CAP IS NOT AN ERROR, and must not read like one. Somebody who
+           arrives after the day's free readings are gone has done nothing
+           wrong; they get a plain sentence and the list, not a failure. */
+        if (res.status === 429) {
+          say((res.body && res.body.message) || 'Today’s free readings are all taken. Join the list below — you will not need one to get in.');
+          return;
+        }
+        if (!res.body || res.status >= 400 || res.body.ok !== true) {
+          say('That did not go through. Join the list below and we will tell you when she opens.');
+          return;
+        }
+
+        var parts = Array.isArray(res.body.parts) && res.body.parts.length
+          ? res.body.parts
+          : [String(res.body.reply || '')];
+        out.innerHTML = '';
+        if (res.body.card) {
+          var c = document.createElement('p');
+          c.className = 'try-card';
+          c.textContent = String(res.body.card);
+          out.appendChild(c);
+        }
+        parts.forEach(function (p) {
+          var el = document.createElement('p');
+          el.textContent = String(p);
+          out.appendChild(el);
+        });
+        out.hidden = false;
+        /* His order: the reading first, the list straight after it. */
+        say('That was one free reading. Put your name down below for the rest.');
+        var wl = document.getElementById('wl-email');
+        if (wl) { try { wl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) { /* older browsers */ } }
+      }).catch(function () {
+        go.disabled = false;
+        go.textContent = label;
+        say('We could not reach Ru just now. Join the list below and we will tell you when she opens.');
+      });
+    });
+  })();
+</script>
+
 <script>
   /* ── the waiting list ──────────────────────────────────────────────────
    * Posts straight to Ask Ru's `waitlist` table with the project's ANON key.
