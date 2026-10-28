@@ -489,6 +489,122 @@ h2 {
 .wl-msg.ok { color: var(--plum); font-weight: 600; }
 .wl-msg.bad { color: #ff9aa8; }
 
+/* ── the reading, in steps (28 Oct 2026) ───────────────────────────────
+   Join, then pick, then the ten. Each step is its own panel so the page
+   only ever asks for one thing at a time — the join card on a phone is
+   already most of a screen. */
+.try { padding: 46px 0 10px; }
+.try-panel {
+  max-width: 560px; margin: 22px auto 0; text-align: left;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 20px; padding: 22px;
+}
+.try-row { display: grid; gap: 10px; margin-bottom: 10px; }
+@media (min-width: 560px) { .try-row { grid-template-columns: 1fr 1fr; } }
+.try-panel input, .try-panel select, .try-panel textarea {
+  width: 100%; min-height: 52px; padding: 0 16px;
+  border-radius: 14px; border: 1.5px solid var(--line);
+  background: var(--card-alt); color: var(--ink);
+  font-family: inherit; font-size: 16px;
+}
+.try-panel textarea { min-height: 84px; padding: 14px 16px; line-height: 1.55; resize: vertical; }
+.try-panel input::placeholder, .try-panel textarea::placeholder { color: var(--ink-faint); }
+.try-panel input:focus, .try-panel select:focus, .try-panel textarea:focus {
+  outline: none; border-color: var(--plum); box-shadow: 0 0 0 4px rgba(183,155,255,.18);
+}
+.try-panel button { width: 100%; margin-top: 12px; }
+.try-panel button[disabled] { opacity: .55; cursor: not-allowed; }
+.try-birth { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-faint); }
+.try-birth-note { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-faint); line-height: 1.55; }
+
+/* Her side and theirs, so a conversation reads as one. */
+.try-out { background: rgba(255,255,255,.03); }
+.try-out .try-you {
+  margin: 0 0 14px auto; max-width: 86%; padding: 10px 14px; border-radius: 14px 14px 4px 14px;
+  background: var(--card-alt); color: var(--ink-muted); font-size: 15.5px;
+}
+.try-out .try-ru {
+  margin: 0 auto 12px 0; max-width: 92%; padding: 12px 15px; border-radius: 14px 14px 14px 4px;
+  background: rgba(183,155,255,.10); border: 1px solid rgba(183,155,255,.22);
+}
+.try-seats {
+  margin: 20px auto 0; max-width: 560px; font-size: 13.5px; color: var(--ink-faint);
+  display: flex; flex-wrap: wrap; gap: 4px 10px; justify-content: center;
+}
+.try-seats #try-count { color: var(--plum); font-weight: 600; }
+
+/* ── the sky, and what crosses it ──────────────────────────────────────
+   *"animations nahi hai — angels ko fly pass karte hua dekhao, shooting
+   stars dekhao bg mai, and make it look divine."*
+
+   🔴 NO IMAGES AND NO SCRIPT. Two transforms and an opacity, composited on
+   the GPU, on a fixed layer that never takes a pointer event. He has asked
+   twice that this stay light, and an animation is the easiest place on a
+   page to spend a phone's battery without noticing.
+
+   ⚠️ ALL OF IT STOPS under prefers-reduced-motion. Drifting objects in the
+   corner of the eye are a genuine accessibility problem, not a taste. */
+.sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+/* 🔴 THE CONTENT HAS TO BE LIFTED ABOVE IT EXPLICITLY. A fixed layer at
+   z-index 0 still paints over static content that has no stacking context of
+   its own, and the first symptom is a form whose inputs cannot be clicked —
+   a page that looks finished and does nothing. */
+header.nav, main, footer { position: relative; z-index: 1; }
+.sky > * { position: absolute; will-change: transform, opacity; }
+
+.shoot {
+  top: -6vh; width: 2px; height: 2px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 6px 2px rgba(255,255,255,.55);
+  opacity: 0;
+  animation: shoot 9s linear infinite;
+}
+/* The tail. Drawn as a gradient on a pseudo-element so the head stays a
+   point — a tapered line scaled into place reads as a smear. */
+.shoot::after {
+  content: ""; position: absolute; right: 1px; top: 50%;
+  width: 90px; height: 1px; transform: translateY(-50%);
+  background: linear-gradient(to left, rgba(255,255,255,.75), rgba(255,255,255,0));
+}
+@keyframes shoot {
+  0%   { transform: translate3d(0, 0, 0) rotate(28deg); opacity: 0; }
+  4%   { opacity: .9; }
+  18%  { transform: translate3d(-46vw, 52vh, 0) rotate(28deg); opacity: 0; }
+  100% { transform: translate3d(-46vw, 52vh, 0) rotate(28deg); opacity: 0; }
+}
+
+/* An angel crossing, far off and slow. A silhouette rather than a drawing:
+   the 44 card illustrations are a funded job with an external designer, and
+   a cheap angel here would be the thing people remember. */
+.angel {
+  width: 46px; height: 46px; opacity: 0;
+  color: rgba(239,230,246,.5);
+  animation: fly 38s linear infinite;
+}
+.angel svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 10px rgba(224,168,74,.35)); }
+@keyframes fly {
+  0%   { transform: translate3d(-12vw, 0, 0) scale(.9); opacity: 0; }
+  8%   { opacity: .55; }
+  50%  { transform: translate3d(50vw, -4vh, 0) scale(1.03); opacity: .5; }
+  92%  { opacity: 0; }
+  100% { transform: translate3d(112vw, -8vh, 0) scale(.9); opacity: 0; }
+}
+
+/* A slow breath of light behind everything, so the page is never flat. */
+.halo {
+  left: 50%; top: 18%; width: 62vw; height: 62vw; max-width: 760px; max-height: 760px;
+  margin-left: -31vw; border-radius: 50%;
+  background: radial-gradient(circle, rgba(183,155,255,.13), rgba(183,155,255,0) 62%);
+  animation: breathe 16s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: .75; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky { display: none; }
+}
+
 footer { border-top: 1px solid var(--line-faint); padding: 30px 0 46px; }
 .foot { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; font-size: 14px; color: var(--ink-faint); }
 .foot a { color: var(--ink-faint); }
@@ -525,6 +641,44 @@ a { color: var(--plum-deep); }
 </head>
 <body>
 <div class="dust" aria-hidden="true"></div>
+
+<!-- ── the sky ────────────────────────────────────────────────────────
+     *"animations nahi hai — angels ko fly pass karte hua dekhao, shooting
+     stars dekhao bg mai, and make it look divine."*
+
+     Fixed behind everything, never touchable, and every object here is a
+     transform on the GPU — no images, no script, no timers. The whole
+     layer is removed under prefers-reduced-motion. -->
+<div class="sky" aria-hidden="true">
+  <span class="halo"></span>
+
+  <span class="shoot" style="left: 82%; animation-delay: 1s;"></span>
+  <span class="shoot" style="left: 64%; top: 4vh; animation-delay: 6.5s;"></span>
+  <span class="shoot" style="left: 96%; top: 12vh; animation-delay: 12s; animation-duration: 11s;"></span>
+  <span class="shoot" style="left: 46%; top: -2vh; animation-delay: 19s;"></span>
+
+  <!-- Two, far apart in time, so one crossing is a moment and not a parade. -->
+  <span class="angel" style="top: 22%; animation-delay: 4s;">
+    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6"
+         stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="15" r="5"></circle>
+      <path d="M32 21c-5 0-8 4-8 9v10c0 6 3 10 8 10s8-4 8-10V30c0-5-3-9-8-9z"></path>
+      <path d="M24 26C17 22 9 23 4 29c6 1 10 4 12 9 3-4 5-8 8-12z"></path>
+      <path d="M40 26c7-4 15-3 20 3-6 1-10 4-12 9-3-4-5-8-8-12z"></path>
+      <path d="M26 7.5c1.8-2 8.2-2 10 0"></path>
+    </svg>
+  </span>
+  <span class="angel" style="top: 58%; animation-delay: 23s; animation-duration: 46s;">
+    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6"
+         stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="15" r="5"></circle>
+      <path d="M32 21c-5 0-8 4-8 9v10c0 6 3 10 8 10s8-4 8-10V30c0-5-3-9-8-9z"></path>
+      <path d="M24 26C17 22 9 23 4 29c6 1 10 4 12 9 3-4 5-8 8-12z"></path>
+      <path d="M40 26c7-4 15-3 20 3-6 1-10 4-12 9-3-4-5-8-8-12z"></path>
+      <path d="M26 7.5c1.8-2 8.2-2 10 0"></path>
+    </svg>
+  </span>
+</div>
 
 <header class="nav">
   <div class="wrap nav-in">
@@ -567,23 +721,119 @@ a { color: var(--plum-deep); }
     </div>
   </section>
 
-  <!-- ──────────────────────────── the film ────────────────────────────
-       15 seconds of the build itself, cut from the showreel: the three
-       sections, the real screens, and the card you pick. Landscape, with its
-       own music. -->
-  <section class="film">
+  <!-- ─────────────────────── take your first reading ───────────────────
+       The founder, 28 Oct 2026: *"website pe try her first nahi likho, waha
+       likho take your first reading with Ru, and ye section video ki upar
+       and see how she reads ke neeche daalo"*, and
+       *"user jab waiting list join kar le ussi ke baad 1 time sirf reading
+       le sakta hai, for followup question sirf 10"*, and
+       *"join waiting list ka option hata do, kyoki try karne se pehle to
+       waise bhi user ko waiting list join karne hoge"*.
+
+       🔴 THE ORDER INVERTED TODAY. It used to be read-first-then-join; it is
+       now join-first-then-read, and the standalone waiting-list form at the
+       foot of the page is GONE because this is the only door and a second
+       one would collect the same people twice.
+
+       ⚠️ EVERY READING HERE SPENDS THE APP'S OWN BALANCE, and one visitor is
+       now ELEVEN model calls, not one. Nothing on this page decides how many
+       may be spent: `try-ru` holds the per-IP limit, the daily reading cap
+       and — the one that actually matters — a daily cap in rupees. A
+       browser-side limit is theatre; a private window defeats it in a second.
+  -->
+  <section class="try" id="try">
     <div class="wrap">
-      <div class="film-frame reveal">
-        <video id="film" src="assets/askru-15s.mp4" poster="assets/askru-15s-poster.jpg"
-               autoplay muted loop playsinline preload="metadata"
-               aria-label="Fifteen seconds from inside Ask Ru"></video>
-        <button class="film-sound" id="film-sound" type="button" aria-pressed="false">
-          <span id="film-sound-icon" aria-hidden="true">🔇</span><span id="film-sound-text">Sound on</span>
-        </button>
+      <div class="section-head reveal">
+        <h2>Take your first reading with Ru</h2>
+        <p>Join the list, and she reads you once — here, before the app opens.</p>
       </div>
-      <p class="film-cap reveal">Fifteen seconds from inside the app. Not a mock-up — this is the build.</p>
+
+      <!-- step 1 — who you are. This IS the waiting list. -->
+      <form class="try-panel reveal" id="try-join" novalidate>
+        <div class="try-row">
+          <input id="try-name" type="text" name="name" autocomplete="given-name" maxlength="60"
+                 placeholder="Your name" aria-label="Your name">
+          <input id="try-email" type="email" name="email" inputmode="email" autocomplete="email"
+                 placeholder="you@email.com" aria-label="Your email" required>
+        </div>
+        <div class="try-row">
+          <input id="try-phone" type="tel" name="mobile" inputmode="tel" autocomplete="tel"
+                 placeholder="Phone (optional)" aria-label="Your phone number, optional">
+          <select id="try-lang" aria-label="The language Ru writes to you in">
+            <option value="en">English</option>
+            <option value="hinglish">Hinglish</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit" id="try-join-go">Join the list &amp; read me</button>
+        <p class="wl-msg" id="try-join-msg" role="status" aria-live="polite"></p>
+        <p class="wl-note">
+          One message, on the day it opens. Nothing else, and never to anybody else.
+          <a href="https://teatalz.com/askru-privacy.html">Privacy</a>
+        </p>
+      </form>
+
+      <!-- step 2 — how you want to be read. -->
+      <div class="try-panel reveal" id="try-pick" hidden>
+        <div class="try-modes" id="try-modes" role="group" aria-label="Choose a reading">
+          <button class="btn try-mode" type="button" data-mode="vedic">Vedic chart</button>
+          <button class="btn try-mode" type="button" data-mode="tarot">Tarot</button>
+          <button class="btn try-mode" type="button" data-mode="oracle">Oracle card</button>
+        </div>
+
+        <!-- 🔴 ONLY VEDIC ASKS FOR THESE, and only because only Vedic uses
+             them. *"vedic ke ander kundli details ke liye baki ki details ke
+             need hote hai wo lenge."* A chart cannot be cast without them,
+             and asking a Tarot visitor for a birth time is asking for
+             something we would then not use. -->
+        <div class="try-birth" id="try-birth" hidden>
+          <p class="try-birth-note">Ru needs these to cast your chart. Without them she reads the sky as it stands now, and says so.</p>
+          <div class="try-row">
+            <input id="try-dob" type="date" aria-label="Date of birth">
+            <input id="try-tob" type="time" aria-label="Time of birth, if you know it">
+          </div>
+          <input id="try-pob" type="text" maxlength="120" placeholder="Town or city of birth" aria-label="Place of birth">
+        </div>
+
+        <form class="try-ask" id="try-form" novalidate>
+          <label class="sr-only" for="try-q">Your question</label>
+          <textarea id="try-q" rows="3" maxlength="300"
+                    placeholder="What would you like to ask?" aria-label="Your question"></textarea>
+          <button class="btn btn-primary" type="submit" id="try-go">Ask Ru</button>
+          <p class="wl-msg" id="try-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="try-out" id="try-out" hidden aria-live="polite"></div>
+
+      <!-- step 3 — the ten. -->
+      <form class="try-panel try-follow" id="try-follow" novalidate hidden>
+        <label class="sr-only" for="try-fq">Ask her something else</label>
+        <textarea id="try-fq" rows="2" maxlength="300"
+                  placeholder="Ask her something else…" aria-label="Ask her something else"></textarea>
+        <button class="btn btn-primary" type="submit" id="try-follow-go">Ask</button>
+        <p class="wl-msg" id="try-follow-msg" role="status" aria-live="polite"></p>
+      </form>
+
+      <!-- 🔴 HIS PROMISE, AND IT SITS UNDER THE BUTTON WHERE HE PUT IT.
+           The live count stays silent until there is a number worth showing —
+           the threshold is the server's, not this page's. -->
+      <p class="try-seats reveal" id="try-seats">
+        <span>This first reading is free for the first 5,000 people.</span>
+        <span id="try-count" hidden></span>
+      </p>
     </div>
   </section>
+
+  <!-- ─────────────────────────── the film ──────────────────────────────
+       ⚠️ DELIBERATELY EMPTY, 28 Oct 2026. The 15-second cut that lived here
+       was pulled on his instruction — *"ye purana video dataroom se bhi hatao
+       and website se bhi"* — and the replacement is being shot from the app's
+       real screens, every feature, not the old three. The slot stays marked
+       so the new film lands BELOW this reading section, which is where he
+       asked for it: *"ye section video ki upar"*.
+  -->
+
+
 
   <!-- ─────────────────────────── her voice ─────────────────────────── -->
   <section class="voice">
@@ -729,65 +979,19 @@ a { color: var(--plum-deep); }
     </div>
   </section>
 
-  <!-- ───────────────────────── try Ru ──────────────────────────────────
-       The founder, 28 Oct 2026: *"waha ek feature daal test Ru, jaha user
-       click kare, free mein kisi bhi ek cheez mein se — Vedic, Tarot ya
-       Oracle — ek reading free le sakta hai, and after join waiting list."*
-
-       🔴 ONE READING, THEN THE LIST. The order is his and it is the right way
-       round: somebody who has just been read is a far better person to ask
-       for an email than somebody who has only read a landing page.
-
-       ⚠️ EVERY READING HERE COSTS REAL MONEY AND NOBODY IS SIGNED IN.
-       Measured at ₹0.77 a reading, and the account holds about $20. The page
-       therefore does NOT get to decide how many it may spend — the server
-       does. `try-ru` must carry a per-IP limit and a hard DAILY CAP, and when
-       the cap is reached it says so plainly and still offers the list. A
-       browser-side "one per person" is theatre: a private window defeats it.
-  -->
-  <section class="close" id="try">
-    <div class="wrap">
-      <h2 class="reveal">Try her first.</h2>
-      <p>One reading, free, no sign-up. Pick how you want to be read.</p>
-
-      <div class="try-modes" id="try-modes" role="group" aria-label="Choose a reading">
-        <button class="btn try-mode" type="button" data-mode="vedic">Vedic chart</button>
-        <button class="btn try-mode" type="button" data-mode="tarot">Tarot</button>
-        <button class="btn try-mode" type="button" data-mode="oracle">Oracle card</button>
-      </div>
-
-      <form class="wl" id="try-form" novalidate hidden>
-        <label class="sr-only" for="try-q">Your question</label>
-        <textarea id="try-q" rows="3" maxlength="300"
-                  placeholder="What would you like to ask?" aria-label="Your question"></textarea>
-        <button class="btn btn-primary" type="submit" id="try-go">Ask Ru</button>
-        <p class="wl-msg" id="try-msg" role="status" aria-live="polite"></p>
-      </form>
-
-      <div class="try-out" id="try-out" hidden aria-live="polite"></div>
-    </div>
-  </section>
-
-  <!-- ───────────────────────── close ───────────────────────────────── -->
+  <!-- ───────────────────────── close ─────────────────────────────────
+       🔴 NO FORM HERE ANY MORE. *"join waiting list ka option hata do,
+       kyoki try karne se pehle to waise bhi user ko waiting list join karne
+       hoge."* He is right, and the reason is worth keeping: two forms for one
+       list is two places a person can be told "you are already on it", and
+       the second one always reads as a failure. One door, up the page. -->
   <section class="close">
     <div class="wrap">
       <h2 class="reveal">She opens soon.</h2>
-      <p>Ask Ru is in final testing. <strong>Android first, iOS next.</strong> Put your name down and we will tell you the day it opens.</p>
-
-      <form class="wl" id="wl-form" novalidate>
-        <div class="wl-row">
-          <input id="wl-email" type="email" name="email" inputmode="email" autocomplete="email"
-                 placeholder="you@email.com" aria-label="Your email" required>
-          <input id="wl-phone" type="tel" name="mobile" inputmode="tel" autocomplete="tel"
-                 placeholder="Phone (optional)" aria-label="Your phone number, optional">
-        </div>
-        <button class="btn btn-primary" type="submit" id="wl-go">Join the waiting list</button>
-        <p class="wl-msg" id="wl-msg" role="status" aria-live="polite"></p>
-        <p class="wl-note">
-          One message, on the day it opens. Nothing else, and never to anybody else.
-          <a href="https://teatalz.com/askru-privacy.html">Privacy</a>
-        </p>
-      </form>
+      <p>Ask Ru is in final testing. <strong>Android first, iOS next.</strong> Take your reading above and your name is already down — we will tell you the day she opens.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#try">Read me first</a>
+      </div>
     </div>
   </section>
 
@@ -797,6 +1001,11 @@ a { color: var(--plum-deep); }
   <div class="wrap foot">
     <span>© 2026 Teatalz House of Rume</span>
     <a href="mailto:helloaskru@gmail.com">helloaskru@gmail.com</a>
+    <!-- His instruction, 28 Oct 2026: *"codeupvik ne built kiya hai mention
+         karo, backlink do."* A plain followed link — `rel="nofollow"` would
+         hand Google a note saying the credit does not count, which is the
+         opposite of a backlink. -->
+    <span>Built by <a href="https://codeupvik.com">CodeUpVik</a></span>
     <span class="right">Made in India</span>
   </div>
 </footer>
@@ -831,77 +1040,178 @@ a { color: var(--plum-deep); }
   }
 </script>
 
-<script>
-  /* The sound control. The video autoplays MUTED because no browser will
-     autoplay audio; this is how the music becomes reachable. */
-  (function () {
-    var v = document.getElementById('film');
-    var b = document.getElementById('film-sound');
-    if (!v || !b) return;
-    var icon = document.getElementById('film-sound-icon');
-    var text = document.getElementById('film-sound-text');
-
-    b.addEventListener('click', function () {
-      v.muted = !v.muted;
-      b.setAttribute('aria-pressed', String(!v.muted));
-      icon.textContent = v.muted ? '🔇' : '🔊';
-      text.textContent = v.muted ? 'Sound on' : 'Sound off';
-      /* Unmuting counts as the gesture a browser was waiting for, so a video
-         that was paused rather than autoplayed starts here. */
-      if (v.paused) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-    });
-
-    /* 🔴 IF AUTOPLAY IS REFUSED ANYWAY — some phones block it on a data
-       connection, and reduced-motion settings stop it too — the poster would
-       sit there with no way to start it. The frame becomes clickable. */
-    /* 🔴 NO play() CALL ON LOAD, AND NO KEYING OFF ITS PROMISE.
-       The autoplay attribute already starts it. Calling play() again races
-       that start, rejects as "interrupted", and the first two versions of
-       this put visible controls on a video that was playing perfectly — the
-       rejection said nothing about whether it was playing.
-
-       The only honest question is asked later, of the video itself: after a
-       beat, is it STILL paused? Then autoplay really was refused — a phone on
-       a data connection, a reduced-motion setting — and the poster would
-       otherwise sit there with no way to start it. */
-    setTimeout(function () {
-      if (v.paused) v.setAttribute('controls', '');
-    }, 1500);
-  })();
-</script>
-
 <script src="assets/config.js"></script>
 <script>
-  /* ── Try Ru: one free reading, then the list ───────────────────────────
-   * The founder, 28 Oct 2026. Calls `try-ru`, an UNAUTHENTICATED function.
+  /* ── Take your first reading with Ru ───────────────────────────────────
+   * The founder, 28 Oct 2026. Join the list, then one reading, then ten
+   * follow-ups, for the first 5,000 people.
    *
    * 🔴 THE SERVER DECIDES WHAT MAY BE SPENT, NOT THIS PAGE.
-   * Every reading here costs real money (₹0.77 measured) and nobody is
-   * signed in. This file deliberately carries NO "one per browser" check,
-   * because that is not a limit — a private window defeats it in a second,
-   * and a limit that can be defeated silently is worse than none: it reads
-   * as protection while the bill grows. `try-ru` must hold a per-IP limit
-   * and a hard daily cap, and must say which one it hit.
+   * Every call here costs real money (₹0.77 measured) and nobody is signed
+   * in. This file deliberately carries NO "one per browser" check, because
+   * that is not a limit — a private window defeats it in a second, and a
+   * limit that can be defeated silently is worse than none: it reads as
+   * protection while the bill grows. `try-ru` holds the per-IP limit, the
+   * daily reading cap and the daily cap in RUPEES, and says which one it hit.
    *
-   * 🔴 NO FUNCTION, NO SILENCE — the same rule as the waiting list below.
-   * If `try-ru` is not deployed, the button says so. The failure being
-   * guarded against is the quiet one: a form that takes a question, posts
-   * it nowhere, and leaves somebody waiting at a spinner.
+   * 🔴 NOR DOES THIS PAGE COUNT THE FOLLOW-UPS. It displays the number the
+   * server sends back; a counter the browser keeps is a counter the browser
+   * can be asked to forget.
+   *
+   * 🔴 NO KEY, NO SILENCE. If `config.js` has not been filled in, the button
+   * is disabled and says so. The failure guarded against is the quiet one: a
+   * form that takes an address, posts it nowhere, and says "thanks".
+   *
+   * ⚠️ THE KEY IS `cfg.anonKey`. The first version of this section read
+   * `cfg.anon`, which does not exist — so it took the "not switched on yet"
+   * branch on every visit and looked exactly like a deliberate pre-launch
+   * state. A typo that disables a feature while explaining itself politely is
+   * the most expensive kind.
    */
   (function () {
     var cfg = window.ASKRU || {};
+    var STORE = 'askru.try.token';
+
+    var join = document.getElementById('try-join');
+    if (!join) return;
+    var joinGo = document.getElementById('try-join-go');
+    var joinMsg = document.getElementById('try-join-msg');
+    var nameEl = document.getElementById('try-name');
+    var emailEl = document.getElementById('try-email');
+    var phoneEl = document.getElementById('try-phone');
+    var langEl = document.getElementById('try-lang');
+
+    var pick = document.getElementById('try-pick');
     var modes = document.getElementById('try-modes');
-    var form = document.getElementById('try-form');
+    var birth = document.getElementById('try-birth');
+    var dobEl = document.getElementById('try-dob');
+    var tobEl = document.getElementById('try-tob');
+    var pobEl = document.getElementById('try-pob');
+
+    var askForm = document.getElementById('try-form');
     var q = document.getElementById('try-q');
     var go = document.getElementById('try-go');
     var msg = document.getElementById('try-msg');
+
     var out = document.getElementById('try-out');
-    if (!modes || !form || !q || !go || !msg || !out) return;
+    var follow = document.getElementById('try-follow');
+    var fq = document.getElementById('try-fq');
+    var fgo = document.getElementById('try-follow-go');
+    var fmsg = document.getElementById('try-follow-msg');
+    var countEl = document.getElementById('try-count');
 
     var chosen = null;
+    var token = null;
 
-    function say(text) { msg.textContent = text || ''; }
+    /* localStorage throws in a private window on some browsers, and the page
+       must work without it — it only saves somebody re-typing their email. */
+    try { token = window.localStorage.getItem(STORE); } catch (e) { token = null; }
 
+    function say(el, text, kind) {
+      el.textContent = text || '';
+      el.className = 'wl-msg' + (kind ? ' ' + kind : '');
+    }
+
+    function api(path, opts) {
+      opts = opts || {};
+      var init = {
+        method: opts.method || 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': 'Bearer ' + cfg.anonKey,
+          'Content-Type': 'application/json'
+        }
+      };
+      if (opts.body) init.body = JSON.stringify(opts.body);
+      return fetch(cfg.url + '/functions/v1/' + path, init).then(function (r) {
+        return r.json().catch(function () { return null; }).then(function (j) {
+          return { status: r.status, body: j };
+        });
+      });
+    }
+
+    if (!cfg.url || !cfg.anonKey) {
+      joinGo.disabled = true;
+      joinGo.textContent = 'Not connected yet';
+      say(joinMsg, 'assets/config.js still needs the anon key.', 'bad');
+      return;
+    }
+
+    /* ── the count under the button ────────────────────────────────────
+       It stays hidden until the server sends a line. The threshold is the
+       server's: *"jab count 200 se upar jaye to test user count dekhne
+       lage."* Nothing here knows the number before then. */
+    api('try-ru', { method: 'GET' }).then(function (res) {
+      if (res.body && res.body.ok && res.body.line) {
+        countEl.textContent = res.body.line;
+        countEl.hidden = false;
+      }
+    }).catch(function () { /* a counter is not worth an error message */ });
+
+    function showPick() {
+      join.hidden = true;
+      pick.hidden = false;
+      /* Scroll the step they are now on into view — on a phone the join
+         card can be the whole screen, and the next step appears below it. */
+      try { pick.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* older browsers */ }
+    }
+
+    if (token) showPick();
+
+    /* ── step 1 — join ─────────────────────────────────────────────── */
+    join.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var address = (emailEl.value || '').trim();
+      if (!address || !emailEl.checkValidity()) {
+        say(joinMsg, 'That email does not look right — have another look?', 'bad');
+        emailEl.focus();
+        return;
+      }
+
+      joinGo.disabled = true;
+      var was = joinGo.textContent;
+      joinGo.textContent = 'Adding you…';
+      say(joinMsg, '');
+
+      var body = {
+        email: address,
+        source: 'askru-try',
+        language: (langEl && langEl.value) || 'en'
+      };
+      var nm = (nameEl.value || '').trim();
+      if (nm) body.name = nm;
+      var mobile = (phoneEl.value || '').trim();
+      if (mobile) body.mobile = mobile;
+
+      api('waitlist-join', { body: body }).then(function (res) {
+        joinGo.disabled = false;
+        joinGo.textContent = was;
+        var b = res.body;
+        if (!b || !b.ok) {
+          say(joinMsg, 'That did not go through. Try again in a moment, or write to helloaskru@gmail.com.', 'bad');
+          return;
+        }
+
+        /* 🔴 THE READING IS THE POINT, SO A MISSING TOKEN IS SAID OUT LOUD.
+           The name is on the list either way; what failed is the reading,
+           and letting the next step appear without one would put somebody in
+           front of a button that cannot work. */
+        if (!b.token) {
+          say(joinMsg, 'You are on the list. Free readings are not switched on just yet — we will tell you.', 'ok');
+          return;
+        }
+
+        token = b.token;
+        try { window.localStorage.setItem(STORE, token); } catch (e2) { /* private window */ }
+        showPick();
+      }).catch(function () {
+        joinGo.disabled = false;
+        joinGo.textContent = was;
+        say(joinMsg, 'That did not go through. Try again in a moment, or write to helloaskru@gmail.com.', 'bad');
+      });
+    });
+
+    /* ── step 2 — how she reads you ────────────────────────────────── */
     modes.addEventListener('click', function (e) {
       var b = e.target.closest('.try-mode');
       if (!b) return;
@@ -909,167 +1219,108 @@ a { color: var(--plum-deep); }
       Array.prototype.forEach.call(modes.querySelectorAll('.try-mode'), function (x) {
         x.setAttribute('aria-pressed', String(x === b));
       });
-      form.hidden = false;
-      say('');
+      /* Only Vedic needs a birth chart, so only Vedic asks. */
+      birth.hidden = chosen !== 'vedic';
+      say(msg, '');
       q.focus();
     });
 
-    form.addEventListener('submit', function (e) {
+    function bubble(who, text) {
+      var el = document.createElement('p');
+      el.className = who === 'you' ? 'try-you' : 'try-ru';
+      el.textContent = text;
+      out.appendChild(el);
+      out.hidden = false;
+    }
+
+    function render(res) {
+      var b = res.body;
+      /* 🔴 A CAP IS NOT AN ERROR, and must not read like one. Somebody who
+         arrives after the day's readings are gone has done nothing wrong;
+         they get a plain sentence, and they are already on the list. */
+      if (res.status === 429) {
+        var line = (b && b.message) || 'Today’s free readings are all taken. You are on the list.';
+        bubble('ru', line);
+        follow.hidden = true;
+        return false;
+      }
+      if (!b || res.status >= 400 || b.ok !== true) {
+        bubble('ru', 'That did not go through. You are on the list, and Ru will be yours at launch.');
+        return false;
+      }
+      var parts = (b.parts && b.parts.length) ? b.parts : [String(b.reply || '')];
+      for (var i = 0; i < parts.length; i++) bubble('ru', String(parts[i]));
+
+      var left = typeof b.followUpsLeft === 'number' ? b.followUpsLeft : 0;
+      if (left > 0) {
+        follow.hidden = false;
+        say(fmsg, left === 1 ? 'One more question.' : left + ' more questions.');
+      } else {
+        follow.hidden = true;
+      }
+      return true;
+    }
+
+    askForm.addEventListener('submit', function (e) {
       e.preventDefault();
       var text = (q.value || '').trim();
-      if (!chosen) { say('Pick how you want to be read first.'); return; }
-      if (text.length < 4) { say('Write your question first — a few words is enough.'); q.focus(); return; }
-      if (!cfg.url || !cfg.anon) { say('Readings are not switched on yet. Join the list below and we will tell you.'); return; }
-
-      go.disabled = true;
-      var label = go.textContent;
-      go.textContent = 'Ru is reading…';
-      say('');
-      out.hidden = true;
-
-      fetch(cfg.url + '/functions/v1/try-ru', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: cfg.anon, Authorization: 'Bearer ' + cfg.anon },
-        body: JSON.stringify({ mode: chosen, question: text })
-      }).then(function (r) {
-        return r.json().catch(function () { return null; }).then(function (j) { return { status: r.status, body: j }; });
-      }).then(function (res) {
-        go.disabled = false;
-        go.textContent = label;
-
-        /* 🔴 A CAP IS NOT AN ERROR, and must not read like one. Somebody who
-           arrives after the day's free readings are gone has done nothing
-           wrong; they get a plain sentence and the list, not a failure. */
-        if (res.status === 429) {
-          say((res.body && res.body.message) || 'Today’s free readings are all taken. Join the list below — you will not need one to get in.');
-          return;
-        }
-        if (!res.body || res.status >= 400 || res.body.ok !== true) {
-          say('That did not go through. Join the list below and we will tell you when she opens.');
-          return;
-        }
-
-        var parts = Array.isArray(res.body.parts) && res.body.parts.length
-          ? res.body.parts
-          : [String(res.body.reply || '')];
-        out.innerHTML = '';
-        if (res.body.card) {
-          var c = document.createElement('p');
-          c.className = 'try-card';
-          c.textContent = String(res.body.card);
-          out.appendChild(c);
-        }
-        parts.forEach(function (p) {
-          var el = document.createElement('p');
-          el.textContent = String(p);
-          out.appendChild(el);
-        });
-        out.hidden = false;
-        /* His order: the reading first, the list straight after it. */
-        say('That was one free reading. Put your name down below for the rest.');
-        var wl = document.getElementById('wl-email');
-        if (wl) { try { wl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) { /* older browsers */ } }
-      }).catch(function () {
-        go.disabled = false;
-        go.textContent = label;
-        say('We could not reach Ru just now. Join the list below and we will tell you when she opens.');
-      });
-    });
-  })();
-</script>
-
-<script>
-  /* ── the waiting list ──────────────────────────────────────────────────
-   * Posts straight to Ask Ru's `waitlist` table with the project's ANON key.
-   * That key can only INSERT here — RLS is on and `waitlist_join` is the only
-   * policy on the table, with no SELECT policy at all, so nothing on this page
-   * can read the list back. Checked against the live database, not assumed.
-   *
-   * 🔴 NO KEY, NO SILENCE. If `config.js` has not been filled in, the button
-   * is disabled and says so. The failure this guards against is the quiet one:
-   * a form that looks fine, accepts an address, posts it nowhere, and says
-   * "thanks" — so the page looks like it is collecting names for weeks while
-   * the list stays empty.
-   */
-  (function () {
-    var cfg = window.ASKRU || {};
-    var form = document.getElementById('wl-form');
-    var go = document.getElementById('wl-go');
-    var msg = document.getElementById('wl-msg');
-    var email = document.getElementById('wl-email');
-    var phone = document.getElementById('wl-phone');
-    if (!form) return;
-
-    function say(text, kind) {
-      msg.textContent = text;
-      msg.className = 'wl-msg' + (kind ? ' ' + kind : '');
-    }
-
-    if (!cfg.anonKey) {
-      go.disabled = true;
-      go.textContent = 'Waiting list not connected yet';
-      say('assets/config.js still needs the anon key.', 'bad');
-      return;
-    }
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var address = (email.value || '').trim();
-      /* The browser's own check, asked for explicitly — `novalidate` is on the
-         form so the message is ours and in one place. */
-      if (!address || !email.checkValidity()) {
-        say('That email does not look right — have another look?', 'bad');
-        email.focus();
-        return;
-      }
+      if (!chosen) { say(msg, 'Pick how you want to be read first.', 'bad'); return; }
+      if (text.length < 4) { say(msg, 'Write your question first — a few words is enough.', 'bad'); q.focus(); return; }
 
       go.disabled = true;
       var was = go.textContent;
-      go.textContent = 'Adding you…';
-      say('');
+      go.textContent = 'Ru is reading…';
+      say(msg, '');
 
-      var body = { email: address, source: 'askru-site' };
-      var mobile = (phone.value || '').trim();
-      if (mobile) body.mobile = mobile;
+      var body = { token: token, mode: chosen, question: text };
+      if (chosen === 'vedic') {
+        /* Sent as typed; the server resolves the place and casts the chart,
+           or says plainly that it could not. Nothing is guessed here. */
+        body.birth = {
+          dob: (dobEl.value || '').trim(),
+          time: (tobEl.value || '').trim(),
+          place: (pobEl.value || '').trim()
+        };
+      }
 
-      fetch(cfg.url + '/functions/v1/waitlist-join', {
-        method: 'POST',
-        headers: {
-          'apikey': cfg.anonKey,
-          'Authorization': 'Bearer ' + cfg.anonKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      })
-        .then(function (r) {
-          if (!r.ok) throw new Error('http ' + r.status);
-          return r.json().catch(function () { return {}; });
-        })
-        .then(function (out) {
-          if (!out || !out.ok) throw new Error('no ok');
-          form.reset();
-          /* 🔴 A SECOND SIGNUP IS NOT A FAILURE. The server answers `already`
-             when the address is on the list, and it sends no second email —
-             telling somebody "that failed" for signing up twice reads as the
-             site being broken, and they try again, and again. */
-          if (out.already) {
-            say('You were already on the list — we have you.', 'ok');
-          } else if (out.emailed === false) {
-            /* 🔴 ON THE LIST, BUT NO EMAIL WENT. Said plainly rather than
-               promising a message that is not coming. The name is safe; the
-               send is our problem and the server has logged it. */
-            say('You are on the list. (Our welcome email did not go out — we still have you.)', 'ok');
-          } else {
-            say('Done. Check your email — Ru has written to you.', 'ok');
-          }
-        })
-        .catch(function () {
-          say('That did not go through. Try again in a moment, or write to helloaskru@gmail.com.', 'bad');
-        })
-        .then(function () {
-          go.disabled = false;
-          go.textContent = was;
-        });
+      bubble('you', text);
+      api('try-ru', { body: body }).then(function (res) {
+        go.disabled = false;
+        go.textContent = was;
+        if (render(res)) {
+          /* The reading is taken. The step that offered it is done. */
+          pick.hidden = true;
+          q.value = '';
+        }
+      }).catch(function () {
+        go.disabled = false;
+        go.textContent = was;
+        say(msg, 'We could not reach Ru just now. You are on the list — try again in a moment.', 'bad');
+      });
+    });
+
+    /* ── step 3 — the ten ──────────────────────────────────────────── */
+    follow.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = (fq.value || '').trim();
+      if (text.length < 4) { say(fmsg, 'A few words is enough.', 'bad'); fq.focus(); return; }
+
+      fgo.disabled = true;
+      var was = fgo.textContent;
+      fgo.textContent = 'Ru is reading…';
+      say(fmsg, '');
+      bubble('you', text);
+
+      api('try-ru', { body: { token: token, question: text } }).then(function (res) {
+        fgo.disabled = false;
+        fgo.textContent = was;
+        fq.value = '';
+        render(res);
+      }).catch(function () {
+        fgo.disabled = false;
+        fgo.textContent = was;
+        say(fmsg, 'We could not reach Ru just now. Try again in a moment.', 'bad');
+      });
     });
   })();
 </script>
