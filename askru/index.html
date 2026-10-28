@@ -367,6 +367,26 @@ h2 {
 }
 .section-head p { color: var(--ink-muted); margin: 0; font-size: 17px; }
 .three { padding: 62px 0; }
+/* The four smaller ways, under the three. Deliberately a different shape —
+   no art, tighter type — so the eye reads them as "and also", not as four
+   more of the same thing. */
+.more-head { margin: 46px auto 20px; text-align: center; max-width: 30em; }
+.more-head h3 {
+  font-family: "Playfair Display", Georgia, serif; font-style: italic; font-weight: 600;
+  font-size: clamp(22px, 3.4vw, 30px); margin: 0; color: var(--ink);
+}
+.more { display: grid; gap: 14px; }
+@media (min-width: 640px) { .more { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .more { grid-template-columns: repeat(4, 1fr); } }
+.mini {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 18px; padding: 20px;
+}
+.mini h4 {
+  margin: 0 0 8px; font-size: 18px; font-weight: 700; color: var(--ink);
+  letter-spacing: .2px;
+}
+.mini p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-muted); }
 .cards { display: grid; gap: 18px; }
 @media (min-width: 820px) { .cards { grid-template-columns: repeat(3, 1fr); gap: 22px; } }
 .card {
@@ -1027,6 +1047,48 @@ a { color: var(--plum-deep); }
               <li>Said plainly, in a few short lines</li>
             </ul>
           </div>
+        </article>
+      </div>
+
+      <!-- ── and four more ────────────────────────────────────────────────
+           Founder, 28 Oct 2026: *"yaha muharat matchmating prashana and daily
+           streak bhi daal."*
+
+           🔴 THEY SIT BELOW THE THREE, NOT BESIDE THEM. Vedic, Tarot and
+           Oracle are the three ways she reads — that is the product's spine
+           and the heading above says so. Muhurat, Match and Prashna are
+           things you can ask FOR; the streak is not a reading at all. Putting
+           seven equal cards in one grid would have made the spine disappear
+           into a feature list, which is the thing this page exists not to be.
+      -->
+      <div class="section-head more-head reveal">
+        <h3>And four more ways to ask</h3>
+      </div>
+
+      <div class="more">
+        <article class="mini reveal">
+          <h4>Muhurat</h4>
+          <p>When to do the thing. The hours that carry what you are about to start — a signing, a journey, a first day.</p>
+        </article>
+
+        <article class="mini reveal d1">
+          <h4>Matchmaking</h4>
+          <p>The two of you, read out loud. Ashtakoota done properly, and then said in words — not handed over as a score out of thirty-six.</p>
+        </article>
+
+        <article class="mini reveal d2">
+          <h4>Prashna</h4>
+          <p>No birth time? Ask the moment instead. A chart cast for the second you asked, and read from that alone.</p>
+        </article>
+
+        <article class="mini reveal d1">
+          <h4>Daily streak</h4>
+          <!-- ⚠️ THE ONLY ITEM ON THIS PAGE THAT IS NOT BUILT YET. The DB
+               table exists and is empty; the screens are not written. The
+               page says "launching soon" throughout, so a named launch
+               feature is fair — but it is named here so nobody later reads
+               this card as a description of something shipping. -->
+          <p>Come back each day and she keeps count. Small rituals, and a reward that turns into credit on your next recharge.</p>
         </article>
       </div>
     </div>
