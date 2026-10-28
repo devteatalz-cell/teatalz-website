@@ -513,6 +513,11 @@ h2 {
   outline: none; border-color: var(--plum); box-shadow: 0 0 0 4px rgba(183,155,255,.18);
 }
 .try-panel button { width: 100%; margin-top: 12px; }
+/* 🔴 EXCEPT THE THREE PILLS. The rule above is for the one button that ends
+   a step, and it caught the mode chooser too — Vedic, Tarot and Oracle came
+   out as three full-width stacked bars that read as a menu of three pages
+   rather than one choice of three. */
+.try-panel .try-mode { width: auto; margin-top: 0; }
 .try-panel button[disabled] { opacity: .55; cursor: not-allowed; }
 .try-birth { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-faint); }
 .try-birth-note { margin: 0 0 12px; font-size: 13.5px; color: var(--ink-faint); line-height: 1.55; }
