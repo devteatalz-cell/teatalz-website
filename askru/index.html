@@ -102,13 +102,17 @@ header.nav {
   background: color-mix(in srgb, var(--paper) 78%, transparent);
   border-bottom: 1px solid var(--line-faint);
 }
-.nav-in { display: flex; align-items: center; gap: 12px; min-height: 66px; }
-.nav-in img { width: 34px; height: 34px; border-radius: 10px; }
+.nav-in { display: flex; align-items: center; gap: 14px; min-height: 96px; }
+/* Founder, 28 Oct: *"hero section mai logo bada kar and font bhi"*. */
+.nav-in img { width: 68px; height: 68px; border-radius: 18px; }
 /* `nowrap`: at 375px the wordmark broke across two lines and the launch pill
    sat in the gap, so the first thing on the page was the brand name set badly. */
-.nav-in .name { font-size: 21px; letter-spacing: .2px; white-space: nowrap; }
+.nav-in .name { font-size: 36px; letter-spacing: .2px; white-space: nowrap; }
 @media (max-width: 470px) {
-  .nav-in .name { font-size: 19px; }
+  /* On a phone the logo comes down a step so the wordmark and the launch
+     pill still fit on one line at 375px. */
+  .nav-in img { width: 56px; height: 56px; border-radius: 15px; }
+  .nav-in .name { font-size: 29px; }
   .pill { font-size: 10.5px; letter-spacing: .2px; padding: 6px 10px; }
 }
 .pill {
@@ -567,23 +571,56 @@ h2 {
 header.nav, main, footer { position: relative; z-index: 1; }
 .sky > * { position: absolute; will-change: transform, opacity; }
 
+/* ── the slow drift ───────────────────────────────────────────────────
+   *"auto bg karo"* — the plum does not sit still any more. Two soft lights
+   crossing each other on long, unequal cycles, so the page never repeats a
+   state you can catch. Transform and opacity only: the background-image
+   itself is never animated, because that repaints the whole viewport every
+   frame and is the classic way to make a landing page heat a phone. */
+.drift {
+  width: 86vw; height: 86vw; max-width: 1100px; max-height: 1100px;
+  border-radius: 50%; filter: blur(10px);
+}
+.drift-a {
+  left: -18vw; top: -22vh;
+  background: radial-gradient(circle, rgba(183,155,255,.16), rgba(183,155,255,0) 64%);
+  animation: driftA 74s ease-in-out infinite;
+}
+.drift-b {
+  right: -24vw; bottom: -26vh;
+  background: radial-gradient(circle, rgba(255,143,180,.10), rgba(255,143,180,0) 64%);
+  animation: driftB 97s ease-in-out infinite;
+}
+@keyframes driftA {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: .85; }
+  50%      { transform: translate3d(22vw, 16vh, 0) scale(1.18); opacity: 1; }
+}
+@keyframes driftB {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.08); opacity: .7; }
+  50%      { transform: translate3d(-18vw, -14vh, 0) scale(1); opacity: 1; }
+}
+
 .shoot {
-  top: -6vh; width: 2px; height: 2px; border-radius: 50%;
-  background: #fff; box-shadow: 0 0 6px 2px rgba(255,255,255,.55);
+  top: -6vh; width: 3px; height: 3px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 9px 3px rgba(255,255,255,.7);
   opacity: 0;
-  animation: shoot 9s linear infinite;
+  animation: shoot 7s linear infinite;
 }
 /* The tail. Drawn as a gradient on a pseudo-element so the head stays a
    point — a tapered line scaled into place reads as a smear. */
 .shoot::after {
   content: ""; position: absolute; right: 1px; top: 50%;
-  width: 90px; height: 1px; transform: translateY(-50%);
-  background: linear-gradient(to left, rgba(255,255,255,.75), rgba(255,255,255,0));
+  width: 130px; height: 1.5px; transform: translateY(-50%);
+  background: linear-gradient(to left, rgba(255,255,255,.9), rgba(255,255,255,0));
 }
+/* ⚠️ The visible part is a SLICE of the cycle, not the cycle. Each star is
+   lit for ~22% of its 7 seconds and invisible for the rest, which is what
+   makes them arrive at odd moments instead of marching in step. Raising how
+   often they appear means adding stars, not shortening this. */
 @keyframes shoot {
   0%   { transform: translate3d(0, 0, 0) rotate(28deg); opacity: 0; }
-  4%   { opacity: .9; }
-  18%  { transform: translate3d(-46vw, 52vh, 0) rotate(28deg); opacity: 0; }
+  3%   { opacity: 1; }
+  22%  { transform: translate3d(-46vw, 52vh, 0) rotate(28deg); opacity: 0; }
   100% { transform: translate3d(-46vw, 52vh, 0) rotate(28deg); opacity: 0; }
 }
 
@@ -591,17 +628,17 @@ header.nav, main, footer { position: relative; z-index: 1; }
    the 44 card illustrations are a funded job with an external designer, and
    a cheap angel here would be the thing people remember. */
 .angel {
-  width: 46px; height: 46px; opacity: 0;
-  color: rgba(239,230,246,.5);
-  animation: fly 38s linear infinite;
+  width: 68px; height: 68px; opacity: 0;
+  color: rgba(239,230,246,.85);
+  animation: fly 26s linear infinite;
 }
-.angel svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 10px rgba(224,168,74,.35)); }
+.angel svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 16px rgba(224,168,74,.55)); }
 @keyframes fly {
-  0%   { transform: translate3d(-12vw, 0, 0) scale(.9); opacity: 0; }
-  8%   { opacity: .55; }
-  50%  { transform: translate3d(50vw, -4vh, 0) scale(1.03); opacity: .5; }
+  0%   { transform: translate3d(-14vw, 0, 0) scale(.9); opacity: 0; }
+  8%   { opacity: .9; }
+  50%  { transform: translate3d(50vw, -5vh, 0) scale(1.06); opacity: .85; }
   92%  { opacity: 0; }
-  100% { transform: translate3d(112vw, -8vh, 0) scale(.9); opacity: 0; }
+  100% { transform: translate3d(114vw, -10vh, 0) scale(.9); opacity: 0; }
 }
 
 /* A slow breath of light behind everything, so the page is never flat. */
@@ -618,6 +655,32 @@ header.nav, main, footer { position: relative; z-index: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   .sky { display: none; }
+}
+
+/* ── the ambience, and the way out of it ───────────────────────────────
+   *"auto bg karo"* — the same track the app plays, at the same low volume,
+   starting on its own.
+
+   🔴 THE CONTROL IS NOT OPTIONAL AND IT IS NOT HIDDEN. Sound that starts by
+   itself on a landing page is the thing people leave over, and the only
+   version of it that is defensible is one you can stop in one tap, from
+   anywhere on the page, without hunting. So the button is fixed, always on
+   screen, and the choice is remembered. */
+.amb {
+  position: fixed; right: 16px; bottom: 16px; z-index: 5;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 0 16px; border-radius: 999px;
+  border: 1px solid var(--line); background: rgba(55,44,74,.86);
+  backdrop-filter: blur(8px);
+  color: var(--ink-muted); font: inherit; font-size: 14px; cursor: pointer;
+}
+.amb:hover { border-color: var(--plum); color: var(--ink); }
+.amb:focus-visible { outline: 2px solid var(--plum); outline-offset: 3px; }
+.amb-icon { font-size: 16px; line-height: 1; }
+@media (max-width: 560px) {
+  /* On a phone the label is the first thing to cost a thumb its target. */
+  .amb { padding: 0; width: 44px; justify-content: center; }
+  .amb-text { display: none; }
 }
 
 footer { border-top: 1px solid var(--line-faint); padding: 30px 0 46px; }
@@ -665,12 +728,22 @@ a { color: var(--plum-deep); }
      transform on the GPU — no images, no script, no timers. The whole
      layer is removed under prefers-reduced-motion. -->
 <div class="sky" aria-hidden="true">
+  <span class="drift drift-a"></span>
+  <span class="drift drift-b"></span>
   <span class="halo"></span>
 
+  <!-- ⚠️ MORE STARS, NOT FASTER ONES. Each star is lit for about a fifth of
+       its cycle; shortening the cycle makes the same star streak past again
+       and again, which reads as a loop. Eight of them on unequal delays
+       reads as a sky. -->
   <span class="shoot" style="left: 82%; animation-delay: 1s;"></span>
-  <span class="shoot" style="left: 64%; top: 4vh; animation-delay: 6.5s;"></span>
-  <span class="shoot" style="left: 96%; top: 12vh; animation-delay: 12s; animation-duration: 11s;"></span>
-  <span class="shoot" style="left: 46%; top: -2vh; animation-delay: 19s;"></span>
+  <span class="shoot" style="left: 64%; top: 4vh; animation-delay: 3.5s;"></span>
+  <span class="shoot" style="left: 96%; top: 12vh; animation-delay: 6s; animation-duration: 9s;"></span>
+  <span class="shoot" style="left: 46%; top: -2vh; animation-delay: 8.5s;"></span>
+  <span class="shoot" style="left: 74%; top: 18vh; animation-delay: 11s; animation-duration: 8s;"></span>
+  <span class="shoot" style="left: 36%; top: 6vh; animation-delay: 14s;"></span>
+  <span class="shoot" style="left: 90%; top: -4vh; animation-delay: 17.5s; animation-duration: 10s;"></span>
+  <span class="shoot" style="left: 56%; top: 24vh; animation-delay: 21s;"></span>
 
   <!-- Two, far apart in time, so one crossing is a moment and not a parade. -->
   <span class="angel" style="top: 22%; animation-delay: 4s;">
@@ -694,6 +767,13 @@ a { color: var(--plum-deep); }
     </svg>
   </span>
 </div>
+
+<!-- ── the ambience control ───────────────────────────────────────────
+     Always on screen, because the sound starts on its own. -->
+<button class="amb" id="amb" type="button" aria-pressed="false" aria-label="Background music">
+  <span class="amb-icon" id="amb-icon" aria-hidden="true">🔇</span>
+  <span class="amb-text" id="amb-text">Music</span>
+</button>
 
 <header class="nav">
   <div class="wrap nav-in">
@@ -1053,6 +1133,121 @@ a { color: var(--plum-deep); }
     }, { rootMargin: "0px 0px -12% 0px", threshold: 0.06 });
     for (var k = 0; k < items.length; k++) io.observe(items[k]);
   }
+</script>
+
+<script>
+  /* ── the ambience ──────────────────────────────────────────────────────
+   * *"auto bg karo"* — the app's own track, at the app's own volume, on by
+   * itself. Same file, same licence, same restraint.
+   *
+   * 🔴 "AUTO" HAS A HARD LIMIT AND IT IS NOT OURS. No browser will play
+   * audible sound before the visitor has interacted with the page; a
+   * `play()` on load is REFUSED, and the refusal is a rejected promise that
+   * says nothing useful. So this tries once, and if it is refused it waits
+   * for the first scroll, tap or key and starts there. In practice that is a
+   * second or two after arrival, and there is no honest way to make it
+   * sooner.
+   *
+   * 🔴 NOTHING IS DOWNLOADED UNTIL IT IS GOING TO PLAY, AND WHAT IT PLAYS IS
+   * A 60-SECOND LOOP, NOT THE WHOLE TRACK. The app's file is 3.4 MB of
+   * 8-minute ambience. Measured here: once `play()` starts, the browser
+   * pulled all 3,477,786 bytes — `preload="none"` delays the fetch, it does
+   * not shorten it. On a phone on data that is the single heaviest thing on
+   * the page, spent on a background noise.
+   *
+   * So the website gets `ru-ambience-loop.m4a`: one minute cut from the
+   * middle of the same track, with its last six seconds crossfaded onto its
+   * first six so the joint is inaudible. 441 KB — an eighth of the original,
+   * and it never ends.
+   *
+   * ⚠️ THE CHOICE IS REMEMBERED. Somebody who turns it off and comes back to
+   * silence has been listened to. Somebody who turns it off and gets it
+   * again next visit has not, and leaves.
+   */
+  (function () {
+    var KEY = 'askru.ambience';
+    var VOLUME = 0.18;           /* his ruling: 15–25%, no higher */
+    var btn = document.getElementById('amb');
+    if (!btn) return;
+    var icon = document.getElementById('amb-icon');
+    var text = document.getElementById('amb-text');
+
+    var audio = null;
+    var wanted = true;           /* on unless they said otherwise */
+    try { wanted = window.localStorage.getItem(KEY) !== 'off'; } catch (e) { /* private window */ }
+
+    function paint(playing) {
+      btn.setAttribute('aria-pressed', String(playing));
+      icon.textContent = playing ? '🔊' : '🔇';
+      text.textContent = playing ? 'Music on' : 'Music';
+      btn.setAttribute('aria-label', playing ? 'Turn background music off' : 'Turn background music on');
+    }
+
+    function element() {
+      if (audio) return audio;
+      audio = new Audio();
+      audio.src = 'assets/ru-ambience-loop.m4a';
+      audio.loop = true;
+      audio.preload = 'none';
+      audio.volume = VOLUME;
+      /* 🔴 A SWALLOWED ERROR HERE IS INVISIBLE BY DEFINITION — the symptom is
+         silence, which is also what "off" looks like. Say it to the console
+         so the next person debugging this is not guessing. */
+      audio.addEventListener('error', function () {
+        console.warn('[askru] ambience failed to load', audio && audio.error);
+        paint(false);
+      });
+      return audio;
+    }
+
+    function start() {
+      var a = element();
+      var p = a.play();
+      if (p && p.then) {
+        return p.then(function () { paint(true); return true; })
+          .catch(function () { paint(false); return false; });
+      }
+      paint(!a.paused);
+      return Promise.resolve(!a.paused);
+    }
+
+    function stop() {
+      if (audio) audio.pause();
+      paint(false);
+    }
+
+    paint(false);
+
+    /* Try now; if the browser refuses, wait for the first thing they do. */
+    if (wanted) {
+      start().then(function (ok) {
+        if (ok) return;
+        var events = ['pointerdown', 'keydown', 'touchstart', 'scroll', 'wheel'];
+        var once = function () {
+          events.forEach(function (ev) { window.removeEventListener(ev, once); });
+          /* They may have pressed the button itself in the meantime. */
+          if (wanted) start();
+        };
+        events.forEach(function (ev) {
+          window.addEventListener(ev, once, { once: false, passive: true });
+        });
+      });
+    }
+
+    btn.addEventListener('click', function () {
+      wanted = !wanted;
+      try { window.localStorage.setItem(KEY, wanted ? 'on' : 'off'); } catch (e) { /* private window */ }
+      if (wanted) start(); else stop();
+    });
+
+    /* Out of sight, out of earshot. A tab left open in the background playing
+       music nobody can see is the thing that makes people hunt through tabs
+       for which one is making a noise. */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { if (audio) audio.pause(); }
+      else if (wanted && audio) { start(); }
+    });
+  })();
 </script>
 
 <script src="assets/config.js"></script>
