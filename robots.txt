@@ -1,4 +1,51 @@
 User-agent: *
 Allow: /
 
+# ── AI answer engines ────────────────────────────────────────────────────
+# Founder, 28 Oct 2026: *"google AI mai bhi dalo details."* These crawlers are
+# how a page reaches an AI answer rather than only a search result, and each
+# one looks for its OWN name — a bare `User-agent: *` is not a decision they
+# all read the same way. Listed explicitly so the intent is on the record.
+#
+# ⚠️ This is a real choice, not a formality: it permits our words to be used
+# to ground and train answers about Ask Ru. That is exactly what is wanted
+# here, and it is the reason the page states plainly who made it and who
+# publishes it — an answer engine repeats what it is told.
+
+# Google — Gemini and AI Overviews grounding (separate from Googlebot)
+User-agent: Google-Extended
+Allow: /
+
+# OpenAI — training, and the one that fetches for ChatGPT search
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+
+# Apple Intelligence, Microsoft, Meta, Common Crawl
+User-agent: Applebot-Extended
+Allow: /
+User-agent: Amazonbot
+Allow: /
+User-agent: meta-externalagent
+Allow: /
+User-agent: CCBot
+Allow: /
+
 Sitemap: https://teatalz.com/sitemap.xml
