@@ -74,6 +74,16 @@
     .inv-input::placeholder{color:#7d6371}
     .inv-input:focus{border-color:var(--rose);background:rgba(255,255,255,.07);box-shadow:0 0 0 3px rgba(199,78,134,.2)}
     .inv-input[aria-invalid="true"]{border-color:#ff9db0}
+    /* The reveal sits INSIDE the field, so the box keeps its shape and the
+       code never runs under the button: the input is padded on the right by
+       the button's width. 44px tall, because it is a control. */
+    .inv-field--reveal{position:relative}
+    .inv-field--reveal .inv-input{padding-right:74px}
+    .inv-reveal{position:absolute;right:6px;top:50%;transform:translateY(-50%);
+      min-height:44px;padding:0 12px;border:0;border-radius:10px;background:transparent;
+      color:var(--rose);font:inherit;font-size:.85rem;font-weight:600;cursor:pointer;letter-spacing:.2px}
+    .inv-reveal:hover{background:rgba(255,255,255,.06)}
+    .inv-reveal:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
     .field-err{font-size:.8rem;color:#ff9db0}
     .field-err:empty{display:none}
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
@@ -288,9 +298,20 @@
         <h1 id="h-lock">Investor Data Room</h1>
         <p class="lede">Private area for <strong>Teatalz House Of Rume Private Limited</strong>. Enter the access code you were given.</p>
         <form id="f-lock" novalidate>
-          <div class="inv-field">
+          <!-- 🔴 SHOW THE CODE — 28 Oct 2026. The founder: *"password ki box pe
+               view password ka kar, agar galat type hue to pata he nahi
+               chalega."*
+
+               It matters more here than on an ordinary login, because a wrong
+               try is expensive: the server counts failures GLOBALLY and locks
+               EVERYONE out for an hour after thirty of them, and it answers a
+               locked request with the same words as a wrong code. Somebody who
+               cannot see what they typed can burn attempts that are not theirs
+               to burn, and never learn which problem they have. -->
+          <div class="inv-field inv-field--reveal">
             <label for="passcode" class="sr-only">Access code</label>
             <input id="passcode" class="inv-input" type="password" placeholder="Access code" autocomplete="off" autocapitalize="off" spellcheck="false" required />
+            <button id="b-reveal" class="inv-reveal" type="button" aria-pressed="false" aria-label="Show the access code" title="Show the access code">Show</button>
           </div>
           <button id="b-lock" class="btn block" type="submit">Continue</button>
           <div id="lockmsg" class="inv-msg" role="status" aria-live="polite"></div>
@@ -509,6 +530,42 @@
       $(id).focus({ preventScroll: true });
     }
 
+    /* 🔴 SHOW / HIDE THE ACCESS CODE — 28 Oct 2026.
+
+       The founder: *"password ki box pe view password ka kar, agar galat type
+       hue to pata he nahi chaelga"*. It matters more here than on an ordinary
+       login: the lockout is GLOBAL — enough wrong tries in an hour and the
+       gate closes for every investor, not just whoever mistyped — and the
+       gate answers a wrong code and a lock with the same sentence. A typo you
+       cannot see costs everybody.
+
+       ⚠️ IT STAYS REVEALED AFTER A WRONG CODE, AND THAT IS THE POINT. The
+       first version of this reset to hidden after every attempt, which is
+       backwards: the moment you most need to read what you typed is the
+       moment it was rejected. It resets only on success, where the field is
+       cleared and the screen moves on anyway.
+
+       The caret is restored after the type swap, so revealing mid-typing does
+       not throw the cursor to the end. */
+    (function () {
+      var inp = $("passcode"), btn = $("b-reveal");
+      if (!inp || !btn) return;
+      function setShown(on) {
+        var at = inp.selectionStart;
+        inp.type = on ? "text" : "password";
+        btn.textContent = on ? "Hide" : "Show";
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        btn.setAttribute("aria-label", on ? "Hide the access code" : "Show the access code");
+        btn.title = btn.getAttribute("aria-label");
+        try { inp.setSelectionRange(at, at); } catch (e) {}
+      }
+      btn.addEventListener("click", function () {
+        setShown(inp.type === "password");
+        inp.focus();
+      });
+      window.__hideCode = function () { setShown(false); };
+    })();
+
     // ---- 1. passcode (checked by the Teatalz project; never stored in this page) ----
     // The server counts wrong codes and pauses every check for up to an hour after
     // too many (0174). It answers "no" in both cases, so the message covers both.
@@ -525,6 +582,7 @@
       b.disabled = false;
       if(ok === true){
         CODE = v; $("passcode").value = ""; setMsg(m, "", "");
+        if (window.__hideCode) window.__hideCode();   // cleared anyway; leave it hidden for the next visitor
         show("s-details"); $("g-name").focus();
       } else if(ok === null){
         setMsg(m, "err", "Couldn't verify right now. Please try again.");
