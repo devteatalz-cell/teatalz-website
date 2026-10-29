@@ -1392,11 +1392,27 @@ a { color: var(--plum-deep); }
         <p class="wl-msg" id="try-dakshina-msg" role="status" aria-live="polite"></p>
       </div>
 
-      <!-- 🔴 HIS PROMISE, AND IT SITS UNDER THE BUTTON WHERE HE PUT IT.
-           The live count stays silent until there is a number worth showing —
-           the threshold is the server's, not this page's. -->
+      <!-- 🔴 HIS DEAL, IN HIS OWN TERMS — 29 Oct 2026:
+           *"first 1000 ko free read hai, uske baad wali to waiting list join
+           karege till 10000 jo 31 rs denge, aur 1 to 10000 ko weekly 1 free
+           denge. Ye hi to deal hai, confuse kyo hota hai."*
+
+           ⚠️ THE 5,000 CAME OFF THIS LINE, and it should never have been on
+           it. The seat count (try.total_seats) is an internal COST CAP — how
+           many free website readings the day can afford — not an offer.
+           Printed as a promise it collided with the 1,000 on 25 published
+           reels: two numbers for things that sound identical. The cap still
+           works; it closes the trial when it is reached.
+
+           🔴 "FROM LAUNCH" ON THE WEEKLY IS NOT A HEDGE. The offer.launch_at
+           row is null, so the weekly grants nothing today — his own ruling,
+           that the weekly reading starts with the app. Saying it plainly is
+           the difference between a promise and a date.
+
+           The live count below stays silent until there is a number worth
+           showing — that threshold is the server's, not this page's. -->
       <p class="try-seats reveal" id="try-seats">
-        <span>This reading, here on the page, is free for the first 5,000 who join.</span>
+        <span>The first 1,000 on the list read free. After that a reading is ₹31 — and from launch, everyone in the first 10,000 gets one free reading a week.</span>
         <span id="try-count" hidden></span>
       </p>
     </div>
@@ -2153,6 +2169,13 @@ a { color: var(--plum-deep); }
        container width. A tree laid once is a tree that overflows the moment
        somebody turns their phone. */
     var CARD_ASPECT = 1.6, OVERLAP = 2.5, OVERLAP_Y = 3.2;
+    /* 29 Oct: *"size thoda chota kar"*. Every number below is derived from
+       the WIDTH, so the card grows with the container — on a desktop the
+       panel is wide and the cards came out 95px, which reads as a poster
+       rather than a deck. Capping the width the tree is laid in keeps a
+       phone and a desktop showing the same size of card, and the tree is
+       centred in whatever is left over. */
+    var TREE_MAX_W = 360;
     var deckCount = 0;
 
     /* Rows of 1, 2, 3 … until they hold `count`. The last row may be short,
@@ -2165,8 +2188,10 @@ a { color: var(--plum-deep); }
 
     function layTree() {
       if (!deck || !deckCount) return;
-      var W = deck.clientWidth;
-      if (!W) return;
+      var outer = deck.clientWidth;
+      if (!outer) return;
+      var W = Math.min(outer, TREE_MAX_W);
+      var pad = (outer - W) / 2;
       var rows = triangleRows(deckCount);
       var stepX = W / (rows - 1 + OVERLAP);
       var cardW = stepX * OVERLAP;
@@ -2185,10 +2210,15 @@ a { color: var(--plum-deep); }
           var b = backs[i];
           b.style.width = cardW + 'px';
           b.style.height = cardH + 'px';
-          b.style.left = (left + c * stepX) + 'px';
-          b.style.top = (r * stepY) + 'px';
-          /* Later rows sit over earlier ones, like a dealt fan. */
-          b.style.zIndex = String(r + 1);
+          b.style.left = (pad + left + c * stepX) + 'px';
+          /* 🔴 WIDEST ROW AT THE TOP — the app does
+             y = (rows - row) * stepY, and I ported the arithmetic without
+             the inversion, so the website grew a pyramid instead of a tree.
+             The founder saw it at once: *"tree ulta hai"*. A tree spreads
+             above and narrows to one below. */
+          b.style.top = ((rows - 1 - r) * stepY) + 'px';
+          /* The row below overlaps the one above it, like a dealt fan. */
+          b.style.zIndex = String(rows - r);
         }
       }
     }
