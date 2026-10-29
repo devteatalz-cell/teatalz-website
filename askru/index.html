@@ -567,8 +567,12 @@ h2 {
 .try-practice[aria-pressed="true"] { background: var(--plum); border-color: var(--plum); color: #fff; }
 /* Today's practice, led. A touch warmer than the body copy around it,
    because it is the one line in this panel that asks for something. */
-.try-buy { margin: 14px 0 0; text-align: center; }
-.try-buy-go { width: auto; min-height: 44px; padding: 0 24px; display: inline-block; }
+/* The panel under the streak. Same shell as the streak above it, so the two
+   read as one column rather than as a box and an advertisement. */
+.try-more { text-align: left; }
+.try-buy-go { width: auto; min-height: 44px; padding: 0 24px; display: inline-block; margin-top: 12px; }
+/* Quieter than the body, because it is the line that takes the pressure off. */
+.try-more-note { margin: 10px 0 0; font-size: 13px; color: var(--ink-muted); }
 
 .try-todays { margin: 10px 0 0; font-size: 15px; line-height: 1.55; }
 .try-todays b { color: var(--plum); }
@@ -1397,15 +1401,6 @@ a { color: var(--plum-deep); }
            at ten; going deeper is the reading continuing, not a question
            asked of it. It does spend money, and the day cap is checked. -->
       <button class="btn btn-primary try-deeper" type="button" id="try-deeper" hidden>Detail it out</button>
-      <!-- 🔴 THE PAID READING, once the free thousand are gone. Hidden
-           until `try-ru` answers `canPay`, which it does for a seats
-           refusal and nothing else. The label is filled from the amount
-           the SERVER opened the order for — never a number written on
-           this page. -->
-      <div class="try-buy" id="try-buy" hidden>
-        <button class="btn btn-primary try-buy-go" type="button" id="try-buy-go">Have this reading</button>
-        <p class="wl-msg" id="try-buy-msg" role="status" aria-live="polite"></p>
-      </div>
       <div class="try-spread" id="try-spread" hidden></div>
 
       <!-- step 3 — the ten. -->
@@ -1441,6 +1436,22 @@ a { color: var(--plum-deep); }
         <div class="try-practices" id="try-practices"></div>
         <p class="try-streak-note">Rewards for a streak start when the app opens. Until then this only counts the days.</p>
         <p class="wl-msg" id="try-streak-msg" role="status" aria-live="polite"></p>
+      </div>
+
+      <!-- 🔴 ONE MORE READING, UNDER THE STREAK — his placement, 29 Oct 2026:
+           *"uska option daily streak ke option ke neeche deda"*. It opens when
+           the free reading is used and there is no free one left today.
+
+           ⚠️ THE PRICE IS NOT IN THIS FILE. `try-reading-pay` answers a GET
+           with the amount and the label is filled from it; with no readable
+           price the button keeps its plain words rather than inventing a
+           number nobody charges. -->
+      <div class="try-panel try-more" id="try-buy" hidden>
+        <p class="try-after-title">One more, if you want it</p>
+        <p class="try-after-body">Your free reading is used, and that one was yours for nothing. If something is still sitting with you — the same question from another side, or a different one — Ru can read you again.</p>
+        <button class="btn btn-primary try-buy-go" type="button" id="try-buy-go">Read me again</button>
+        <p class="try-more-note">Only if it helps. Nothing changes if you do not.</p>
+        <p class="wl-msg" id="try-buy-msg" role="status" aria-live="polite"></p>
       </div>
 
       <!-- ── after the reading — his order, 29 Oct 2026 ─────────────────
@@ -2176,6 +2187,10 @@ a { color: var(--plum-deep); }
       modes.hidden = true;
       askForm.hidden = true;
       pick.hidden = true;
+      /* The door closes and the way through it opens in the same breath —
+         otherwise somebody on a reload is told "no more" with nothing to do
+         about it. */
+      showBuyIfSpent();
     }
 
     var deeperBtn = document.getElementById('try-deeper');
@@ -2192,6 +2207,27 @@ a { color: var(--plum-deep); }
     var buyGo = document.getElementById('try-buy-go');
     var buyMsg = document.getElementById('try-buy-msg');
 
+    /* 🔴 THE NUMBER COMES FROM THE SERVER, ONCE, AND ONLY TOUCHES THE LABEL.
+       A `null` price leaves the button saying "Read me again" — correct, and
+       better than a figure the database did not agree to. */
+    var buyPaise = null;
+    api('try-reading-pay', { method: 'GET' }).then(function (res) {
+      var b = res.body || {};
+      if (res.status >= 200 && res.status < 300 && b.ok && typeof b.amountPaise === 'number') {
+        buyPaise = b.amountPaise;
+        buyGo.textContent = 'Read me again — ₹' + (buyPaise / 100);
+      }
+    }).catch(function () { /* the plain label stands */ });
+
+    /* 🔴 THE ONE PLACE THE OFFER OPENS. Called wherever the page learns that
+       the free reading is spent — after a reading lands, and from the
+       close-down path on a reload. `showStreak` is its neighbour and this
+       sits directly under it, which is where he asked for it. */
+    function showBuyIfSpent() {
+      if (!hasRead || moreOpen) return;
+      buyBox.hidden = false;
+    }
+
     buyGo.addEventListener('click', function () {
       if (!token) return;
       buyGo.disabled = true;
@@ -2207,8 +2243,16 @@ a { color: var(--plum-deep); }
              before they leave — so the page can never quote a price the
              database did not charge. */
           var rs = typeof b.amountPaise === 'number' ? (b.amountPaise / 100) : null;
-          say(buyMsg, rs !== null ? ('Opening the payment page for ₹' + rs + '. Come back here when it is done.') : 'Opening the payment page. Come back here when it is done.', 'ok');
+          say(buyMsg, rs !== null ? ('Opening the payment page for ₹' + rs + '. Come back here and ask.') : 'Opening the payment page. Come back here and ask.', 'ok');
           window.open(b.payUrl, '_blank', 'noopener');
+          /* ⚠️ THE MODES COME BACK NOW, NOT WHEN THEY PAY. The payment happens
+             in another tab and this page is never told, so waiting for a
+             signal we do not receive would leave somebody who HAS paid with
+             no way to ask. If they do not pay, the ask meets the same offer
+             again — recoverable, and nothing is lost either way. */
+          pick.hidden = false;
+          modes.hidden = false;
+          askForm.hidden = false;
           return;
         }
         try { console.error('try-reading-pay failed', res.status, (b && (b.error && b.error.code)) || ''); } catch (e) { }
@@ -3018,8 +3062,12 @@ a { color: var(--plum-deep); }
          hata"*. A control that is only ever turned on is a control that is
          always on. */
       deeperBtn.hidden = !(!spreadLaid && !b.spread && b.mode === 'tarot');
-      /* They have their reading — paid or free — so nothing is for sale. */
+      /* 🔴 THEY HAVE THEIR READING — AND MAY WANT ANOTHER. This used to hide
+         the offer outright, which was right when it only ever appeared on a
+         seats refusal. Now it is a standing offer under the streak, so it
+         closes only while a free one is still available. */
       buyBox.hidden = true;
+      showBuyIfSpent();
       if (b.spread) layTheFive(b.spread);
 
       /* 🔴 NO FOLLOW-UP QUESTIONS ON THE WEBSITE — 29 Oct 2026. He asked for
