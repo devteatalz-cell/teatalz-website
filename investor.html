@@ -506,7 +506,11 @@
       <!-- 🔴 TRACTION. Counts and rupees-per-reading only: the people are in
            the panel below, behind a different function. Two doors, so that
            widening this one cannot widen it into a mailing list. -->
-      <section class="sec" aria-labelledby="tr-a-h">
+      <!-- NOT LIVE YET. Founder, 29 Oct 2026, after this went out: "Investor
+           dashboard deploy nahi karna hai abhi bas bana ke ready ban ke rakh."
+           Built, measured and left behind one attribute. Remove the `hidden`
+           and the line in `loadAskRuPanels` to show it; nothing else changes. -->
+      <section class="sec" aria-labelledby="tr-a-h" id="sec-traction" hidden>
         <div class="sec-head"><h2 id="tr-a-h">Traction</h2><span class="cadence">Live</span></div>
         <p class="sec-note">Counted from Ask Ru’s own database when you opened this page. Nothing here is an estimate or a projection.</p>
         <div id="a-tr" aria-live="polite"><span class="muted">Loading…</span></div>
@@ -858,7 +862,8 @@
           $('a-wl').innerHTML = SOON;
           return;
         }
-        loadAskRuTraction();
+        /* Held back on purpose — see the hidden section it fills. */
+        if (!document.getElementById("sec-traction").hidden) loadAskRuTraction();
         loadAskRuWaitlist();
       });
     }
