@@ -2838,6 +2838,17 @@ a { color: var(--plum-deep); }
          try-ru now refuses that outright. But a refusal is the wall; this
          is the door. Leaving three buttons on screen that cannot do what
          they say is how the hour got spent in the first place. */
+      /* ⚠️ UNLESS NOTHING WAS READ. `noReading` is the server answering with
+         Ru explaining why it could not cast a chart — a town it could not
+         place, a date that did not arrive. She ends those by asking the
+         person to correct the field and ask again, so the field has to still
+         be there. Taking the form away here made her instruction
+         unfollowable. */
+      if (b.noReading) {
+        askForm.hidden = false;
+        try { askForm.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
+        return true;
+      }
       modes.hidden = true;
       askForm.hidden = true;
       showStreak();
@@ -2880,7 +2891,20 @@ a { color: var(--plum-deep); }
       api('try-ru', { body: body }).then(function (res) {
         go.disabled = false;
         go.textContent = was;
-        if (render(res)) {
+        /* 🔴 "ok" IS NOT "READ" — 29 Oct 2026. When the server cannot cast a
+           chart (a town it could not place, a date that did not arrive) it
+           now answers with Ru saying so, in beats, costing nothing and taking
+           no seat. That answer is `ok: true`, and this branch filed it as the
+           reading: it closed the form, took the three modes away and opened
+           "How was your reading?".
+
+           So she said "start typing it again just above" to somebody whose
+           above had gone, and then asked them to review a reading that never
+           happened. The sentence was true and the door was shut behind it.
+
+           `noReading` is the server saying which it was. Everything below
+           runs only for an answer that WAS one. */
+        if (render(res) && !(res.body && res.body.noReading)) {
           /* The reading is taken. The step that offered it is done. */
           pick.hidden = true;
           /* A fresh reading starts with an empty table. */
