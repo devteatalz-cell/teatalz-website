@@ -1987,7 +1987,6 @@ a { color: var(--plum-deep); }
       ritual.hidden = true;
       cards.hidden = !cardsWanted;
       if (cardsWanted) layTree();
-      askForm.hidden = false;
       try { (cardsWanted ? cards : askForm).scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
     });
     var deck = document.getElementById('try-deck');
@@ -2419,7 +2418,15 @@ a { color: var(--plum-deep); }
       ritual.hidden = false;
       ritualClosing.textContent = chosen === 'vedic' ? 'Then press Read.' : 'Then pick your card.';
       ritualGo.textContent = chosen === 'vedic' ? 'Read' : 'Pick my card';
-      askForm.hidden = true;
+      /* 🔴 THE QUESTION BOX IS NEVER HIDDEN. The first version of this hid it
+         while the ritual was up - and the ritual's fourth step is *"say your
+         question to yourself, silently"*, which nobody can do before they
+         have written one. The founder opened it and found a page with four
+         instructions and nowhere to type.
+
+         The app's order is question, then ritual, then card. On this page
+         everything is one panel, so the ritual sits ABOVE the box rather
+         than in front of it. */
 
       /* 🔴 ORACLE LAYS CARDS TOO — 29 Oct 2026. This read "Oracle draws one
          with a breath, that is its own promise, not a choice", and the
