@@ -535,6 +535,14 @@ h2 {
   border-top: 1px solid rgba(255,255,255,.14); color: var(--ink-muted); }
 .try-deeper { width: auto; min-height: 44px; padding: 0 22px; margin: 0 auto 16px; display: block; }
 
+/* The drawn tarot card. `contain`, not `cover`: a tarot card carries its
+   title along the bottom and its number along the top, and cropping takes
+   the one thing that names it. The app makes the same choice for the same
+   reason — see `CardArt`. */
+.try-card-art { display: block; margin: 0 auto 10px; width: 168px; height: 282px;
+  object-fit: contain; border-radius: 10px; border: 1px solid var(--line-faint);
+  background: var(--card); }
+
 /* The review box. Stars first, because most people will give a number and
    nothing else, and that is still worth having. */
 .try-review { margin: 0 0 16px; }
@@ -2811,9 +2819,32 @@ a { color: var(--plum-deep); }
           var nm = document.createElement('span'); nm.className = 'nm';  nm.textContent = String(b.card.name);
           cardEl.appendChild(g); cardEl.appendChild(f); cardEl.appendChild(nm);
         } else {
-          cardEl = document.createElement('p');
-          cardEl.className = 'try-card';
-          cardEl.textContent = String(b.card.name);
+          /* 🔴 THE PICTURE, WHEN THE SERVER NAMED A FILE FOR IT. The page
+             does NOT work the name out from the card: majors keep the
+             article the card code strips — `major_00_fool` is
+             `00-the-fool.jpg` — and a second guess at that rule shows an
+             empty frame, which looks exactly like a slow network. `art` is
+             null for a code this deck does not know, and then the name
+             alone is drawn, as it always was.
+
+             ⚠️ AND IF THE FILE IS MISSING THE FRAME GOES, not the card. A
+             reading without its picture is a whole reading; a broken-image
+             icon over it is not. */
+          cardEl = document.createElement('div');
+          if (b.card.art) {
+            var art = document.createElement('img');
+            art.className = 'try-card-art';
+            art.src = 'assets/tarot/' + String(b.card.art) + '.jpg';
+            art.alt = String(b.card.name);
+            art.loading = 'eager';
+            art.width = 168; art.height = 282;
+            art.addEventListener('error', function () { art.remove(); });
+            cardEl.appendChild(art);
+          }
+          var cname = document.createElement('p');
+          cname.className = 'try-card';
+          cname.textContent = String(b.card.name);
+          cardEl.appendChild(cname);
         }
         out.appendChild(cardEl);
         out.hidden = false;
