@@ -703,7 +703,7 @@
         /* Straight into the room: a chooser with one tile is a click that
            asks nothing. */
         show("s-askru");
-        if(!loaded.askru){ loaded.askru = true; loadAskRu(); loadAskRuBuild(); loadAskRuTraction(); loadAskRuWaitlist(); }
+        if(!loaded.askru){ loaded.askru = true; loadAskRuPanels(); loadAskRuBuild(); }
       } else {
         show("s-rooms");
       }
@@ -739,7 +739,7 @@
     $("tile-askru").addEventListener("click", function(){
       if(!askRuReady()) return;
       show("s-askru");
-      if(!loaded.askru){ loadAskRu(); loadAskRuBuild(); loadAskRuTraction(); loadAskRuWaitlist(); }
+      if(!loaded.askru){ loadAskRuPanels(); loadAskRuBuild(); }
     });
     Array.prototype.forEach.call(document.querySelectorAll("[data-back]"), function(b){
       if(ASKRU_ONLY){
@@ -813,7 +813,13 @@
         var r = await rpc("get_data_room", { code: CODE }, true);
         var d = r.ok ? await r.json() : null;
         // ok:false here means the Ask Ru project has no matching passcode yet — "opening soon", not "wrong code".
-        if(!d || d.ok !== true || !d.docs || !d.docs.length){ box.innerHTML = SOON; return; }
+        /* 🔴 AND THE ANSWER IS RETURNED, because two more panels depend on it.
+           Each of them verifies the same passcode against the same hash and
+           counts a mismatch towards the same lockout — thirty in an hour. Run
+           blind alongside this one they would make every entry worth three
+           failures instead of one, and a mismatched Ask Ru hash would lock the
+           room after ten invited investors rather than thirty. */
+        if(!d || d.ok !== true || !d.docs || !d.docs.length){ box.innerHTML = SOON; return d && d.ok === true; }
         loaded.askru = true;
         // Only the first video goes to the player; the rest of the documents stay in the list.
         var avid = d.docs.filter(function(x){ return x.category === "Video"; })[0];
@@ -831,9 +837,30 @@
           d.docs = d.docs.filter(function(x){ return x !== avid; });
         }
         box.innerHTML = docListHtml(d.docs.map(function(x){ return Object.assign({}, x, { url: bust(x.url), logAs: "Ask Ru — " + x.title }); }));
+        return true;
       } catch(e){
         box.innerHTML = '<span class="errtxt">Couldn\'t load the Ask Ru room. Please try again.</span>';
+        /* Unreachable is not "wrong code". Nothing else is attempted, because
+           whatever stopped this would stop them too. */
+        return false;
       }
+    }
+
+    /**
+     * The two panels that share the Ask Ru passcode, run ONLY once it is known
+     * to match. See the comment inside `loadAskRu` for what happens otherwise.
+     */
+    function loadAskRuPanels(){
+      return loadAskRu().then(function(ok){
+        if(!ok){
+          /* Said once, in the place each panel would have said it. */
+          $('a-tr').innerHTML = SOON;
+          $('a-wl').innerHTML = SOON;
+          return;
+        }
+        loadAskRuTraction();
+        loadAskRuWaitlist();
+      });
     }
     /**
      * The waiting list, from Ask Ru’s own project.
