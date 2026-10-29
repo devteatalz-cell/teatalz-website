@@ -2828,7 +2828,22 @@ a { color: var(--plum-deep); }
          ⚠️ `b.followUpsLeft` is still sent and still deliberately ignored.
          The server-side cap has not moved — this page simply stops offering
          the box, and the streak takes its place. */
-      follow.hidden = true;
+      /* 🔴 THE SERVER DECIDES, NOT THIS PAGE — 29 Oct 2026, second ruling.
+         The follow-up box came off this morning on cost grounds. This
+         afternoon: *"aaj 6 baje tak ke liye free read rakh, multiple
+         questions, uske baad 1 question only"*.
+
+         So the page stops holding an opinion. `try.followups_until` is a
+         row with a time in it; after that instant the server returns 0
+         left and this box never opens again — nothing to deploy, nobody
+         to remember. Before it, the count is whatever the cap says.
+
+         ⚠️ A missing or unreadable number reads as NONE, which is both
+         the state he asked for after six and the safe end of the choice. */
+      var left = typeof b.followUpsLeft === 'number' ? b.followUpsLeft : 0;
+      follow.hidden = left <= 0;
+      if (left > 0) say(fmsg, left === 1 ? 'One more question.' : left + ' more questions.');
+
       /* 🔴 THE MODES COME OFF THE MOMENT THE READING LANDS — 29 Oct 2026.
          The founder took a Vedic reading, scrolled up, chose Tarot, picked
          a card, and was answered about yesterday's Saturn pratyantar: the
@@ -2851,7 +2866,10 @@ a { color: var(--plum-deep); }
       }
       modes.hidden = true;
       askForm.hidden = true;
-      showStreak();
+      /* ⚠️ NOT WHILE THEY STILL HAVE QUESTIONS. The streak panel is the
+         end of the visit; drawing it over a live follow-up box tells
+         somebody mid-conversation that the conversation is over. */
+      if (left <= 0) showStreak();
       return true;
     }
 
@@ -3118,11 +3136,9 @@ a { color: var(--plum-deep); }
     /* ── step 3 — the ten ──────────────────────────────────────────── */
     follow.addEventListener('submit', function (e) {
       e.preventDefault();
-      /* 🔴 OFF — see the streak comment above. The form is never unhidden
-         now, so this is a wall rather than a path, and it is here because
-         the element outliving its purpose is exactly how a removed feature
-         comes back by accident. */
-      return;
+      /* ✏️ The early return that was here is gone — see the window above.
+         What stops a follow-up now is the server answering 0, not a line
+         in this file, so there is nothing here to forget to take out. */
       var text = (fq.value || '').trim();
       if (text.length < 4) { say(fmsg, 'A few words is enough.', 'bad'); fq.focus(); return; }
 
