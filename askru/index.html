@@ -2864,12 +2864,22 @@ a { color: var(--plum-deep); }
          what he asked for this afternoon. The modes and the question box
          are HOW somebody asks again, so they stay.
 
-         ⚠️ And the streak waits. It is the end of the visit; drawing it
-         over a reader who can still ask tells them the visit is over. */
+         🔴 AND THE STREAK IS DRAWN ANYWAY. The first version of this block
+         held it back, reasoning that the panel is the end of the visit and
+         should not appear over somebody who can still ask. That reasoning
+         cost it the whole afternoon: `moreReadings` is true until six, so
+         the streak he asked for twice today would simply never have
+         appeared. He caught it in one sentence — *"website pe deploy nahi
+         kiya kya, daily streak wala"* — and it was deployed; it was
+         unreachable.
+
+         The panel is not an ending. It is a quiet record somebody marks and
+         comes back to, and it sits below everything else. */
       if (b.moreReadings) {
         modes.hidden = false;
         askForm.hidden = false;
         q.value = '';
+        showStreak();
         return true;
       }
       modes.hidden = true;
