@@ -511,6 +511,22 @@ h2 {
 .try-out p:last-child { margin-bottom: 0; }
 .try-card { font-weight: 700; letter-spacing: .3px; margin-bottom: 10px; }
 
+/* The five on the table, each with its position and its own clarifier. */
+.try-spread { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 10px; margin: 4px 0 16px; }
+.try-pos { border: 1px solid rgba(255,255,255,.18); border-radius: 12px;
+  padding: 12px 10px; text-align: center; background: rgba(255,255,255,.04); }
+.try-pos .where { display: block; font-size: 11.5px; letter-spacing: .9px;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+.try-pos .what { display: block; font-weight: 700; line-height: 1.35; font-size: 14.5px; }
+.try-pos .clar { display: block; margin-top: 8px; font-size: 12.5px; color: var(--plum);
+  background: none; border: 0; padding: 6px 2px; cursor: pointer; font: inherit;
+  font-size: 12.5px; min-height: 32px; }
+.try-pos .clar[disabled] { opacity: .5; cursor: default; }
+.try-pos .extra { display: block; margin-top: 8px; padding-top: 8px; font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,.14); color: var(--ink-muted); }
+.try-deeper { width: auto; min-height: 44px; padding: 0 22px; margin: 0 auto 16px; display: block; }
+
 /* 🔴 THE ORACLE FACE — the same design the app draws (card-face.ts): a
    portrait panel, the family in words, one glyph. It is not a placeholder
    for art. A grey box with a question mark says something is missing;
@@ -1289,6 +1305,18 @@ a { color: var(--plum-deep); }
         </div>
       </div>
 
+      <!-- ── detail it out ───────────────────────────────────────────
+           🔴 THE SAME STEP THE APP HAS. One card is the opening; five are
+           the reading. Hidden until a TAROT reading has landed — it means
+           nothing on a Vedic or Oracle session, and the server refuses it
+           there anyway.
+
+           ⚠️ It does not spend a follow-up. He capped follow-up QUESTIONS
+           at ten; going deeper is the reading continuing, not a question
+           asked of it. It does spend money, and the day cap is checked. -->
+      <button class="btn btn-primary try-deeper" type="button" id="try-deeper" hidden>Detail it out</button>
+      <div class="try-spread" id="try-spread" hidden></div>
+
       <!-- step 3 — the ten. -->
       <form class="try-panel try-follow" id="try-follow" novalidate hidden>
         <label class="sr-only" for="try-fq">Ask her something else</label>
@@ -1939,6 +1967,72 @@ a { color: var(--plum-deep); }
       buildDeck(n);
     }).catch(function () { /* a counter is not worth an error message */ });
 
+    /* ── the five on the table ──────────────────────────────────────
+       🔴 THE PAGE NEVER LEARNS A CODE. It is handed five NAMES in position
+       order and sends back a POSITION — the same wall that has always stood
+       between this browser and the deck. */
+    var deeperBtn = document.getElementById('try-deeper');
+    var spreadEl = document.getElementById('try-spread');
+    var spreadLaid = false;
+
+    function layTheFive(sp) {
+      if (!sp || !sp.cards || !sp.cards.length) return;
+      /* Rebuilt whole on every answer, so a clarifier can never leave half
+         the table from one call and half from another. */
+      spreadEl.innerHTML = '';
+      for (var i = 0; i < sp.cards.length; i++) {
+        (function (idx) {
+          var cell = document.createElement('div');
+          cell.className = 'try-pos';
+          var w = document.createElement('span'); w.className = 'where';
+          w.textContent = (sp.positions && sp.positions[idx]) || '';
+          var c = document.createElement('span'); c.className = 'what';
+          c.textContent = String(sp.cards[idx]);
+          cell.appendChild(w); cell.appendChild(c);
+
+          var isClarified = sp.clarifier && sp.clarifier.position === idx;
+          if (isClarified) {
+            var ex = document.createElement('span'); ex.className = 'extra';
+            ex.textContent = 'Clarifier — ' + String(sp.clarifier.name);
+            cell.appendChild(ex);
+          } else {
+            var cb = document.createElement('button');
+            cb.type = 'button'; cb.className = 'clar';
+            cb.textContent = 'Clarify this';
+            cb.addEventListener('click', function () { askSpread({ clarify: idx }, cb); });
+            cell.appendChild(cb);
+          }
+          spreadEl.appendChild(cell);
+        })(i);
+      }
+      spreadEl.hidden = false;
+      spreadLaid = true;
+    }
+
+    /* One path for both, because they differ only in what they ask for and
+       both answer with the same shape. */
+    function askSpread(what, btn) {
+      var was = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Ru is reading…';
+      var payload = { token: token };
+      if (what.clarify === undefined) payload.deeper = true; else payload.clarify = what.clarify;
+      api('try-ru', { body: payload }).then(function (res) {
+        btn.disabled = false;
+        btn.textContent = was;
+        if (render(res) && res.body && res.body.spread) {
+          layTheFive(res.body.spread);
+          deeperBtn.hidden = true;
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        btn.textContent = was;
+        say(fmsg, 'We could not reach Ru just now. Try again in a moment.', 'bad');
+      });
+    }
+
+    deeperBtn.addEventListener('click', function () { askSpread({}, deeperBtn); });
+
     /* ── the birth place ───────────────────────────────────────────
        🔴 `search_places` IS DENIED TO ANON — measured, not assumed: with
        the public key it answers 42501. So the lookup goes through `try-ru`
@@ -2197,6 +2291,16 @@ a { color: var(--plum-deep); }
         if (angelOut.hidden) angelWrap.hidden = false;
       }
 
+      /* 🔴 OFFERED ONLY AFTER A TAROT READING, and only once. `b.spread`
+         arriving means this answer IS the spread, so the button has done its
+         job.
+         ⚠️ `b.mode`, NOT the page's `chosen`. `chosen` is set when they tap a
+         mode and is empty after a reload, so a tarot session resumed in a new
+         tab would never be offered the five. The session's mode comes back
+         with every answer. */
+      if (!spreadLaid && !b.spread && b.mode === 'tarot') deeperBtn.hidden = false;
+      if (b.spread) layTheFive(b.spread);
+
       var left = typeof b.followUpsLeft === 'number' ? b.followUpsLeft : 0;
       if (left > 0) {
         follow.hidden = false;
@@ -2246,6 +2350,8 @@ a { color: var(--plum-deep); }
         if (render(res)) {
           /* The reading is taken. The step that offered it is done. */
           pick.hidden = true;
+          /* A fresh reading starts with an empty table. */
+          spreadLaid = false; spreadEl.hidden = true; spreadEl.innerHTML = '';
           q.value = '';
           /* 🔴 AFTER THE FIRST READING, NOT AFTER THE TENTH FOLLOW-UP.
              "Reading end hone pe" is ambiguous here — a visitor gets one
