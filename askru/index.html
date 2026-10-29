@@ -2828,21 +2828,15 @@ a { color: var(--plum-deep); }
          ⚠️ `b.followUpsLeft` is still sent and still deliberately ignored.
          The server-side cap has not moved — this page simply stops offering
          the box, and the streak takes its place. */
-      /* 🔴 THE SERVER DECIDES, NOT THIS PAGE — 29 Oct 2026, second ruling.
-         The follow-up box came off this morning on cost grounds. This
-         afternoon: *"aaj 6 baje tak ke liye free read rakh, multiple
-         questions, uske baad 1 question only"*.
+      /* 🔴 NO FOLLOW-UP BOX ON THE WEBSITE — and the afternoon did not
+         change that. I read *"multiple questions"* as follow-ups, shipped
+         them, and was corrected inside a minute: *"arey follow-up nahi"*.
+         A follow-up is more words about the card already down; what he
+         wants is to ASK AGAIN. That is the block below, not this one.
 
-         So the page stops holding an opinion. `try.followups_until` is a
-         row with a time in it; after that instant the server returns 0
-         left and this box never opens again — nothing to deploy, nobody
-         to remember. Before it, the count is whatever the cap says.
-
-         ⚠️ A missing or unreadable number reads as NONE, which is both
-         the state he asked for after six and the safe end of the choice. */
-      var left = typeof b.followUpsLeft === 'number' ? b.followUpsLeft : 0;
-      follow.hidden = left <= 0;
-      if (left > 0) say(fmsg, left === 1 ? 'One more question.' : left + ' more questions.');
+         The server sends 0 here on this surface, always. The box stays
+         shut whatever it sends. */
+      follow.hidden = true;
 
       /* 🔴 THE MODES COME OFF THE MOMENT THE READING LANDS — 29 Oct 2026.
          The founder took a Vedic reading, scrolled up, chose Tarot, picked
@@ -2864,12 +2858,23 @@ a { color: var(--plum-deep); }
         try { askForm.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
         return true;
       }
+      /* 🔴 THE DOOR STAYS OPEN WHILE THE WINDOW IS. `moreReadings` is the
+         server saying that asking again will start a fresh reading rather
+         than be read as a follow-up to this one — which is the whole of
+         what he asked for this afternoon. The modes and the question box
+         are HOW somebody asks again, so they stay.
+
+         ⚠️ And the streak waits. It is the end of the visit; drawing it
+         over a reader who can still ask tells them the visit is over. */
+      if (b.moreReadings) {
+        modes.hidden = false;
+        askForm.hidden = false;
+        q.value = '';
+        return true;
+      }
       modes.hidden = true;
       askForm.hidden = true;
-      /* ⚠️ NOT WHILE THEY STILL HAVE QUESTIONS. The streak panel is the
-         end of the visit; drawing it over a live follow-up box tells
-         somebody mid-conversation that the conversation is over. */
-      if (left <= 0) showStreak();
+      showStreak();
       return true;
     }
 
@@ -2922,7 +2927,11 @@ a { color: var(--plum-deep); }
 
            `noReading` is the server saying which it was. Everything below
            runs only for an answer that WAS one. */
-        if (render(res) && !(res.body && res.body.noReading)) {
+        /* ⚠️ AND NOT WHILE MORE READINGS ARE OPEN. `pick` holds the modes,
+           the deck and the question box — everything somebody needs to ask
+           again. Closing it this afternoon would take away the thing the
+           window exists to allow. */
+        if (render(res) && !(res.body && res.body.noReading) && !(res.body && res.body.moreReadings)) {
           /* The reading is taken. The step that offered it is done. */
           pick.hidden = true;
           /* A fresh reading starts with an empty table. */
