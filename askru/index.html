@@ -498,7 +498,15 @@ h2 {
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .try-modes { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 22px 0 0; }
 /* 44px so a thumb can hit it — the same floor the app holds its controls to. */
-.try-mode { min-height: 44px; padding: 0 20px; }
+/* 🔴 THE MARKS — 29 Oct 2026: *"vedic tarot and oracle buttons ko beautify
+   kar with artefact, plain to bhot ajeeb lag raha hai"*. The app draws the
+   same three (`SectionIcon`): a ring with its centre, two cards fanned, a
+   four-pointed star. Inline SVG, so no file and no request, and they take
+   `currentColor` — the selected state carries the mark with it. */
+.try-mode { min-height: 52px; padding: 0 18px; display: inline-flex;
+  align-items: center; gap: 9px; }
+.try-mode .mark { width: 22px; height: 22px; flex: 0 0 22px; opacity: .9; }
+.try-mode[aria-pressed="true"] .mark { opacity: 1; }
 .try-mode[aria-pressed="true"] { outline: 2px solid currentColor; outline-offset: 2px; }
 #try-form { margin-top: 18px; }
 #try-q { width: 100%; min-height: 88px; padding: 12px 14px; border-radius: 12px;
@@ -600,11 +608,16 @@ h2 {
 .try-cards { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-faint); }
 .try-cards-note { margin: 0 0 12px; font-size: 14.5px; color: var(--ink-muted); }
 .try-cards-note strong { color: var(--ink); }
-/* 🔴 AUTO-FILL, NOT `repeat(5)`. The deck is the whole deck now, so the
-   column count follows the width instead of the old five. `max-height`
-   keeps seventy-eight backs from burying the question box below them. */
-.try-deck { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
-  gap: 8px; max-height: 46vh; overflow-y: auto; padding: 2px; }
+/* 🔴 A TREE, NOT A GRID — and not a scrolling one. `tree.ts` records why
+   the app has this shape: a six-column grid was "about a screen and a half
+   of scrolling", and he said **"scroll na karna pade, in a tree shape"**.
+   Twelve rows, one more card in each, 1+2+…+12 = 78 exactly.
+
+   The cards are placed absolutely from the same arithmetic the app uses —
+   see `layTree()` — so this is ported, not re-eyeballed. Nothing here sets
+   a column count or a gap, because the script sets every position. */
+.try-deck { position: relative; padding: 0; margin-top: 14px; }
+.try-deck .try-card-back { position: absolute; margin: 0; }
 
 /* 🔴 `[hidden]` LOSES TO ANY AUTHOR `display`, AND IT COST A LIVE PAGE.
    The HTML hidden attribute is `display:none` from the USER AGENT sheet, so
@@ -1228,9 +1241,9 @@ a { color: var(--plum-deep); }
       <!-- step 2 — how you want to be read. -->
       <div class="try-panel reveal" id="try-pick" hidden>
         <div class="try-modes" id="try-modes" role="group" aria-label="Choose a reading">
-          <button class="btn try-mode" type="button" data-mode="vedic">Vedic chart</button>
-          <button class="btn try-mode" type="button" data-mode="tarot">Tarot</button>
-          <button class="btn try-mode" type="button" data-mode="oracle">Oracle card</button>
+          <button class="btn try-mode" type="button" data-mode="vedic"><svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/></svg><span>Vedic chart</span></button>
+          <button class="btn try-mode" type="button" data-mode="tarot"><svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.2" y="5.4" width="9" height="13.2" rx="1.6" transform="rotate(-13 8.7 12)"/><rect x="11.2" y="5.4" width="9" height="13.2" rx="1.6" transform="rotate(13 15.7 12)"/></svg><span>Tarot</span></button>
+          <button class="btn try-mode" type="button" data-mode="oracle"><svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2c.7 4.6 2.5 6.4 7.1 7.1 -4.6.7 -6.4 2.5 -7.1 7.1 -.7 -4.6 -2.5 -6.4 -7.1 -7.1 4.6 -.7 6.4 -2.5 7.1 -7.1z" fill="currentColor" stroke="none"/></svg><span>Oracle card</span></button>
         </div>
 
         <!-- 🔴 ONLY VEDIC ASKS FOR THESE, and only because only Vedic uses
@@ -1383,7 +1396,7 @@ a { color: var(--plum-deep); }
            The live count stays silent until there is a number worth showing —
            the threshold is the server's, not this page's. -->
       <p class="try-seats reveal" id="try-seats">
-        <span>This first reading is free for the first 5,000 people.</span>
+        <span>This reading, here on the page, is free for the first 5,000 who join.</span>
         <span id="try-count" hidden></span>
       </p>
     </div>
@@ -2126,6 +2139,60 @@ a { color: var(--plum-deep); }
       });
     }
 
+    /* ── the tree ───────────────────────────────────────────────────
+       🔴 THE SAME ARITHMETIC AS THE APP, PORTED FROM `tree.ts`. Those
+       constants were argued for, not chosen: OVERLAP_Y exists only because
+       changing the horizontal one did nothing on his screen.
+
+           stepX  = width / (rows − 1 + OVERLAP)
+           cardW  = stepX × OVERLAP
+           cardH  = cardW × CARD_ASPECT
+           y(r)   = r × cardH / OVERLAP_Y
+
+       ⚠️ Re-laid on resize, because every number above comes from the
+       container width. A tree laid once is a tree that overflows the moment
+       somebody turns their phone. */
+    var CARD_ASPECT = 1.6, OVERLAP = 2.5, OVERLAP_Y = 3.2;
+    var deckCount = 0;
+
+    /* Rows of 1, 2, 3 … until they hold `count`. The last row may be short,
+       which is the app's behaviour too — 78 happens to fill twelve exactly. */
+    function triangleRows(count) {
+      var r = 0, placed = 0;
+      while (placed < count) { r++; placed += r; }
+      return r;
+    }
+
+    function layTree() {
+      if (!deck || !deckCount) return;
+      var W = deck.clientWidth;
+      if (!W) return;
+      var rows = triangleRows(deckCount);
+      var stepX = W / (rows - 1 + OVERLAP);
+      var cardW = stepX * OVERLAP;
+      var cardH = cardW * CARD_ASPECT;
+      var stepY = cardH / OVERLAP_Y;
+      deck.style.height = ((rows - 1) * stepY + cardH) + 'px';
+
+      var backs = deck.querySelectorAll('.try-card-back');
+      var i = 0;
+      for (var r = 0; r < rows && i < backs.length; r++) {
+        var inRow = Math.min(r + 1, backs.length - i);
+        /* Centred: the row spans (inRow−1) steps plus one whole card. */
+        var span = (inRow - 1) * stepX + cardW;
+        var left = (W - span) / 2;
+        for (var c = 0; c < inRow; c++, i++) {
+          var b = backs[i];
+          b.style.width = cardW + 'px';
+          b.style.height = cardH + 'px';
+          b.style.left = (left + c * stepX) + 'px';
+          b.style.top = (r * stepY) + 'px';
+          /* Later rows sit over earlier ones, like a dealt fan. */
+          b.style.zIndex = String(r + 1);
+        }
+      }
+    }
+
     /* The backs. Rebuilt whole, so a second call cannot leave a half deck. */
     function buildDeck(n) {
       if (!deck) return;
@@ -2140,7 +2207,11 @@ a { color: var(--plum-deep); }
         deck.appendChild(b);
       }
       picked = null;
+      deckCount = n;
+      layTree();
     }
+
+    window.addEventListener('resize', layTree);
 
     /* Laid as soon as the page loads, so somebody who already has a token
        does not meet an empty deck while the count is in flight. */
@@ -2149,6 +2220,10 @@ a { color: var(--plum-deep); }
     function showPick() {
       join.hidden = true;
       pick.hidden = false;
+      /* 🔴 A HIDDEN ELEMENT HAS NO WIDTH, so a tree laid while the panel was
+         hidden is a tree of zeroes. Laid again the moment it can be
+         measured. */
+      layTree();
       /* Scroll the step they are now on into view — on a phone the join
          card can be the whole screen, and the next step appears below it. */
       try { pick.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* older browsers */ }
