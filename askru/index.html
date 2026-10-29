@@ -3145,13 +3145,18 @@ a { color: var(--plum-deep); }
 
            `noReading` is the server saying which it was. Everything below
            runs only for an answer that WAS one. */
-        /* ⚠️ AND NOT WHILE MORE READINGS ARE OPEN. `pick` holds the modes,
-           the deck and the question box — everything somebody needs to ask
-           again. Closing it this afternoon would take away the thing the
-           window exists to allow. */
-        if (render(res) && !(res.body && res.body.noReading) && !(res.body && res.body.moreReadings)) {
-          /* The reading is taken. The step that offered it is done. */
-          pick.hidden = true;
+        if (render(res) && !(res.body && res.body.noReading)) {
+          /* ⚠️ THE PICKER CLOSES ONLY WHEN THERE IS NOTHING LEFT TO PICK.
+             `pick` holds the modes, the deck and the question box — everything
+             somebody needs to ask again. Closing it during the window would
+             take away the thing the window exists to allow.
+
+             🔴 AND THIS CONDITION IS THE PICKER’S ALONE. It used to sit on the
+             `if` above, so it also governed the resets and `showAfter()` — and
+             `try-ru` answers `moreReadings: true` for every reading while the
+             window is open, which meant the review box and the dakshina were
+             deployed and unreachable for the whole afternoon. */
+          if (!(res.body && res.body.moreReadings)) pick.hidden = true;
           /* A fresh reading starts with an empty table. */
           spreadLaid = false; spreadEl.hidden = true; spreadEl.innerHTML = '';
           q.value = '';
