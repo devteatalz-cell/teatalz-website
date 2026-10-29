@@ -1923,6 +1923,10 @@ a { color: var(--plum-deep); }
     var placesEl = document.getElementById('try-places');
     var placeTimer = null;
     var placeSeq = 0;
+    /* Null until they pick one from the list. Cleared the moment they type
+       again, because an id that no longer matches the words in the box is
+       worse than no id — it would cast somebody else's chart silently. */
+    var chosenPlaceId = null;
 
     function clearPlaces() {
       if (placesEl) placesEl.innerHTML = '';
@@ -1953,6 +1957,12 @@ a { color: var(--plum-deep); }
           b.textContent = label;
           b.addEventListener('click', function () {
             pobEl.value = label;
+            /* 🔴 THE ID OF WHAT THEY CHOSE. The label is for them; this is
+               for the chart. `search_places` prefix-matches on the NAME, so
+               sending "Jaipur, Rajasthan, India" back as text would match
+               nothing and the chart would fail with a dropdown on screen
+               that looked like it had helped. */
+            chosenPlaceId = p.id || null;
             clearPlaces();
             try { pobEl.focus(); } catch (e) { /* older browsers */ }
           });
@@ -1966,6 +1976,7 @@ a { color: var(--plum-deep); }
     if (pobEl) {
       pobEl.addEventListener('input', function () {
         var q = (pobEl.value || '').trim();
+        chosenPlaceId = null;
         if (placeTimer) clearTimeout(placeTimer);
         if (q.length < 2 || !token) { clearPlaces(); return; }
         /* 🔴 A SEQUENCE NUMBER, NOT JUST A DEBOUNCE. Two requests in flight
@@ -2180,7 +2191,11 @@ a { color: var(--plum-deep); }
         body.birth = {
           dob: (dobEl.value || '').trim(),
           time: (tobEl.value || '').trim(),
-          place: (pobEl.value || '').trim()
+          place: (pobEl.value || '').trim(),
+          /* The id when they picked one, null when they typed. The server
+             resolves the text to an id itself in that case — it no longer
+             expects coordinates the search cannot return. */
+          place_id: chosenPlaceId
         };
       }
 
