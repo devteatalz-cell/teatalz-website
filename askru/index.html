@@ -2004,9 +2004,11 @@ a { color: var(--plum-deep); }
          fewer backs is always safe: the server clamps a position to the
          shortlist, so a smaller deck on screen means fewer choices and
          never a wrong card. */
-      var n = (res.body && typeof res.body.faceDown === 'number' && res.body.faceDown > 0)
-        ? res.body.faceDown : 5;
-      buildDeck(n);
+      if (res.body) {
+        if (typeof res.body.faceDown === 'number' && res.body.faceDown > 0) deckSizes.tarot = res.body.faceDown;
+        if (typeof res.body.oracleDown === 'number' && res.body.oracleDown > 0) deckSizes.oracle = res.body.oracleDown;
+      }
+      buildDeck(deckSizes[chosen] || deckSizes.tarot);
     }).catch(function () { /* a counter is not worth an error message */ });
 
     /* ── the five on the table ──────────────────────────────────────
@@ -2177,6 +2179,10 @@ a { color: var(--plum-deep); }
        centred in whatever is left over. */
     var TREE_MAX_W = 360;
     var deckCount = 0;
+    /* Both decks, from the server. The floors are what to do when the count
+       could not be read, not a second copy of it: fewer backs is always
+       safe, because the server clamps a position to its shuffle. */
+    var deckSizes = { tarot: 5, oracle: 5 };
 
     /* Rows of 1, 2, 3 … until they hold `count`. The last row may be short,
        which is the app's behaviour too — 78 happens to fill twelve exactly. */
@@ -2324,10 +2330,16 @@ a { color: var(--plum-deep); }
       });
       /* Only Vedic needs a birth chart, so only Vedic asks. */
       birth.hidden = chosen !== 'vedic';
-      /* Only Tarot lays cards. Oracle draws one with a breath — that is its
-         own promise, not a choice — and Vedic has no deck at all. */
-      cards.hidden = chosen !== 'tarot';
-      if (chosen !== 'tarot') { picked = null; paintDeck(); }
+      /* 🔴 ORACLE LAYS CARDS TOO — 29 Oct 2026. This read "Oracle draws one
+         with a breath, that is its own promise, not a choice", and the
+         website laid none for it. But the app lays them and lets the person
+         choose, and his standing ruling is that the user picks the card.
+         Same product, two answers, and this was the one nobody decided.
+
+         Vedic still has no deck: it reads a chart, not a card. */
+      cards.hidden = chosen === 'vedic';
+      if (chosen === 'vedic') { picked = null; paintDeck(); }
+      else buildDeck(deckSizes[chosen] || deckSizes.tarot);
       say(msg, '');
       q.focus();
     });
