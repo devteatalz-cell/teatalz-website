@@ -45,6 +45,21 @@
     .inv-wrap section{padding-block:0}   /* styles.css pads every <section> 84px for the marketing pages */
     .screen:focus{outline:none}
 
+    /* ---------- the waiting list ---------- */
+    /* A big number and then the people under it. The count is set in its own
+       line rather than inside the table, because it is the one thing somebody
+       opening this panel came to read. */
+    .wl-count { font-size: 34px; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
+    .wl-count small { display: block; font-size: 13px; font-weight: 400; letter-spacing: 0; margin-top: 6px; opacity: .72; }
+    .wl-tablewrap { margin-top: 16px; overflow-x: auto; }
+    table.wl { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table.wl th, table.wl td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid rgba(128,128,128,.22); white-space: nowrap; }
+    table.wl th { font-weight: 600; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; opacity: .66; }
+    table.wl td.wl-rank { font-variant-numeric: tabular-nums; opacity: .7; }
+    table.wl td.wl-mail { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+    /* The slice note, said once, under the table rather than over it. */
+    .wl-slice { margin: 10px 0 0; font-size: 13px; opacity: .7; }
+
     /* ---------- cards: passcode + details ---------- */
     .card{width:100%;max-width:var(--form);margin:4vh auto 0;background:rgba(30,14,25,.62);border:1px solid var(--border);
       border-radius:24px;padding:32px 30px 26px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
@@ -456,6 +471,16 @@
         <div id="askru-video-slot"></div>
       </section>
 
+      <!-- 🔴 THE WAITING LIST. Founder, 29 Oct 2026: *"data room mai show kar
+           waiting ka count with name email language ki saath but email mask
+           kar diyo"*. The addresses are masked by the DATABASE, in
+           `askru_room_waitlist`, so this page never receives one whole. -->
+      <section class="sec" aria-labelledby="wl-a-h">
+        <div class="sec-head"><h2 id="wl-a-h">The waiting list</h2><span class="cadence">Live</span></div>
+        <p class="sec-note">People who have asked to be told when Ru opens. Counted from our own database, not an estimate. Email addresses are shortened before they leave it — the provider is kept, the rest is not ours to show.</p>
+        <div id="a-wl" aria-live="polite"><span class="muted">Loading…</span></div>
+      </section>
+
       <section class="sec" aria-labelledby="dr-a-h">
         <div class="sec-head"><h2 id="dr-a-h">Data room</h2></div>
         <p class="sec-note">Read any document below, or download it — private to invited investors. Links expire and are not public.</p>
@@ -641,7 +666,7 @@
         /* Straight into the room: a chooser with one tile is a click that
            asks nothing. */
         show("s-askru");
-        if(!loaded.askru){ loaded.askru = true; loadAskRu(); loadAskRuBuild(); }
+        if(!loaded.askru){ loaded.askru = true; loadAskRu(); loadAskRuBuild(); loadAskRuWaitlist(); }
       } else {
         show("s-rooms");
       }
@@ -677,7 +702,7 @@
     $("tile-askru").addEventListener("click", function(){
       if(!askRuReady()) return;
       show("s-askru");
-      if(!loaded.askru){ loadAskRu(); loadAskRuBuild(); }
+      if(!loaded.askru){ loadAskRu(); loadAskRuBuild(); loadAskRuWaitlist(); }
     });
     Array.prototype.forEach.call(document.querySelectorAll("[data-back]"), function(b){
       if(ASKRU_ONLY){
@@ -773,6 +798,79 @@
         box.innerHTML = '<span class="errtxt">Couldn\'t load the Ask Ru room. Please try again.</span>';
       }
     }
+    /**
+     * The waiting list, from Ask Ru’s own project.
+     *
+     * 🔴 `askru_room_waitlist` TAKES THE CODE AND CHECKS IT SERVER-SIDE, the way
+     * `get_data_room` does, sharing the same lockout. The anon key in this file
+     * is public; without the code it buys nothing. A view or a table grant here
+     * would have published everybody’s name and address to the internet with
+     * the passcode box sitting decoratively above it.
+     *
+     * ⚠️ `ok:false` MEANS THE ROOM HAS NO MATCHING CODE, not "wrong code" — the
+     * same reading `loadAskRu` gives it, because by this point the visitor has
+     * already been let in by the Teatalz project.
+     */
+    async function loadAskRuWaitlist(){
+      var box = $('a-wl');
+      try {
+        var r = await rpc('askru_room_waitlist', { code: CODE }, true);
+        var d = r.ok ? await r.json() : null;
+        if(!d || d.ok !== true){ box.innerHTML = SOON; return; }
+
+        var total = Number(d.total || 0);
+        var people = d.people || [];
+
+        /* 🔴 ZERO IS AN ANSWER, NOT A FAILURE. On the day before a launch the
+           honest number is the small one, and a panel that showed "Loading…"
+           forever would be the one thing worse than saying none. */
+        if(!total){
+          box.innerHTML = '<div class="soonbox"><b>Nobody has joined yet.</b> The list opens with the launch.</div>';
+          return;
+        }
+
+        var head = '<div class="wl-count">' + total.toLocaleString('en-IN')
+          + '<small>' + (total === 1 ? 'person on the waiting list' : 'people on the waiting list')
+          + '</small></div>';
+
+        var rows = people.map(function(p){
+          /* esc on every one: a name and a language are typed by strangers. */
+          return '<tr>'
+            + '<td class="wl-rank">' + (p.rank == null ? '—' : esc(String(p.rank))) + '</td>'
+            + '<td>' + esc(p.name || '—') + '</td>'
+            + '<td class="wl-mail">' + esc(p.email || '—') + '</td>'
+            + '<td>' + esc(p.language || '—') + '</td>'
+            + '<td>' + esc(fmtDay(p.joined)) + '</td>'
+            + '</tr>';
+        }).join('');
+
+        var table = '<div class="wl-tablewrap"><table class="wl">'
+          + '<thead><tr><th>#</th><th>Name</th><th>Email</th><th>Language</th><th>Joined</th></tr></thead>'
+          + '<tbody>' + rows + '</tbody></table></div>';
+
+        /* Said only when it is true, and said under the table. */
+        var slice = (people.length < total)
+          ? '<p class="wl-slice">Showing the ' + people.length + ' most recent of ' + total.toLocaleString('en-IN') + '.</p>'
+          : '';
+
+        box.innerHTML = head + table + slice;
+      } catch(e){
+        box.innerHTML = '<span class="errtxt">Couldn\'t load the waiting list. Please try again.</span>';
+      }
+    }
+
+    /* A date somebody can read, in IST, which is the only timezone this
+       company works in. An unparseable value prints as a dash rather than as
+       "Invalid Date". */
+    function fmtDay(iso){
+      if(!iso) return '—';
+      var d = new Date(iso);
+      if(isNaN(d.getTime())) return '—';
+      try {
+        return d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' });
+      } catch(e){ return d.toISOString().slice(0, 10); }
+    }
+
     async function loadAskRuBuild(){
       var box = $("a-bs");
       try {
