@@ -1283,6 +1283,10 @@ a { color: var(--plum-deep); }
                defect was upstream: nothing helped anybody type a place the
                `places` table actually holds. -->
           <ul class="try-places" id="try-places" role="listbox" aria-label="Matching places"></ul>
+          <!-- 🔴 A PLACE FOR THE SEARCH TO SAY IT FAILED. Until 29 Oct it
+               had none, so a dropdown that could not load was
+               indistinguishable from a town we do not have. -->
+          <p class="wl-msg" id="try-place-msg" role="status" aria-live="polite"></p>
         </div>
 
         <!-- 🔴 THE WHOLE DECK, FACE DOWN, AND THE VISITOR TAPS ONE.
@@ -2405,6 +2409,7 @@ a { color: var(--plum-deep); }
        the place themselves; a suggestion box that announces its own errors
        turns a help into an obstacle. */
     var placesEl = document.getElementById('try-places');
+    var placeMsg = document.getElementById('try-place-msg');
     var placeTimer = null;
     var placeSeq = 0;
     /* Null until they pick one from the list. Cleared the moment they type
@@ -2429,6 +2434,7 @@ a { color: var(--plum-deep); }
     }
 
     function showPlaces(list) {
+      say(placeMsg, '');
       clearPlaces();
       if (!placesEl || !list || !list.length) return;
       for (var i = 0; i < list.length; i++) {
@@ -2470,8 +2476,39 @@ a { color: var(--plum-deep); }
         placeTimer = setTimeout(function () {
           api('try-ru', { body: { token: token, places: q } }).then(function (res) {
             if (mine !== placeSeq) return;
-            if (res.body && res.body.ok) showPlaces(res.body.places);
-          }).catch(function () { /* they can still type it */ });
+            if (res.body && res.body.ok) { showPlaces(res.body.places); return; }
+
+            /* 🔴 EVERY OTHER OUTCOME USED TO FALL OFF THE END. No list, no
+               message, no console line — the field simply stopped
+               answering, and there was nothing for anybody to look at. */
+            try { console.error('try-ru.places failed', res.status, (res.body && (res.body.code || res.body.error)) || ''); } catch (e) { }
+
+            /* A session that is gone has a cure this page already knows:
+               the reading path forgets the token and puts the join card
+               back. The place search never learned it, so a cleaned-up or
+               expired session looked like a broken dropdown. */
+            if (res.status === 401) {
+              token = null;
+              try { window.localStorage.removeItem(STORE); } catch (e) { }
+              clearPlaces();
+              pick.hidden = true;
+              join.hidden = false;
+              say(joinMsg, 'That session has expired. Pop your email in again and she will read you.', 'bad');
+              try { join.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
+              return;
+            }
+
+            /* Anything else: say so where they are looking, and leave what
+               they typed alone. The server accepts a typed place and
+               resolves it, so this is a lost convenience rather than a
+               lost reading — and the sentence says exactly that. */
+            clearPlaces();
+            say(placeMsg, 'Could not fetch matching places just now — type the town and we will find it.', 'bad');
+          }).catch(function () {
+            if (mine !== placeSeq) return;
+            clearPlaces();
+            say(placeMsg, 'Could not fetch matching places just now — type the town and we will find it.', 'bad');
+          });
         }, 220);
       });
     }
