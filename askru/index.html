@@ -606,6 +606,19 @@ h2 {
 .try-deck { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
   gap: 8px; max-height: 46vh; overflow-y: auto; padding: 2px; }
 
+/* 🔴 `[hidden]` LOSES TO ANY AUTHOR `display`, AND IT COST A LIVE PAGE.
+   The HTML hidden attribute is `display:none` from the USER AGENT sheet, so
+   any rule of ours that sets display beats it. The angel dialog is
+   `display:flex` and shipped `hidden` — and opened itself on the landing
+   page, over the hero, before anybody had asked for a reading. The founder
+   saw it within minutes.
+
+   One rule, covering every element here that has BOTH a display and a hidden
+   state, so the next one cannot repeat it. Specificity does the work:
+   `.x[hidden]` (0,2,0) beats `.x` (0,1,0) — no !important needed. */
+.angel-veil[hidden], .angel-seal[hidden], .try-spread[hidden],
+.try-deck[hidden], .try-places[hidden] { display: none; }
+
 /* The angel, in a dialog — his word was "pop up". */
 .angel-veil { position: fixed; inset: 0; z-index: 60; display: flex;
   align-items: center; justify-content: center; padding: 20px;
