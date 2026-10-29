@@ -605,6 +605,21 @@ h2 {
 .try-perk strong { color: var(--gold); font-weight: 700; }
 /* The five, face down. Deliberately a real object you touch — a dropdown
    would have been fewer lines and would not be a choice anybody feels. */
+/* The moment before a reading. Quiet, centred, and nothing else on screen
+   while it is up — that is the whole point of asking somebody to breathe. */
+.try-ritual { margin-top: 18px; padding-top: 16px; text-align: center;
+  border-top: 1px solid var(--line-faint); }
+.try-ritual h3 { margin: 0 0 14px; font-size: 19px; font-weight: 700; letter-spacing: .2px; }
+.try-ritual ol { list-style: none; margin: 0 auto; padding: 0; max-width: 20em; text-align: left; }
+.try-ritual li { margin: 0 0 10px; padding-left: 26px; position: relative; line-height: 1.55; }
+.try-ritual li::before { content: counter(r); counter-increment: r;
+  position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--plum); border: 1px solid var(--plum); }
+.try-ritual ol { counter-reset: r; }
+.try-ritual .closing { margin: 14px 0 0; color: var(--ink-muted); }
+.try-ritual .btn { width: auto; min-height: 44px; padding: 0 26px; margin-top: 16px; }
+
 .try-cards { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-faint); }
 .try-cards-note { margin: 0 0 12px; font-size: 14.5px; color: var(--ink-muted); }
 .try-cards-note strong { color: var(--ink); }
@@ -1277,6 +1292,26 @@ a { color: var(--plum-deep); }
              from the session id. A page that held the codes could lay the
              same flattering card under every finger, and a page that sent a
              code could simply ask for one. -->
+        <!-- ── a moment, before we begin ─────────────────────────────
+             🔴 HIS WORDS, 6 Oct 2026, copied from the app rather than
+             rewritten: *"pehle user ko bole: please aap apne eyes close
+             kare, 3 baar deep breath le, jinmai bhi aap believe karte hai
+             unke bare mai maan mai soche, aur apne question ko maan bole."*
+
+             ⚠️ The closing line changes with the mode, because Vedic has no
+             deck to pick from. That distinction is the app's. -->
+        <div class="try-ritual" id="try-ritual" hidden>
+          <h3>A moment, before we begin</h3>
+          <ol>
+            <li>Close your eyes.</li>
+            <li>Take three deep breaths.</li>
+            <li>Think of whoever you believe in.</li>
+            <li>Say your question to yourself, silently.</li>
+          </ol>
+          <p class="closing" id="try-ritual-closing">Then pick your card.</p>
+          <button class="btn btn-primary" type="button" id="try-ritual-go">Pick my card</button>
+        </div>
+
         <div class="try-cards" id="try-cards" hidden>
           <p class="try-cards-note">She has shuffled. <strong>Pick one.</strong></p>
           <div class="try-deck" id="try-deck" role="group" aria-label="Pick a card">
@@ -1941,6 +1976,20 @@ a { color: var(--plum-deep); }
     var msg = document.getElementById('try-msg');
 
     var cards = document.getElementById('try-cards');
+    var ritual = document.getElementById('try-ritual');
+    var ritualGo = document.getElementById('try-ritual-go');
+    var ritualClosing = document.getElementById('try-ritual-closing');
+    var cardsWanted = false;
+
+    /* The ritual ends and the reading begins: the deck, if this mode has
+       one, and the question box. */
+    ritualGo.addEventListener('click', function () {
+      ritual.hidden = true;
+      cards.hidden = !cardsWanted;
+      if (cardsWanted) layTree();
+      askForm.hidden = false;
+      try { (cardsWanted ? cards : askForm).scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
+    });
     var deck = document.getElementById('try-deck');
     var out = document.getElementById('try-out');
     var follow = document.getElementById('try-follow');
@@ -2340,6 +2389,15 @@ a { color: var(--plum-deep); }
       });
       /* Only Vedic needs a birth chart, so only Vedic asks. */
       birth.hidden = chosen !== 'vedic';
+      /* 🔴 THE RITUAL COMES FIRST, AND NOTHING ELSE IS ON SCREEN WHILE IT
+         IS UP. Asking somebody to close their eyes and breathe, with a
+         question box and seventy-eight cards underneath, is asking nothing.
+         Once per reading: a later clarifier is the same reading going on. */
+      ritual.hidden = false;
+      ritualClosing.textContent = chosen === 'vedic' ? 'Then press Read.' : 'Then pick your card.';
+      ritualGo.textContent = chosen === 'vedic' ? 'Read' : 'Pick my card';
+      askForm.hidden = true;
+
       /* 🔴 ORACLE LAYS CARDS TOO — 29 Oct 2026. This read "Oracle draws one
          with a breath, that is its own promise, not a choice", and the
          website laid none for it. But the app lays them and lets the person
@@ -2347,7 +2405,9 @@ a { color: var(--plum-deep); }
          Same product, two answers, and this was the one nobody decided.
 
          Vedic still has no deck: it reads a chart, not a card. */
-      cards.hidden = chosen === 'vedic';
+      /* Held back until the ritual is done — see above. */
+      cards.hidden = true;
+      cardsWanted = chosen !== 'vedic';
       if (chosen === 'vedic') { picked = null; paintDeck(); }
       else buildDeck(deckSizes[chosen] || deckSizes.tarot);
       say(msg, '');
