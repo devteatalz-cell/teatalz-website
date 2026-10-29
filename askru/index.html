@@ -805,9 +805,12 @@ footer { border-top: 1px solid var(--line-faint); padding: 30px 0 46px; }
 /* The closing section centres its text; its button was still flush left,
    which the eye reads as a stray element rather than a call to action. */
 .close .cta-row { justify-content: center; }
+/* 🔴 RULED OFF BELOW, NOT ABOVE — it is the first thing on the page now, not
+   the last. A border-top here would draw a line across the very top of the
+   window with nothing above it to separate from. */
 .tribute {
-  margin-top: 22px; padding-top: 18px;
-  border-top: 1px solid var(--line-faint);
+  padding: 15px 0 13px;
+  border-bottom: 1px solid var(--line-faint);
   text-align: center; font-size: 13px; letter-spacing: .6px;
   color: color-mix(in srgb, var(--ink-faint) 78%, transparent);
   font-style: italic;
@@ -984,6 +987,34 @@ a { color: var(--plum-deep); }
   <span class="amb-icon" id="amb-icon" aria-hidden="true">🔇</span>
   <span class="amb-text" id="amb-text">Music</span>
 </button>
+
+<!-- ── the dedication ───────────────────────────────────────────────
+     🔴 AT THE TOP, 29 Oct 2026: *"website aur app dono mai A tribute to
+     eternal Soul top pe dekhao na ki bottom mai"*. It sat in the footer
+     until now, under the legal row.
+
+     The original note below is kept whole, because the part that matters is
+     not where it goes — it is whose words they are.
+
+     HIS LINE, IN HIS WORDS, 28 Oct 2026. It is not a credit and not a
+     disclaimer, so it gets air and nothing beside it.
+
+     ✅ SETTLED, 29 Oct 2026: "A tribute to Eternal Soul" — this wording, on
+     every surface.
+
+     ⚠️ AND THE WAY IT WAS SETTLED IS WORTH KEEPING. For a day it existed in
+     two forms — "A tribute for eternal souls" on the reels, this one here —
+     because he had written it both ways and I would not pick for him. A peer
+     session then relayed his answer as "keep FOR ETERNAL SOULS, match the
+     website to it", and minutes later he said the opposite to me directly.
+
+     Acting on the relay would have changed this page to the wrong words AND
+     left the reels wrong, and the fix would have been 25 reels and a showreel
+     re-rendered in the other direction. A relayed yes is a report of a
+     decision, not the decision. It is his line; it needed his words. -->
+<div class="wrap tribute">
+  <span>A tribute to Eternal Soul</span>
+</div>
 
 <header class="nav">
   <div class="wrap nav-in">
@@ -1437,30 +1468,7 @@ a { color: var(--plum-deep); }
     <span class="right">Made in India</span>
   </div>
 
-  <!-- 🔴 HIS LINE, IN HIS WORDS, 28 Oct 2026. Set apart from the legal row
-       above it because it is not a credit and not a disclaimer — it is a
-       dedication, and sitting it next to "Made in India" would read as one
-       more footer item. Quiet, centred, with air around it.
 
-       ✅ SETTLED, 29 Oct 2026: "A tribute to Eternal Soul" — this wording,
-       on every surface. The reels and the showreel are being re-rendered to
-       match it; the website does not change.
-
-       ⚠️ AND THE WAY IT WAS SETTLED IS WORTH KEEPING. For a day it existed in
-       two forms — "A tribute for eternal souls" on the reels, this one here —
-       because he had written it both ways and I would not pick for him. A
-       peer session then relayed his answer as "keep FOR ETERNAL SOULS, match
-       the website to it", and minutes later he said the opposite to me
-       directly: put THIS one in the showreel too.
-
-       Acting on the relay would have changed this page to the wrong words
-       AND left the reels wrong, and the fix would have been 25 reels and a
-       showreel re-rendered in the other direction. A relayed yes is a report
-       of a decision, not the decision. It is his line; it needed his words. -->
-
-  <div class="wrap tribute">
-    <span>A tribute to Eternal Soul</span>
-  </div>
 </footer>
 
 <script>
