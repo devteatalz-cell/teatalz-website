@@ -2,8 +2,8 @@
  * Teatalz — waitlist & investor notification mailer
  * Runs on GitHub Actions (cron). Sends:
  *   1. Welcome email to each new waitlist joiner   (marks waitlist.welcomed = true)
- *   2. Signup alert to rumesupport@teatalz.com      (same pass)
- *   3. Investor sign-in / doc-request alert to founder@teatalz.com (marks investor_leads.notified = true)
+ *   2. Signup alert to helloaskru@gmail.com         (same pass)
+ *   3. Investor sign-in / doc-request alert to helloaskru@gmail.com (marks investor_leads.notified = true)
  *
  * SECURITY: uses the Supabase SERVICE ROLE key — server-side only, injected as a
  * GitHub Actions secret. NEVER commit it and NEVER ship it to the browser bundle.
@@ -11,8 +11,8 @@
  * Requires (env / GitHub secrets):
  *   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  *   ZOHO_SMTP_HOST (smtp.zoho.in), ZOHO_SMTP_USER, ZOHO_SMTP_PASS
- *   NOTIFY_SIGNUPS_TO   (rumesupport@teatalz.com)
- *   NOTIFY_INVESTORS_TO (founder@teatalz.com)
+ *   NOTIFY_SIGNUPS_TO   (helloaskru@gmail.com)
+ *   NOTIFY_INVESTORS_TO (helloaskru@gmail.com)
  *   MAIL_FROM           (e.g. "Teatalz <rumesupport@teatalz.com>")
  */
 import nodemailer from 'nodemailer';
@@ -20,8 +20,8 @@ import nodemailer from 'nodemailer';
 const {
   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
   ZOHO_SMTP_HOST = 'smtp.zoho.in', ZOHO_SMTP_USER, ZOHO_SMTP_PASS,
-  NOTIFY_SIGNUPS_TO = 'rumesupport@teatalz.com',
-  NOTIFY_INVESTORS_TO = 'founder@teatalz.com',
+  NOTIFY_SIGNUPS_TO = 'helloaskru@gmail.com',
+  NOTIFY_INVESTORS_TO = 'helloaskru@gmail.com',
   MAIL_FROM = 'Teatalz <rumesupport@teatalz.com>',
 } = process.env;
 
