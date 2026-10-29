@@ -2275,6 +2275,12 @@ a { color: var(--plum-deep); }
            in the answer path, because a reload runs only this one. */
         modes.hidden = true;
         askForm.hidden = true;
+        /* ⚠️ AND THE PANEL THAT HELD THEM. On a reload `showPick()` opens
+           `try-pick` optimistically, before anything knows the reading is
+           spent; emptying it leaves a 45px box with nothing in it sitting on
+           the page. The fresh-reading path already hides it — this is the
+           same close, for the path that reloads. */
+        pick.hidden = true;
       }).catch(function () { streakDrawn = false; });
     }
 
@@ -3091,19 +3097,18 @@ a { color: var(--plum-deep); }
       if (afterCfg.instagramUrl) links.push(afterLink('Instagram', afterCfg.instagramUrl));
       var amounts = (afterCfg.dakshinaPaise || []).length;
 
-      if (links.length) {
-        for (var i = 0; i < links.length; i++) afterLinks.appendChild(links[i]);
-        /* The forward button exists only when there is something to go
-           forward TO. With no amounts it would be a button that closes the
-           panel while saying "Continue". */
-        afterNext.hidden = amounts === 0;
-        afterSkip.textContent = amounts ? 'Not now' : 'Close';
-        after.hidden = false;
-        return;
-      }
-      /* No links — then his first page has nothing on it, and going straight
-         to the offering is the honest shape rather than an empty card. */
-      showDakshina();
+      /* 🔴 THE BOX IS REASON ENOUGH TO OPEN THIS PANEL. It used to open only
+         when at least one external link existed, because back then the links
+         WERE the panel. The review box lives here now, so gating on a
+         Facebook row would mean clearing one config value silently removed
+         the only place anybody can say anything. */
+      for (var i = 0; i < links.length; i++) afterLinks.appendChild(links[i]);
+      /* The forward button exists only when there is something to go forward
+         TO. With no amounts it would be a button that closes the panel while
+         saying "Continue". */
+      afterNext.hidden = amounts === 0;
+      afterSkip.textContent = amounts ? 'Not now' : 'Close';
+      after.hidden = false;
     }
 
     afterNext.addEventListener('click', function () {
