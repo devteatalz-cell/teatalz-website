@@ -567,7 +567,39 @@ h2 {
 .try-cards { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-faint); }
 .try-cards-note { margin: 0 0 12px; font-size: 14.5px; color: var(--ink-muted); }
 .try-cards-note strong { color: var(--ink); }
-.try-deck { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+/* 🔴 AUTO-FILL, NOT `repeat(5)`. The deck is the whole deck now, so the
+   column count follows the width instead of the old five. `max-height`
+   keeps seventy-eight backs from burying the question box below them. */
+.try-deck { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 8px; max-height: 46vh; overflow-y: auto; padding: 2px; }
+
+/* The angel, in a dialog — his word was "pop up". */
+.angel-veil { position: fixed; inset: 0; z-index: 60; display: flex;
+  align-items: center; justify-content: center; padding: 20px;
+  background: rgba(14, 9, 20, .72); }
+.angel-box { max-width: 420px; width: 100%; border-radius: 18px; padding: 22px 20px 18px;
+  background: #221a2c; border: 1px solid #d8b56a; text-align: center; }
+/* ⚠️ A SLOT, NOT AN IMAGE. There is no angel artwork in this project yet —
+   `Angel` holds a key, a name and one line. A lettered seal is drawn here
+   so that adding art later is a URL, not a redesign, and so that nothing
+   renders as a broken image in the meantime. */
+.angel-seal { width: 92px; height: 92px; margin: 0 auto 14px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid #d8b56a; color: #e8cf9a;
+  font-size: 34px; font-weight: 700; letter-spacing: 1px; }
+.angel-box h3 { margin: 0; font-size: 21px; letter-spacing: .3px; }
+.angel-brings { margin: 6px 0 0; color: #e8cf9a; font-size: 14.5px; }
+.angel-words { margin: 14px 0 0; line-height: 1.65; color: var(--ink-muted); }
+.angel-box .btn { margin-top: 18px; width: auto; min-height: 44px; padding: 0 26px; }
+
+/* Place suggestions under the birth-place box. */
+.try-places { list-style: none; margin: 6px 0 0; padding: 0; text-align: left; }
+.try-places li { margin: 0; }
+.try-places button { width: 100%; text-align: left; background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.16); color: inherit; font: inherit;
+  padding: 9px 12px; border-radius: 10px; margin-top: 4px; cursor: pointer;
+  min-height: 44px; }
+.try-places button:hover, .try-places button:focus-visible { border-color: var(--plum); }
 .try-card-back {
   aspect-ratio: 2 / 3; border-radius: 10px; cursor: pointer;
   border: 1.5px solid rgba(183,155,255,.38);
@@ -1158,10 +1190,17 @@ a { color: var(--plum-deep); }
             <input id="try-dob" type="date" aria-label="Date of birth">
             <input id="try-tob" type="time" aria-label="Time of birth, if you know it">
           </div>
-          <input id="try-pob" type="text" maxlength="120" placeholder="Town or city of birth" aria-label="Place of birth">
+          <input id="try-pob" type="text" maxlength="120" placeholder="Town or city of birth" aria-label="Place of birth"
+                 autocomplete="off" role="combobox" aria-expanded="false" aria-controls="try-places">
+          <!-- 🔴 HIS READING SAID "I do not have your birth chart", AND IT
+               WAS RIGHT TO. The free-text place did not resolve, so Ru read
+               the moment rather than claiming a kundli she never cast. The
+               defect was upstream: nothing helped anybody type a place the
+               `places` table actually holds. -->
+          <ul class="try-places" id="try-places" role="listbox" aria-label="Matching places"></ul>
         </div>
 
-        <!-- 🔴 FIVE FACE DOWN, AND THE VISITOR TAPS ONE.
+        <!-- 🔴 THE WHOLE DECK, FACE DOWN, AND THE VISITOR TAPS ONE.
              The page's own headline says *"I shuffle, and you pick."* A free
              reading where Ru picks for them argues against the sentence three
              sections above it. So the choice comes back.
@@ -1174,11 +1213,11 @@ a { color: var(--plum-deep); }
         <div class="try-cards" id="try-cards" hidden>
           <p class="try-cards-note">She has shuffled. <strong>Pick one.</strong></p>
           <div class="try-deck" id="try-deck" role="group" aria-label="Pick a card">
-            <button class="try-card-back" type="button" data-pick="0" aria-label="Card one"><span>✦</span></button>
-            <button class="try-card-back" type="button" data-pick="1" aria-label="Card two"><span>✦</span></button>
-            <button class="try-card-back" type="button" data-pick="2" aria-label="Card three"><span>✦</span></button>
-            <button class="try-card-back" type="button" data-pick="3" aria-label="Card four"><span>✦</span></button>
-            <button class="try-card-back" type="button" data-pick="4" aria-label="Card five"><span>✦</span></button>
+            <!-- 🔴 BUILT IN SCRIPT, FROM A COUNT THE SERVER SENDS. Five were
+                 written here and `FACE_DOWN = 5` lived in `try-ru` — one
+                 fact in two places, and the copy a visitor could count was
+                 this one. 29 Oct: *"pura deck dekha"*, which is now one
+                 line on the server rather than seventy-three buttons here. -->
           </div>
         </div>
 
@@ -1206,6 +1245,20 @@ a { color: var(--plum-deep); }
         <div class="try-angel-blessing" id="try-angel-out" hidden>
           <p class="try-angel-name" id="try-angel-name"></p>
           <p class="try-angel-line" id="try-angel-line"></p>
+        </div>
+      </div>
+
+      <!-- 🔴 THE POP-UP — 29 Oct 2026: *"angel ki image bhi to pop up mai
+           dekhao and jo blessings hai wo mention karo"*. The blessing stays
+           on the page underneath as well, because a dialog is dismissed and
+           the blessing is meant to be kept. -->
+      <div class="angel-veil" id="angel-veil" hidden role="dialog" aria-modal="true" aria-labelledby="angel-name">
+        <div class="angel-box">
+          <div class="angel-seal" id="angel-seal" aria-hidden="true"></div>
+          <h3 id="angel-name"></h3>
+          <p class="angel-brings" id="angel-brings"></p>
+          <p class="angel-words" id="angel-words"></p>
+          <button class="btn btn-ghost" type="button" id="angel-close">Thank you</button>
         </div>
       </div>
 
@@ -1848,7 +1901,105 @@ a { color: var(--plum-deep); }
         countEl.textContent = res.body.line;
         countEl.hidden = false;
       }
+      /* 🔴 THE DECK, FROM THE DECK. `try-ru` counts `config_tarot` and says
+         how many backs to lay. The floor of 5 is not a second copy of the
+         number — it is what to do when the count could not be read, and
+         fewer backs is always safe: the server clamps a position to the
+         shortlist, so a smaller deck on screen means fewer choices and
+         never a wrong card. */
+      var n = (res.body && typeof res.body.faceDown === 'number' && res.body.faceDown > 0)
+        ? res.body.faceDown : 5;
+      buildDeck(n);
     }).catch(function () { /* a counter is not worth an error message */ });
+
+    /* ── the birth place ───────────────────────────────────────────
+       🔴 `search_places` IS DENIED TO ANON — measured, not assumed: with
+       the public key it answers 42501. So the lookup goes through `try-ru`
+       behind the token, which is the same door the reading is behind.
+
+       ⚠️ A FAILURE SUGGESTS NOTHING AND SAYS NOTHING. They can always type
+       the place themselves; a suggestion box that announces its own errors
+       turns a help into an obstacle. */
+    var placesEl = document.getElementById('try-places');
+    var placeTimer = null;
+    var placeSeq = 0;
+
+    function clearPlaces() {
+      if (placesEl) placesEl.innerHTML = '';
+      if (pobEl) pobEl.setAttribute('aria-expanded', 'false');
+    }
+
+    function labelFor(p) {
+      /* Built from whatever the row actually carries. The RPC is shared
+         with the app and its column names are not this page's to assume. */
+      var bits = [p.name, p.admin1_name || p.admin1Name, p.country];
+      var out = [];
+      for (var i = 0; i < bits.length; i++) {
+        if (bits[i] && out.indexOf(String(bits[i])) === -1) out.push(String(bits[i]));
+      }
+      return out.join(', ');
+    }
+
+    function showPlaces(list) {
+      clearPlaces();
+      if (!placesEl || !list || !list.length) return;
+      for (var i = 0; i < list.length; i++) {
+        (function (p) {
+          var label = labelFor(p);
+          if (!label) return;
+          var li = document.createElement('li');
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = label;
+          b.addEventListener('click', function () {
+            pobEl.value = label;
+            clearPlaces();
+            try { pobEl.focus(); } catch (e) { /* older browsers */ }
+          });
+          li.appendChild(b);
+          placesEl.appendChild(li);
+        })(list[i]);
+      }
+      pobEl.setAttribute('aria-expanded', 'true');
+    }
+
+    if (pobEl) {
+      pobEl.addEventListener('input', function () {
+        var q = (pobEl.value || '').trim();
+        if (placeTimer) clearTimeout(placeTimer);
+        if (q.length < 2 || !token) { clearPlaces(); return; }
+        /* 🔴 A SEQUENCE NUMBER, NOT JUST A DEBOUNCE. Two requests in flight
+           can land out of order, and the slower one would overwrite the
+           newer list with matches for a word already deleted. */
+        var mine = ++placeSeq;
+        placeTimer = setTimeout(function () {
+          api('try-ru', { body: { token: token, places: q } }).then(function (res) {
+            if (mine !== placeSeq) return;
+            if (res.body && res.body.ok) showPlaces(res.body.places);
+          }).catch(function () { /* they can still type it */ });
+        }, 220);
+      });
+    }
+
+    /* The backs. Rebuilt whole, so a second call cannot leave a half deck. */
+    function buildDeck(n) {
+      if (!deck) return;
+      deck.innerHTML = '';
+      for (var i = 0; i < n; i++) {
+        var b = document.createElement('button');
+        b.className = 'try-card-back';
+        b.type = 'button';
+        b.setAttribute('data-pick', String(i));
+        b.setAttribute('aria-label', 'Card ' + (i + 1));
+        b.innerHTML = '<span>\u2726</span>';
+        deck.appendChild(b);
+      }
+      picked = null;
+    }
+
+    /* Laid as soon as the page loads, so somebody who already has a token
+       does not meet an empty deck while the count is in flight. */
+    buildDeck(5);
 
     function showPick() {
       join.hidden = true;
@@ -1968,6 +2119,21 @@ a { color: var(--plum-deep); }
         bubble('ru', 'That did not go through. You are on the list, and Ru will be yours at launch.');
         return false;
       }
+      /* 🔴 THE CARD, NAMED. 29 Oct 2026: *"orcle mai to card he nahi
+         dekhata"*. The page is never told a code BEFORE the draw — that
+         rule is in `try-ru`'s header and it stands — but it was never told
+         afterwards either, so an Oracle reading arrived with no card in it.
+
+         Null on Vedic, and on a follow-up where nothing fresh was drawn, so
+         the card is named once and the conversation goes on under it. */
+      if (b.card && b.card.name) {
+        var cardEl = document.createElement('p');
+        cardEl.className = 'try-card';
+        cardEl.textContent = String(b.card.name);
+        out.appendChild(cardEl);
+        out.hidden = false;
+      }
+
       var parts = (b.parts && b.parts.length) ? b.parts : [String(b.reply || '')];
       for (var i = 0; i < parts.length; i++) bubble('ru', String(parts[i]));
 
@@ -2065,14 +2231,40 @@ a { color: var(--plum-deep); }
        the same one the app holds in `angelAvailable` via `alreadyAsked`.
        The button is replaced by the blessing rather than disabled: a dead
        button is a thing people keep pressing. */
+    var veil = document.getElementById('angel-veil');
+    var seal = document.getElementById('angel-seal');
+    var vName = document.getElementById('angel-name');
+    var vBrings = document.getElementById('angel-brings');
+    var vWords = document.getElementById('angel-words');
+    var vClose = document.getElementById('angel-close');
+
     angelGo.addEventListener('click', function () {
       if (!theAngel) return;
       var hing = langEl && langEl.value === 'hinglish';
+      var words = hing ? theAngel.blessing_hinglish : theAngel.blessing_en;
+
+      /* Kept on the page as well as shown in the dialog: a dialog is
+         dismissed, and the blessing is the line they will want again. */
       angelName.textContent = theAngel.name;
-      angelLine.textContent = hing ? theAngel.blessing_hinglish : theAngel.blessing_en;
+      angelLine.textContent = words;
       angelGo.hidden = true;
       angelOut.hidden = false;
+
+      /* ⚠️ A LETTER, NOT AN IMAGE — there is no angel art in this project.
+         The slot is here so adding it later is a URL, and until then this
+         draws something deliberate instead of a broken image. */
+      seal.textContent = (theAngel.name || '?').charAt(0).toUpperCase();
+      vName.textContent = theAngel.name;
+      vBrings.textContent = theAngel.brings ? ('Brings ' + theAngel.brings) : '';
+      vWords.textContent = words;
+      veil.hidden = false;
+      try { vClose.focus(); } catch (e) { /* older browsers */ }
     });
+
+    function closeAngel() { veil.hidden = true; try { angelOut.scrollIntoView({ block: 'center' }); } catch (e) {} }
+    vClose.addEventListener('click', closeAngel);
+    veil.addEventListener('click', function (e) { if (e.target === veil) closeAngel(); });
+    document.addEventListener('keydown', function (e) { if (!veil.hidden && e.key === 'Escape') closeAngel(); });
 
     var after = document.getElementById('try-after');
     var afterLinks = document.getElementById('try-after-links');
