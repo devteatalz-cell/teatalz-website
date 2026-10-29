@@ -565,6 +565,20 @@ h2 {
   transition: background .12s ease, border-color .12s ease; }
 .try-practice .em { font-size: 17px; line-height: 1; }
 .try-practice[aria-pressed="true"] { background: var(--plum); border-color: var(--plum); color: #fff; }
+/* Today's practice, led. A touch warmer than the body copy around it,
+   because it is the one line in this panel that asks for something. */
+.try-buy { margin: 14px 0 0; text-align: center; }
+.try-buy-go { width: auto; min-height: 44px; padding: 0 24px; display: inline-block; }
+
+.try-todays { margin: 10px 0 0; font-size: 15px; line-height: 1.55; }
+.try-todays b { color: var(--plum); }
+
+/* The chip today is asking for, so the sentence above has something to
+   point at. A ring rather than a fill: the filled state already means
+   "picked", and two meanings on one colour is how a control stops
+   saying anything. */
+.try-practice.is-today { border-color: var(--plum); border-width: 2px; }
+
 .try-streak-note { margin: 12px 0 0; font-size: 13px; color: var(--ink-muted); }
 
 /* 🔴 THE ORACLE FACE — the same design the app draws (card-face.ts): a
@@ -1383,6 +1397,15 @@ a { color: var(--plum-deep); }
            at ten; going deeper is the reading continuing, not a question
            asked of it. It does spend money, and the day cap is checked. -->
       <button class="btn btn-primary try-deeper" type="button" id="try-deeper" hidden>Detail it out</button>
+      <!-- 🔴 THE PAID READING, once the free thousand are gone. Hidden
+           until `try-ru` answers `canPay`, which it does for a seats
+           refusal and nothing else. The label is filled from the amount
+           the SERVER opened the order for — never a number written on
+           this page. -->
+      <div class="try-buy" id="try-buy" hidden>
+        <button class="btn btn-primary try-buy-go" type="button" id="try-buy-go">Have this reading</button>
+        <p class="wl-msg" id="try-buy-msg" role="status" aria-live="polite"></p>
+      </div>
       <div class="try-spread" id="try-spread" hidden></div>
 
       <!-- step 3 — the ten. -->
@@ -1409,6 +1432,12 @@ a { color: var(--plum-deep); }
       <div class="try-panel try-streak" id="try-streak" hidden>
         <p class="try-after-title" id="try-streak-title">Come back tomorrow</p>
         <p class="try-after-body">Pick what you did today. It is yours to keep — a quiet record, nothing more.</p>
+        <!-- 🔴 WHAT TODAY ASKS FOR. The founder: *"jo daily streaks hai wo
+             daily change ho, same nahi"*. Written by the server from the
+             date (Ask Ru 0094), so it is the same all day and different
+             tomorrow — and empty when the list cannot be read, rather than
+             a blank line pretending to be a prompt. -->
+        <p class="try-todays" id="try-todays" hidden></p>
         <div class="try-practices" id="try-practices"></div>
         <p class="try-streak-note">Rewards for a streak start when the app opens. Until then this only counts the days.</p>
         <p class="wl-msg" id="try-streak-msg" role="status" aria-live="polite"></p>
@@ -2151,6 +2180,46 @@ a { color: var(--plum-deep); }
 
     var deeperBtn = document.getElementById('try-deeper');
 
+    /* ── buying one reading ──────────────────────────────────────────
+       `try-reading-pay` opens a Razorpay link against an order row it
+       writes first; the webhook settles it; the next ask spends it. All
+       this does is fetch the link and hand it over.
+
+       ⚠️ A NEW TAB, NOT A REDIRECT. Leaving the page would lose the
+       question they have already typed, and they come back to it after
+       paying — this is the only reason `_blank` is right here. */
+    var buyBox = document.getElementById('try-buy');
+    var buyGo = document.getElementById('try-buy-go');
+    var buyMsg = document.getElementById('try-buy-msg');
+
+    buyGo.addEventListener('click', function () {
+      if (!token) return;
+      buyGo.disabled = true;
+      var was = buyGo.textContent;
+      buyGo.textContent = 'Opening…';
+      say(buyMsg, '');
+      api('try-reading-pay', { body: { token: token } }).then(function (res) {
+        var b = res.body || {};
+        buyGo.disabled = false;
+        buyGo.textContent = was;
+        if (res.status >= 200 && res.status < 300 && b.ok && b.payUrl) {
+          /* The amount the SERVER opened the order for, said back to them
+             before they leave — so the page can never quote a price the
+             database did not charge. */
+          var rs = typeof b.amountPaise === 'number' ? (b.amountPaise / 100) : null;
+          say(buyMsg, rs !== null ? ('Opening the payment page for ₹' + rs + '. Come back here when it is done.') : 'Opening the payment page. Come back here when it is done.', 'ok');
+          window.open(b.payUrl, '_blank', 'noopener');
+          return;
+        }
+        try { console.error('try-reading-pay failed', res.status, (b && (b.error && b.error.code)) || ''); } catch (e) { }
+        say(buyMsg, (b && b.error && b.error.message) || 'Could not open the payment page just now. Try once more in a moment.', 'bad');
+      }).catch(function () {
+        buyGo.disabled = false;
+        buyGo.textContent = was;
+        say(buyMsg, 'Could not open the payment page just now. Try once more in a moment.', 'bad');
+      });
+    });
+
     /* ── a second way to reach the database ──────────────────────────
        🔴 PostgREST, NOT AN EDGE FUNCTION. `api()` above posts to
        /functions/v1/ because everything it calls holds the service key —
@@ -2239,6 +2308,7 @@ a { color: var(--plum-deep); }
     var streakTitle = document.getElementById('try-streak-title');
     var practicesRow = document.getElementById('try-practices');
     var streakMsg = document.getElementById('try-streak-msg');
+    var todaysEl = document.getElementById('try-todays');
     var streakDrawn = false;
 
     function streakHeading(days, today) {
@@ -2249,6 +2319,22 @@ a { color: var(--plum-deep); }
 
     function paintStreak(b) {
       streakTitle.textContent = streakHeading(b.days || 0, !!b.today);
+
+      /* 🔴 TODAY'S ONE, FROM THE SERVER. The page does not choose it: a
+         second rule for "which practice is today" would drift from the
+         app's within a week. `textContent` throughout — a practice name
+         comes out of a config row the founder edits. */
+      var td = b.todays;
+      if (td && td.key) {
+        todaysEl.textContent = '';
+        var lead = document.createElement('b');
+        lead.textContent = 'Today: ' + (td.en || td.key) + '. ';
+        todaysEl.appendChild(lead);
+        todaysEl.appendChild(document.createTextNode(td.how || ''));
+        todaysEl.hidden = false;
+      } else {
+        todaysEl.hidden = true;
+      }
       var list = b.practices || [];
       if (!practicesRow.firstChild) {
         for (var i = 0; i < list.length; i++) {
@@ -2264,6 +2350,7 @@ a { color: var(--plum-deep); }
           btn.innerHTML = '<span class="em" aria-hidden="true"></span><span class="nm"></span>';
           btn.querySelector('.em').textContent = p.icon || '';
           btn.querySelector('.nm').textContent = p.en || p.key;
+          if (td && td.key && p.key === td.key) btn.classList.add('is-today');
           practicesRow.appendChild(btn);
         }
       }
@@ -2800,6 +2887,13 @@ a { color: var(--plum-deep); }
         var line = (b && b.message) || 'Today’s free readings are all taken. You are on the list.';
         bubble('ru', line);
         follow.hidden = true;
+        /* 🔴 THE SEATS RAN OUT, SO THE READING IS FOR SALE. `canPay` comes
+           from the server and is set for that refusal alone — a daily cap
+           clears by itself tomorrow and must not be sold past. */
+        if (b && b.canPay) {
+          buyBox.hidden = false;
+          try { buyBox.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
+        }
         return false;
       }
       /* 🔴 409 — THE ONE READING IS SPENT, and the server named which one
@@ -2924,6 +3018,8 @@ a { color: var(--plum-deep); }
          hata"*. A control that is only ever turned on is a control that is
          always on. */
       deeperBtn.hidden = !(!spreadLaid && !b.spread && b.mode === 'tarot');
+      /* They have their reading — paid or free — so nothing is for sale. */
+      buyBox.hidden = true;
       if (b.spread) layTheFive(b.spread);
 
       /* 🔴 NO FOLLOW-UP QUESTIONS ON THE WEBSITE — 29 Oct 2026. He asked for
