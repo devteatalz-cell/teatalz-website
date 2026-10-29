@@ -2260,7 +2260,33 @@ a { color: var(--plum-deep); }
         follow.hidden = true;
         return false;
       }
+      /* 🔴 401 MEANS THE SESSION IS GONE, AND THE PAGE MUST SAY SO.
+         The token lives in localStorage; the row it names lives in the
+         database. Delete the row - a cleanup, a test reset, anything - and
+         the browser goes on holding a key to a door that is no longer there.
+         Every call then answers 401 and the generic sentence below made it
+         look as though Ru herself were broken.
+
+         Found 29 Oct 2026 the hard way: the founder cleared his own rows to
+         test again, and every reading after that failed with a message that
+         named the wrong cause. He read it as the Oracle being broken.
+
+         So: forget the dead token, put the join card back, and say the one
+         true thing - he is one email away from reading again. */
+      if (res.status === 401) {
+        token = null;
+        try { window.localStorage.removeItem(STORE); } catch (e) { /* private window */ }
+        pick.hidden = true;
+        join.hidden = false;
+        say(joinMsg, 'That session has expired. Pop your email in again and she will read you.', 'bad');
+        try { join.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
+        return false;
+      }
       if (!b || res.status >= 400 || b.ok !== true) {
+        /* ⚠️ The real reason goes to the console. A visitor gets a sentence
+           they can act on; whoever is debugging gets the status and the code,
+           instead of one message that fits every failure there is. */
+        try { console.error('try-ru failed', res.status, b && (b.error || b.code || b.message)); } catch (e) { }
         bubble('ru', 'That did not go through. You are on the list, and Ru will be yours at launch.');
         return false;
       }
