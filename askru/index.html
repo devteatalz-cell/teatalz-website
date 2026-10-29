@@ -2091,6 +2091,8 @@ a { color: var(--plum-deep); }
          shortlist, so a smaller deck on screen means fewer choices and
          never a wrong card. */
       if (res.body) {
+        /* The window, learned before anybody has taken a reading. */
+        if (res.body.moreReadings === true) moreOpen = true;
         if (typeof res.body.faceDown === 'number' && res.body.faceDown > 0) deckSizes.tarot = res.body.faceDown;
         if (typeof res.body.oracleDown === 'number' && res.body.oracleDown > 0) deckSizes.oracle = res.body.oracleDown;
       }
@@ -2101,6 +2103,14 @@ a { color: var(--plum-deep); }
        🔴 THE PAGE NEVER LEARNS A CODE. It is handed five NAMES in position
        order and sends back a POSITION — the same wall that has always stood
        between this browser and the deck. */
+    /* 🔴 IS THE AFTERNOON WINDOW OPEN? The server owns this; the page only
+       remembers the last thing it was told. Set by the GET on load and by
+       every answer, so a reload and a reading agree.
+
+       ⚠️ FALSE UNTIL TOLD OTHERWISE, which is the one-reading world and
+       the state after six. */
+    var moreOpen = false;
+
     var deeperBtn = document.getElementById('try-deeper');
 
     /* ── a second way to reach the database ──────────────────────────
@@ -2236,14 +2246,23 @@ a { color: var(--plum-deep); }
         /* The server has just confirmed this token took a reading — which
            is the same fact as "the choice is spent". Said here as well as
            in the answer path, because a reload runs only this one. */
-        modes.hidden = true;
-        askForm.hidden = true;
-        /* ⚠️ AND THE PANEL THAT HELD THEM. On a reload `showPick()` opens
-           `try-pick` optimistically, before anything knows the reading is
-           spent; emptying it leaves a 45px box with nothing in it sitting on
-           the page. The fresh-reading path already hides it — this is the
-           same close, for the path that reloads. */
-        pick.hidden = true;
+        /* 🔴 ONLY WHEN THE READING REALLY IS SPENT. This handler closes the
+           step down because on a reload, in the one-reading world, it is
+           spent. During the afternoon window it is not — and because this
+           runs right after the answer path reopens the modes, it was
+           shutting them again a frame later. Measured: the server said
+           `moreReadings: true` and all three elements came back `hidden`.
+
+           ⚠️ On a reload `moreOpen` comes from the GET above, so this is
+           right for somebody who refreshes mid-afternoon as well. */
+        if (!moreOpen) {
+          modes.hidden = true;
+          askForm.hidden = true;
+          /* On a reload `showPick()` opens `try-pick` optimistically,
+             before anything knows the reading is spent; emptying it leaves
+             a 45px box with nothing in it sitting on the page. */
+          pick.hidden = true;
+        }
       }).catch(function () { streakDrawn = false; });
     }
 
@@ -2876,6 +2895,7 @@ a { color: var(--plum-deep); }
          The panel is not an ending. It is a quiet record somebody marks and
          comes back to, and it sits below everything else. */
       if (b.moreReadings) {
+        moreOpen = true;
         modes.hidden = false;
         askForm.hidden = false;
         q.value = '';
