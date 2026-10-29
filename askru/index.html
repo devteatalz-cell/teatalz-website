@@ -510,6 +510,23 @@ h2 {
 .try-out p { margin: 0 0 12px; line-height: 1.65; }
 .try-out p:last-child { margin-bottom: 0; }
 .try-card { font-weight: 700; letter-spacing: .3px; margin-bottom: 10px; }
+
+/* 🔴 THE ORACLE FACE — the same design the app draws (card-face.ts): a
+   portrait panel, the family in words, one glyph. It is not a placeholder
+   for art. A grey box with a question mark says something is missing;
+   this says this is the card. */
+.oracle-face { width: 168px; margin: 0 auto 14px; padding: 18px 14px 16px;
+  border-radius: 14px; text-align: center;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.18); }
+.oracle-face .glyph { display: block; font-size: 42px; line-height: 1; margin-bottom: 10px; }
+.oracle-face .fam { display: block; font-size: 12px; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+.oracle-face .nm { display: block; font-weight: 700; letter-spacing: .3px; line-height: 1.35; }
+/* The ink carries the family, exactly as it does in the app. */
+.oracle-face.fam-people .glyph { color: #ff9ab8; }
+.oracle-face.fam-path   .glyph { color: #b79bff; }
+.oracle-face.fam-time   .glyph { color: #d8b56a; }
+.oracle-face.fam-inner  .glyph { color: #e08ab0; }
 .wl-msg.ok { color: var(--plum); font-weight: 600; }
 .wl-msg.bad { color: #ff9aa8; }
 
@@ -2148,9 +2165,22 @@ a { color: var(--plum-deep); }
          Null on Vedic, and on a follow-up where nothing fresh was drawn, so
          the card is named once and the conversation goes on under it. */
       if (b.card && b.card.name) {
-        var cardEl = document.createElement('p');
-        cardEl.className = 'try-card';
-        cardEl.textContent = String(b.card.name);
+        var cardEl;
+        if (b.card.glyph) {
+          /* 🔴 THE ORACLE FACE, drawn from what the server sent — the page
+             holds no glyph table of its own, so it cannot drift from the
+             app. `textContent` throughout: a card name is data. */
+          cardEl = document.createElement('div');
+          cardEl.className = 'oracle-face fam-' + (b.card.family || 'inner');
+          var g = document.createElement('span'); g.className = 'glyph'; g.textContent = b.card.glyph;
+          var f = document.createElement('span'); f.className = 'fam';   f.textContent = b.card.label || '';
+          var nm = document.createElement('span'); nm.className = 'nm';  nm.textContent = String(b.card.name);
+          cardEl.appendChild(g); cardEl.appendChild(f); cardEl.appendChild(nm);
+        } else {
+          cardEl = document.createElement('p');
+          cardEl.className = 'try-card';
+          cardEl.textContent = String(b.card.name);
+        }
         out.appendChild(cardEl);
         out.hidden = false;
       }
