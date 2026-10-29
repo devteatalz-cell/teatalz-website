@@ -608,6 +608,25 @@ h2 {
 }
 .try-seats #try-count { color: var(--plum); font-weight: 600; }
 
+/* ── after the reading (29 Oct 2026) ───────────────────────────────────
+   Two panels in his order: how it went, then the offering. Built out of the
+   same vocabulary as the join card so they read as this page and not as
+   something bolted onto the end of it.
+
+   🔴 `.try-panel button { width: 100% }` IS WHY EVERY BUTTON HERE IS
+   RE-WIDTHED. Without `width: auto` the two amounts stack into a column and
+   ₹51 above ₹101 reads as a ladder of prices rather than a choice. */
+.try-after { margin-top: 18px; text-align: center; }
+.try-after-title { margin: 0; font-size: 19px; font-weight: 700; }
+.try-after-body { margin: 8px 0 0; color: var(--ink-muted); line-height: 1.6; }
+.try-after-row, .try-after-feet {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+/* 44px so a thumb can hit it — the same floor the app holds its controls to. */
+.try-after .btn {
+  width: auto; min-height: 44px; padding: 0 22px; margin-top: 0;
+  display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.try-after-feet { border-top: 1px solid rgba(255,255,255,.12); padding-top: 14px; }
+
 /* ── the sky, and what crosses it ──────────────────────────────────────
    *"animations nahi hai — angels ko fly pass karte hua dekhao, shooting
    stars dekhao bg mai, and make it look divine."*
@@ -1140,6 +1159,46 @@ a { color: var(--plum-deep); }
         <button class="btn btn-primary" type="submit" id="try-follow-go">Ask</button>
         <p class="wl-msg" id="try-follow-msg" role="status" aria-live="polite"></p>
       </form>
+
+      <!-- ── after the reading — his order, 29 Oct 2026 ─────────────────
+           *"website pe ussi page se pehle dekhao how was your reading please
+           provide a honest review or share experience on social media"*, and
+           then the offering, and *"agar user skip karna chahie to ussi skip
+           ka option de do"*.
+
+           🔴 BOTH SHIP `hidden` AND STAY HIDDEN UNLESS THE SERVER SENDS
+           SOMETHING TO PUT IN THEM. The amounts come from
+           `flag.dakshina_paise` and the links from the three `social.%`
+           rows, so this page can never offer an amount the database will
+           refuse, and never draws a share button that opens nothing — which
+           would fail at the one moment somebody felt like saying something
+           good, and they do not come back to that moment.
+
+           ⚠️ Before Ask Ru 0082 and 0083 are applied those rows do not
+           exist, the GET answers with nothing, and neither panel appears.
+           That is correct rather than broken. -->
+      <div class="try-panel try-after" id="try-after" hidden>
+        <p class="try-after-title">How was your reading?</p>
+        <p class="try-after-body">If it landed, a few honest words help the next person decide to ask. Leave a review, or tell people how it went on our page.</p>
+        <div class="try-after-row" id="try-after-links"></div>
+        <div class="try-after-feet">
+          <button class="btn btn-primary" type="button" id="try-after-next" hidden>Continue</button>
+          <button class="btn btn-ghost" type="button" id="try-after-skip">Not now</button>
+        </div>
+      </div>
+
+      <div class="try-panel try-after" id="try-dakshina" hidden>
+        <p class="try-after-title">Dakshina</p>
+        <!-- 🔴 SAID EVERY TIME, NOT ONCE IN A HELP PAGE. Without this line an
+             amount under a finished reading reads as a price somebody forgot
+             to charge — a different product, and a different law. -->
+        <p class="try-after-body">Only if you want to. It buys nothing, and it changes nothing about your reading.</p>
+        <div class="try-after-row" id="try-dakshina-amounts"></div>
+        <div class="try-after-feet">
+          <button class="btn btn-ghost" type="button" id="try-dakshina-skip">No thanks</button>
+        </div>
+        <p class="wl-msg" id="try-dakshina-msg" role="status" aria-live="polite"></p>
+      </div>
 
       <!-- 🔴 HIS PROMISE, AND IT SITS UNDER THE BUTTON WHERE HE PUT IT.
            The live count stays silent until there is a number worth showing —
@@ -1923,12 +1982,152 @@ a { color: var(--plum-deep); }
           /* The reading is taken. The step that offered it is done. */
           pick.hidden = true;
           q.value = '';
+          /* 🔴 AFTER THE FIRST READING, NOT AFTER THE TENTH FOLLOW-UP.
+             "Reading end hone pe" is ambiguous here — a visitor gets one
+             reading and ten follow-ups — and waiting for the follow-ups to
+             run out means almost nobody is ever asked, because almost
+             nobody uses ten. It sits BELOW the follow-up box, so it
+             interrupts nothing. */
+          showAfter();
         }
       }).catch(function () {
         go.disabled = false;
         go.textContent = was;
         say(msg, 'We could not reach Ru just now. You are on the list — try again in a moment.', 'bad');
       });
+    });
+
+    /* ── after the reading — review, share, dakshina (29 Oct 2026) ──
+
+       🔴 NOTHING IS DRAWN THAT THE SERVER DID NOT SEND, and the amounts in
+       particular. A page that hardcodes ₹51 and ₹101 offers an amount the
+       database refuses the day he edits the row: the person taps and is told
+       it is not an amount. `try-dakshina` reads the same config row that
+       `askru_dakshina_begin_try` validates against, so the two cannot drift.
+
+       ⚠️ AND A FAILED GET DRAWS NOTHING RATHER THAN A DEFAULT. Before the
+       function is deployed this request 404s. An empty panel is the honest
+       shape of "we do not know what to ask for"; a guessed ladder is not. */
+    var after = document.getElementById('try-after');
+    var afterLinks = document.getElementById('try-after-links');
+    var afterNext = document.getElementById('try-after-next');
+    var afterSkip = document.getElementById('try-after-skip');
+    var dak = document.getElementById('try-dakshina');
+    var dakRow = document.getElementById('try-dakshina-amounts');
+    var dakSkip = document.getElementById('try-dakshina-skip');
+    var dakMsg = document.getElementById('try-dakshina-msg');
+
+    /* Null until the GET answers, and null means draw nothing. */
+    var afterCfg = null;
+
+    api('try-dakshina', { method: 'GET' }).then(function (res) {
+      if (res.body && res.body.ok) afterCfg = res.body;
+    }).catch(function () { /* a panel is not worth an error message */ });
+
+    /* An anchor, not a scripted window.open: no popup blocker, and `noopener`
+       is declared rather than remembered at each call site. The URL was
+       already checked https-only on the server. */
+    function afterLink(label, url) {
+      var a = document.createElement('a');
+      a.className = 'btn btn-ghost';
+      a.textContent = label;
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      return a;
+    }
+
+    function afterGive(paise) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn-primary';
+      b.textContent = '₹' + Math.round(paise / 100);
+      b.addEventListener('click', function () { give(paise, b); });
+      return b;
+    }
+
+    function busy(on) {
+      var all = dakRow.getElementsByTagName('button');
+      for (var i = 0; i < all.length; i++) all[i].disabled = on;
+    }
+
+    function give(paise, btn) {
+      busy(true);
+      var was = btn.textContent;
+      btn.textContent = 'Opening…';
+      say(dakMsg, '');
+      api('try-dakshina', { body: { token: token, amount_paise: paise } }).then(function (res) {
+        busy(false);
+        btn.textContent = was;
+        var b = res.body;
+        if (!b || res.status >= 400 || b.ok !== true || !b.payUrl) {
+          /* `err()` nests its message under `error`; `json()` does not. Both
+             shapes are read, because one of them is a sentence written for
+             this exact moment — "Take your reading first." */
+          var m = (b && ((b.error && b.error.message) || b.message)) || null;
+          say(dakMsg, m || 'That could not be opened. Nothing was taken.', 'bad');
+          return;
+        }
+        /* ⚠️ OPENED, NOT RECEIVED. Only the webhook knows whether anything
+           was paid and it may arrive long after this tab is gone, so nothing
+           here says thank you. */
+        window.open(b.payUrl, '_blank', 'noopener');
+        say(dakMsg, 'The payment page is open in a new tab.');
+      }).catch(function () {
+        busy(false);
+        btn.textContent = was;
+        say(dakMsg, 'That could not be opened. Nothing was taken.', 'bad');
+      });
+    }
+
+    function showDakshina() {
+      if (!afterCfg || !(afterCfg.dakshinaPaise || []).length) return;
+      if (!dakRow.firstChild) {
+        for (var i = 0; i < afterCfg.dakshinaPaise.length; i++) {
+          dakRow.appendChild(afterGive(afterCfg.dakshinaPaise[i]));
+        }
+      }
+      dak.hidden = false;
+    }
+
+    function showAfter() {
+      if (!afterCfg || !after.hidden || !dak.hidden) return;
+      var links = [];
+      if (afterCfg.reviewUrl) links.push(afterLink('Leave a review', afterCfg.reviewUrl));
+      if (afterCfg.facebookUrl) links.push(afterLink('Facebook', afterCfg.facebookUrl));
+      if (afterCfg.instagramUrl) links.push(afterLink('Instagram', afterCfg.instagramUrl));
+      var amounts = (afterCfg.dakshinaPaise || []).length;
+
+      if (links.length) {
+        for (var i = 0; i < links.length; i++) afterLinks.appendChild(links[i]);
+        /* The forward button exists only when there is something to go
+           forward TO. With no amounts it would be a button that closes the
+           panel while saying "Continue". */
+        afterNext.hidden = amounts === 0;
+        afterSkip.textContent = amounts ? 'Not now' : 'Close';
+        after.hidden = false;
+        return;
+      }
+      /* No links — then his first page has nothing on it, and going straight
+         to the offering is the honest shape rather than an empty card. */
+      showDakshina();
+    }
+
+    afterNext.addEventListener('click', function () {
+      after.hidden = true;
+      showDakshina();
+    });
+
+    /* 🔴 THE SKIP IS A BUTTON, NOT AN ABSENCE. "Ignore it and scroll past" is
+       not a choice somebody made — it is a panel they could not get rid of.
+       Founder: *"agar user skip karna chahie to ussi skip ka option de do"*. */
+    afterSkip.addEventListener('click', function () {
+      after.hidden = true;
+      dak.hidden = true;
+    });
+    dakSkip.addEventListener('click', function () {
+      dak.hidden = true;
+      say(dakMsg, '');
     });
 
     /* ── step 3 — the ten ──────────────────────────────────────────── */
