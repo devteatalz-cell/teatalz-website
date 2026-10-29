@@ -2237,6 +2237,10 @@ a { color: var(--plum-deep); }
           btn.className = 'try-practice';
           btn.type = 'button';
           btn.setAttribute('data-practice', p.key);
+          /* 🔴 WHAT THE PRACTICE ACTUALLY IS — Ask Ru 0088. "Kritagyata"
+             names a practice to somebody who already knows it, and the
+             person building a habit is exactly the one who does not. */
+          btn.setAttribute('data-how', p.how || '');
           btn.setAttribute('aria-pressed', 'false');
           btn.innerHTML = '<span class="em" aria-hidden="true"></span><span class="nm"></span>';
           btn.querySelector('.em').textContent = p.icon || '';
@@ -2258,13 +2262,40 @@ a { color: var(--plum-deep); }
         if (!(res.status >= 200 && res.status < 300) || !b.ok) { streakDrawn = false; return; }
         paintStreak(b);
         streakPanel.hidden = false;
+        /* The server has just confirmed this token took a reading — which
+           is the same fact as "the choice is spent". Said here as well as
+           in the answer path, because a reload runs only this one. */
+        modes.hidden = true;
+        askForm.hidden = true;
       }).catch(function () { streakDrawn = false; });
     }
+
+    /* 🔴 TWO TAPS, AND THE FIRST ONE IS RU TALKING. One tap that counted
+       the day immediately left nowhere to say what the practice is. It
+       also meant a thumb brushing a chip spent the day — on a row of eight
+       pills, on a phone, that is not a remote possibility.
+
+       ⚠️ A chip with no `how` still takes two taps. One behaving
+       differently from the other seven, because of a field in a config row
+       he can edit without a deploy, is a worse surprise than one more tap. */
+    var pickedPractice = null;
 
     practicesRow.addEventListener('click', function (e) {
       var b = e.target.closest('.try-practice');
       if (!b || !token) return;
       var key = b.getAttribute('data-practice');
+
+      if (pickedPractice !== key) {
+        pickedPractice = key;
+        Array.prototype.forEach.call(practicesRow.querySelectorAll('.try-practice'), function (x) {
+          x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+        });
+        var how = b.getAttribute('data-how') || '';
+        var name = (b.querySelector('.nm') || {}).textContent || '';
+        say(streakMsg, how ? how + ' Then tap ' + name + ' again.' : 'Tap ' + name + ' again once you have done it.');
+        return;
+      }
+
       b.setAttribute('aria-pressed', 'true');
       b.disabled = true;
       rpc('askru_try_streak', { p_token: token, p_practice: key }).then(function (res) {
@@ -2275,6 +2306,7 @@ a { color: var(--plum-deep); }
           say(streakMsg, 'That did not save. Try once more.', 'bad');
           return;
         }
+        pickedPractice = null;
         streakTitle.textContent = streakHeading(j.days || 0, !!j.today);
         say(streakMsg, '');
       }).catch(function () {
@@ -2557,6 +2589,15 @@ a { color: var(--plum-deep); }
        throw somebody back to the join form while their session is fine. */
     if (token) {
       showPick();
+      /* 🔴 THE STREAK IS FOR WHOEVER ALREADY READ — and that is almost
+         never the same page load as the reading. Wired only into the
+         answer path, it appeared once and never again; the founder
+         reopened the page and found nothing.
+
+         ⚠️ No check is needed here. `askru_try_streak` refuses a token
+         that never took a reading, and `showStreak` draws nothing on a
+         refusal — so the server decides, as it should. */
+      showStreak();
       api('try-ru', { body: { token: token, places: 'aa' } }).then(function (res) {
         if (res.status !== 401) return;
         token = null;
@@ -2696,6 +2737,18 @@ a { color: var(--plum-deep); }
         follow.hidden = true;
         return false;
       }
+      /* 🔴 409 — THE ONE READING IS SPENT, and the server named which one
+         it was. This used to fall into the generic branch below and read
+         "That did not go through", which is what a dropped connection
+         says. A refusal that knows its own reason must not borrow the
+         sentence for not knowing. */
+      if (res.status === 409) {
+        bubble('ru', (b && b.message) || 'Ru has already read you once. The rest opens with the app.');
+        modes.hidden = true;
+        askForm.hidden = true;
+        showStreak();
+        return false;
+      }
       /* 🔴 401 MEANS THE SESSION IS GONE, AND THE PAGE MUST SAY SO.
          The token lives in localStorage; the row it names lives in the
          database. Delete the row - a cleanup, a test reset, anything - and
@@ -2799,6 +2852,17 @@ a { color: var(--plum-deep); }
          The server-side cap has not moved — this page simply stops offering
          the box, and the streak takes its place. */
       follow.hidden = true;
+      /* 🔴 THE MODES COME OFF THE MOMENT THE READING LANDS — 29 Oct 2026.
+         The founder took a Vedic reading, scrolled up, chose Tarot, picked
+         a card, and was answered about yesterday's Saturn pratyantar: the
+         server treats a second question on a read session as a FOLLOW-UP,
+         and a follow-up belongs to the mode it follows.
+
+         try-ru now refuses that outright. But a refusal is the wall; this
+         is the door. Leaving three buttons on screen that cannot do what
+         they say is how the hour got spent in the first place. */
+      modes.hidden = true;
+      askForm.hidden = true;
       showStreak();
       return true;
     }
