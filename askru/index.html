@@ -579,10 +579,18 @@ h2 {
   background: rgba(14, 9, 20, .72); }
 .angel-box { max-width: 420px; width: 100%; border-radius: 18px; padding: 22px 20px 18px;
   background: #221a2c; border: 1px solid #d8b56a; text-align: center; }
-/* ⚠️ A SLOT, NOT AN IMAGE. There is no angel artwork in this project yet —
-   `Angel` holds a key, a name and one line. A lettered seal is drawn here
-   so that adding art later is a URL, not a redesign, and so that nothing
-   renders as a broken image in the meantime. */
+/* 🔴 THE FACE. Burne-Jones, An Angel Playing a Flageolet (1878) — public
+   domain, both the painting and the photograph, checked on the Commons
+   file page. `assets/images/ANGEL-ART-PROVENANCE.md` in the app repo
+   records the licence templates and why there is one image and not one
+   per angel: eleven of the fifteen were never painted by name, and a
+   generic angel labelled "Jophiel" is an attribution we invented.
+
+   The seal below it is the FALLBACK, not dead code — an `onerror` that
+   left a broken-image icon inside a blessing would be worse than the
+   lettered circle it replaced. */
+.angel-face { width: 150px; height: 210px; margin: 0 auto 14px; display: block;
+  object-fit: cover; border-radius: 12px; border: 1.5px solid #d8b56a; }
 .angel-seal { width: 92px; height: 92px; margin: 0 auto 14px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   border: 1.5px solid #d8b56a; color: #e8cf9a;
@@ -1254,7 +1262,9 @@ a { color: var(--plum-deep); }
            the blessing is meant to be kept. -->
       <div class="angel-veil" id="angel-veil" hidden role="dialog" aria-modal="true" aria-labelledby="angel-name">
         <div class="angel-box">
-          <div class="angel-seal" id="angel-seal" aria-hidden="true"></div>
+          <img class="angel-face" id="angel-face" src="assets/angel.webp" alt="" loading="lazy"
+               width="150" height="210">
+          <div class="angel-seal" id="angel-seal" aria-hidden="true" hidden></div>
           <h3 id="angel-name"></h3>
           <p class="angel-brings" id="angel-brings"></p>
           <p class="angel-words" id="angel-words"></p>
@@ -2265,9 +2275,8 @@ a { color: var(--plum-deep); }
       angelGo.hidden = true;
       angelOut.hidden = false;
 
-      /* ⚠️ A LETTER, NOT AN IMAGE — there is no angel art in this project.
-         The slot is here so adding it later is a URL, and until then this
-         draws something deliberate instead of a broken image. */
+      /* The letter is prepared whether or not it is shown, so the fallback
+         below has something to fall back TO. */
       seal.textContent = (theAngel.name || '?').charAt(0).toUpperCase();
       vName.textContent = theAngel.name;
       vBrings.textContent = theAngel.brings ? ('Brings ' + theAngel.brings) : '';
@@ -2275,6 +2284,17 @@ a { color: var(--plum-deep); }
       veil.hidden = false;
       try { vClose.focus(); } catch (e) { /* older browsers */ }
     });
+
+    /* 🔴 THE FALLBACK, WIRED ONCE. If the painting cannot be fetched the
+       lettered seal takes its place — rather than a broken-image icon in
+       the middle of somebody's blessing. */
+    var face = document.getElementById('angel-face');
+    if (face) {
+      face.addEventListener('error', function () {
+        face.hidden = true;
+        seal.hidden = false;
+      });
+    }
 
     function closeAngel() { veil.hidden = true; try { angelOut.scrollIntoView({ block: 'center' }); } catch (e) {} }
     vClose.addEventListener('click', closeAngel);
