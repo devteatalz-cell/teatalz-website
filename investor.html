@@ -45,6 +45,34 @@
     .inv-wrap section{padding-block:0}   /* styles.css pads every <section> 84px for the marketing pages */
     .screen:focus{outline:none}
 
+    /* ---------- traction ---------- */
+    .tr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 18px 20px; }
+    .tr-stat .n { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; }
+    .tr-stat .l { font-size: 12.5px; opacity: .68; margin-top: 3px; }
+    .tr-stat .s { font-size: 12.5px; opacity: .82; margin-top: 4px; }
+
+    /* The one comparison worth drawing: what a reading costs against what it
+       sells for. Two bars on one scale, so the gap is the message. */
+    .tr-unit { margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(128,128,128,.22); }
+    .tr-bar { display: flex; align-items: center; gap: 12px; margin: 10px 0; font-size: 13.5px; }
+    .tr-bar .cap { width: 108px; flex: none; opacity: .72; }
+    .tr-bar .track { flex: 1 1 auto; height: 12px; border-radius: 6px; background: rgba(128,128,128,.18); overflow: hidden; }
+    /* 🔴 `display: block` IS LOAD BEARING. A span is inline, and an inline
+       element ignores width and height outright: the style attribute said
+       width:100% and the rendered box measured 0px, in both bars, while the
+       section looked finished. Caught by measuring the box rather than
+       reading the property back — the same mistake this repository spent
+       29 Oct chasing across the website. */
+    .tr-bar .fill { display: block; height: 100%; border-radius: 6px; background: currentColor; }
+    /* And the two must not read as equal. The one that matters is bright. */
+    .tr-bar.dim .fill { opacity: .42; }
+    .tr-bar .val { width: 78px; flex: none; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+    /* Joins by day. Only the days that have rows — see 0098. */
+    .tr-days { display: flex; align-items: flex-end; gap: 4px; height: 70px; margin-top: 14px; }
+    .tr-days .d { flex: 1 1 0; min-width: 4px; background: currentColor; border-radius: 3px 3px 0 0; opacity: .55; }
+    .tr-dayslabel { display: flex; justify-content: space-between; font-size: 11.5px; opacity: .6; margin-top: 6px; }
+
     /* ---------- the waiting list ---------- */
     /* A big number and then the people under it. The count is set in its own
        line rather than inside the table, because it is the one thing somebody
@@ -475,6 +503,15 @@
            waiting ka count with name email language ki saath but email mask
            kar diyo"*. The addresses are masked by the DATABASE, in
            `askru_room_waitlist`, so this page never receives one whole. -->
+      <!-- 🔴 TRACTION. Counts and rupees-per-reading only: the people are in
+           the panel below, behind a different function. Two doors, so that
+           widening this one cannot widen it into a mailing list. -->
+      <section class="sec" aria-labelledby="tr-a-h">
+        <div class="sec-head"><h2 id="tr-a-h">Traction</h2><span class="cadence">Live</span></div>
+        <p class="sec-note">Counted from Ask Ru’s own database when you opened this page. Nothing here is an estimate or a projection.</p>
+        <div id="a-tr" aria-live="polite"><span class="muted">Loading…</span></div>
+      </section>
+
       <section class="sec" aria-labelledby="wl-a-h">
         <div class="sec-head"><h2 id="wl-a-h">The waiting list</h2><span class="cadence">Live</span></div>
         <p class="sec-note">People who have asked to be told when Ru opens. Counted from our own database, not an estimate. Email addresses are shortened before they leave it — the provider is kept, the rest is not ours to show.</p>
@@ -666,7 +703,7 @@
         /* Straight into the room: a chooser with one tile is a click that
            asks nothing. */
         show("s-askru");
-        if(!loaded.askru){ loaded.askru = true; loadAskRu(); loadAskRuBuild(); loadAskRuWaitlist(); }
+        if(!loaded.askru){ loaded.askru = true; loadAskRu(); loadAskRuBuild(); loadAskRuTraction(); loadAskRuWaitlist(); }
       } else {
         show("s-rooms");
       }
@@ -702,7 +739,7 @@
     $("tile-askru").addEventListener("click", function(){
       if(!askRuReady()) return;
       show("s-askru");
-      if(!loaded.askru){ loadAskRu(); loadAskRuBuild(); loadAskRuWaitlist(); }
+      if(!loaded.askru){ loadAskRu(); loadAskRuBuild(); loadAskRuTraction(); loadAskRuWaitlist(); }
     });
     Array.prototype.forEach.call(document.querySelectorAll("[data-back]"), function(b){
       if(ASKRU_ONLY){
@@ -811,6 +848,90 @@
      * same reading `loadAskRu` gives it, because by this point the visitor has
      * already been let in by the Teatalz project.
      */
+    /**
+     * Traction, from Ask Ru’s own project, gated the same way.
+     *
+     * 🔴 EVERY NUMBER IS PRINTED AS THE SERVER SENT IT. Nothing here adds,
+     * averages or projects — a room that did its own arithmetic would be a
+     * second opinion about the company, and the two would drift.
+     */
+    async function loadAskRuTraction(){
+      var box = $('a-tr');
+      try {
+        var r = await rpc('askru_room_traction', { code: CODE }, true);
+        var d = r.ok ? await r.json() : null;
+        if(!d || d.ok !== true){ box.innerHTML = SOON; return; }
+
+        var wl = d.waitlist || {}, rd = d.readings || {}, u = d.unit || {}, of = d.offer || {};
+        var html = [];
+
+        /* ── the four counts ─────────────────────────────────────── */
+        var seatsTaken = Number(of.seats_taken || 0), seatsTotal = Number(of.seats_total || 0);
+        html.push('<div class="tr-grid">'
+          + trStat(fmtInt(wl.total), 'on the waiting list', '+' + fmtInt(wl.week) + ' this week')
+          + trStat(fmtInt(rd.total), 'readings given', modeLine(rd.by_mode))
+          + trStat(seatsTotal ? fmtInt(Math.max(0, seatsTotal - seatsTaken)) : '—',
+                   'free readings left', seatsTotal ? fmtInt(seatsTaken) + ' of ' + fmtInt(seatsTotal) + ' taken' : '')
+          + trStat(of.weekly_months ? of.weekly_months + ' months' : '—',
+                   'free weekly reading',
+                   /* 🔴 NULL `launch_at` IS "at launch", NOT A DATE WE MADE UP.
+                      The weekly cannot be granted before that instant. */
+                   (of.launch_at ? 'from ' + esc(fmtDay(of.launch_at)) : 'from the day the app opens')
+                   + (of.tier2_max ? ', first ' + fmtInt(of.tier2_max) : ''))
+          + '</div>');
+
+        /* ── the comparison ──────────────────────────────────────── */
+        var cost = Number(u.cost_rupees), price = Number(u.price_rupees);
+        if(isFinite(cost) && isFinite(price) && price > 0){
+          var scale = Math.max(cost, price);
+          html.push('<div class="tr-unit">'
+            + '<div class="tr-bar dim"><span class="cap">Costs us</span>'
+            + '<span class="track"><span class="fill" style="width:' + (100 * cost / scale).toFixed(1) + '%"></span></span>'
+            + '<span class="val">₹' + cost.toFixed(2) + '</span></div>'
+            + '<div class="tr-bar"><span class="cap">Sells for</span>'
+            + '<span class="track"><span class="fill" style="width:100%"></span></span>'
+            + '<span class="val">₹' + price.toFixed(0) + '</span></div>'
+            /* ⚠️ THE QUALIFIER TRAVELS WITH THE NUMBER. Our price list, and the
+               sample it is averaged over — both said on the page. */
+            + '<p class="sec-note" style="margin-top:10px">Cost is ' + esc(u.basis || '')
+            + ', averaged over ' + fmtInt(u.sample) + ' readings. Price is the one the database charges.</p>'
+            + '</div>');
+        }
+
+        /* ── joins by day ────────────────────────────────────────── */
+        var days = wl.by_day || [];
+        if(days.length > 1){
+          var top = days.reduce(function(m, x){ return Math.max(m, Number(x.joined) || 0); }, 0) || 1;
+          html.push('<div class="tr-unit"><div class="l" style="font-size:12.5px;opacity:.68">Joined, by day</div>'
+            + '<div class="tr-days">'
+            + days.map(function(x){
+                var h = Math.max(3, Math.round(100 * (Number(x.joined) || 0) / top));
+                return '<span class="d" style="height:' + h + '%" title="' + esc(fmtDay(x.day)) + ': ' + fmtInt(x.joined) + '"></span>';
+              }).join('')
+            + '</div><div class="tr-dayslabel"><span>' + esc(fmtDay(days[0].day)) + '</span>'
+            + '<span>' + esc(fmtDay(days[days.length - 1].day)) + '</span></div></div>');
+        }
+
+        box.innerHTML = html.join('');
+      } catch(e){
+        box.innerHTML = '<span class="errtxt">Couldn\'t load the numbers. Please try again.</span>';
+      }
+    }
+
+    function trStat(n, label, sub){
+      return '<div class="tr-stat"><div class="n">' + esc(String(n)) + '</div>'
+        + '<div class="l">' + esc(label) + '</div>'
+        + (sub ? '<div class="s">' + esc(sub) + '</div>' : '') + '</div>';
+    }
+    function fmtInt(n){
+      var v = Number(n);
+      return isFinite(v) ? v.toLocaleString('en-IN') : '—';
+    }
+    function modeLine(arr){
+      if(!arr || !arr.length) return '';
+      return arr.map(function(m){ return m.mode + ' ' + fmtInt(m.readings); }).join(' · ');
+    }
+
     async function loadAskRuWaitlist(){
       var box = $('a-wl');
       try {
