@@ -665,11 +665,19 @@ h2 {
    page, over the hero, before anybody had asked for a reading. The founder
    saw it within minutes.
 
-   One rule, covering every element here that has BOTH a display and a hidden
-   state, so the next one cannot repeat it. Specificity does the work:
-   `.x[hidden]` (0,2,0) beats `.x` (0,1,0) — no !important needed. */
-.angel-veil[hidden], .angel-seal[hidden], .try-spread[hidden],
-.try-deck[hidden], .try-places[hidden] { display: none; }
+   The first version of this rule LISTED the elements it covered, and said in
+   this very comment that it covered every one so the next could not repeat
+   it. It missed `.try-deeper`. On 29 Oct the founder reported Detail it out
+   showing on Vedic and Oracle; the fix set `hidden = true`, the property read
+   back true, and the button went on sitting there at 133x44 because
+   `.try-deeper { display: block }` beat the browser rule. A fix that shipped
+   and never ran, caught only by measuring the box instead of the property.
+
+   So: no list. A hand-written list is exactly as narrow as whoever wrote it,
+   and there are fifty author `display` rules in this file. `!important` is
+   the point rather than a shortcut — it is what makes `hidden` mean hidden
+   whatever any other rule says. */
+[hidden] { display: none !important; }
 
 /* The angel, in a dialog — his word was "pop up". */
 .angel-veil { position: fixed; inset: 0; z-index: 60; display: flex;
