@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payment received — Ask Ru</title>
+<meta name="robots" content="noindex">
+<!--
+  THE ONE PAGE WHOSE WHOLE JOB IS TO SEND SOMEBODY BACK.
+
+  FOUNDER, 29 Oct 2026: *"app se bhi recharge kar diya but razorpay ke page se
+  automatically app pe wapas nahi ata wallet bhi add ho gaya money"*.
+
+  ── 🔴 WHY THE APP COULD NOT COME BACK BY ITSELF ─────────────────────────
+
+  The app opens the payment link with `WebBrowser.openAuthSessionAsync(payUrl,
+  RETURN_URL)`. That sheet closes itself when the browser reaches a URL in the
+  app's own scheme — and nothing ever did, because the payment link was created
+  with no `callback_url`. Razorpay finished on its own receipt page and simply
+  stayed there. The money had arrived; the door home did not exist.
+
+  Razorpay will only accept an http(s) `callback_url`, never `teatalz://`. So
+  the recharge link now points here, and this page is the one hop that turns an
+  https address into the app's scheme.
+
+  ── ⚠️ WHAT THIS PAGE MUST NOT DO ───────────────────────────────────────
+
+  It must not redirect to an address somebody hands it. Razorpay appends its
+  own query (`razorpay_payment_id`, `razorpay_signature`, …) and anybody can
+  type anything else after that; a page that forwarded a `?to=` would be an
+  open redirect living on teatalz.com. The destination below is WRITTEN HERE
+  and nothing read from the URL ever reaches `location`.
+
+  It also must not claim the wallet is credited. The webhook settles that a
+  moment later, on its own, and this page cannot see it. It says the payment
+  went through — which is the only thing Razorpay sending us here proves — and
+  leaves the balance to the app, which reads it from the server.
+
+  ⚠️ ON A DESKTOP BROWSER the scheme hop does nothing, and that is fine: the
+  message is complete on its own and the tab can be closed. No regression on a
+  surface that never came back anyway.
+
+  🔴 THE SCHEME MUST STAY `teatalz`. It is `app.json` → `expo.scheme`, and the
+  app's own return URL is built from it by `Linking.createURL('/wallet')`. If
+  that ever changes, this line changes with it or the sheet stops closing —
+  silently, with the money still arriving.
+-->
+<style>
+  :root {
+    color-scheme: dark;
+    --paper:     #2a2039;
+    --paper-alt: #342647;
+    --card:      #372c4a;
+    --ink:       #efe6f6;
+    --ink-muted: #d6cae4;
+    --ink-faint: #b0a2c2;
+    --line:      #4d4068;
+    --plum:      #b89cff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(160deg, var(--paper), var(--paper-alt));
+    color: var(--ink);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* The 16px gutter the rest of the site keeps. */
+    padding: 24px 16px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 28px 24px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+  .mark { font-size: 34px; line-height: 1; margin: 0 0 14px; }
+  h1 { font-size: 21px; margin: 0 0 10px; font-weight: 600; letter-spacing: -0.01em; }
+  p { margin: 0 0 14px; color: var(--ink-muted); }
+  p.quiet { color: var(--ink-faint); font-size: 14px; margin: 0; }
+  .go {
+    display: inline-block;
+    min-height: 48px;
+    padding: 13px 26px;
+    margin: 6px 0 16px;
+    border-radius: 12px;
+    background: var(--plum);
+    color: #241a33;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  /* Shown only once the automatic hop has plainly not happened. Offering it
+     immediately would tell somebody to press a button that is about to be
+     pressed for them. */
+  #late { display: none; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <p class="mark" aria-hidden="true">✦</p>
+    <h1>Payment received</h1>
+    <!-- Not "your wallet has been credited": this page cannot see the wallet.
+         The app reads the balance from the server when it comes back. -->
+    <p>Taking you back to Ask Ru. Your balance updates there in a moment.</p>
+    <!-- A real link, so it works with scripting off and can be long-pressed. -->
+    <a class="go" id="open" href="teatalz://wallet">Open Ask Ru</a>
+    <div id="late">
+      <p class="quiet">If nothing opened, you can close this tab — the payment
+        is done either way, and the balance will be there next time you open
+        the app.</p>
+    </div>
+  </main>
+<script>
+  /* The hop. `replace` rather than `assign` so the back button does not land
+     on a page that immediately leaves again. */
+  (function () {
+    var HOME = 'teatalz://wallet';
+    try { window.location.replace(HOME); } catch (e) { /* scheme refused */ }
+
+    /* 🔴 AND A WAY OUT IF IT DID NOT WORK. A browser that blocks the scheme
+       does it silently — no error, no event — so the only honest signal is
+       that we are still here. Two and a half seconds is long enough that an
+       app which did open has already taken the foreground. */
+    setTimeout(function () {
+      var late = document.getElementById('late');
+      if (late) late.style.display = 'block';
+    }, 2500);
+  }());
+</script>
+</body>
+</html>
