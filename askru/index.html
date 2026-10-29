@@ -2468,35 +2468,43 @@ a { color: var(--plum-deep); }
         var q = (pobEl.value || '').trim();
         chosenPlaceId = null;
         if (placeTimer) clearTimeout(placeTimer);
-        if (q.length < 2 || !token) { clearPlaces(); return; }
+        /* ⚠️ NO TOKEN TEST. It used to require one, because the list came
+           through `try-ru` and that needs a session. It comes straight
+           from the database now, so a dead or cleaned-up session no
+           longer silences the dropdown. Two characters is the function
+           its own minimum, repeated here only to save a round trip. */
+        if (q.length < 2) { clearPlaces(); return; }
         /* 🔴 A SEQUENCE NUMBER, NOT JUST A DEBOUNCE. Two requests in flight
            can land out of order, and the slower one would overwrite the
            newer list with matches for a word already deleted. */
         var mine = ++placeSeq;
         placeTimer = setTimeout(function () {
-          api('try-ru', { body: { token: token, places: q } }).then(function (res) {
+          /* 🔴 THE RPC, NOT THE EDGE FUNCTION. `search_places` is granted
+             to `anon` as of Ask Ru 0093 and answers in about 36ms; the
+             old path was a function cold start plus a session lookup plus
+             a second hop, and the founder watched it arrive late twice.
+
+             ⚠️ THE SHAPE IS DIFFERENT. PostgREST returns the rows THEMSELVES
+             as the body — there is no `{ ok, places }` wrapper — so a
+             copy of the old check here would have found no `ok` and drawn
+             nothing, forever, with no error to see. */
+          rpc('search_places', { p_query: q, p_limit: 6 }).then(function (res) {
             if (mine !== placeSeq) return;
-            if (res.body && res.body.ok) { showPlaces(res.body.places); return; }
+            if (res.status >= 200 && res.status < 300 && Array.isArray(res.body)) {
+              showPlaces(res.body);
+              return;
+            }
 
             /* 🔴 EVERY OTHER OUTCOME USED TO FALL OFF THE END. No list, no
                message, no console line — the field simply stopped
                answering, and there was nothing for anybody to look at. */
-            try { console.error('try-ru.places failed', res.status, (res.body && (res.body.code || res.body.error)) || ''); } catch (e) { }
+            try { console.error('search_places failed', res.status, (res.body && (res.body.message || res.body.code)) || ''); } catch (e) { }
 
-            /* A session that is gone has a cure this page already knows:
-               the reading path forgets the token and puts the join card
-               back. The place search never learned it, so a cleaned-up or
-               expired session looked like a broken dropdown. */
-            if (res.status === 401) {
-              token = null;
-              try { window.localStorage.removeItem(STORE); } catch (e) { }
-              clearPlaces();
-              pick.hidden = true;
-              join.hidden = false;
-              say(joinMsg, 'That session has expired. Pop your email in again and she will read you.', 'bad');
-              try { join.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
-              return;
-            }
+            /* ✏️ The 401 recovery that was here has gone with the old path.
+               It belonged to a call that carried a session token; this one
+               does not, so a failure here says nothing about whether the
+               session is alive and must not end it. The reading path still
+               handles 401 where it means something. */
 
             /* Anything else: say so where they are looking, and leave what
                they typed alone. The server accepts a typed place and
