@@ -2091,8 +2091,11 @@ a { color: var(--plum-deep); }
          shortlist, so a smaller deck on screen means fewer choices and
          never a wrong card. */
       if (res.body) {
-        /* The window, learned before anybody has taken a reading. */
-        if (res.body.moreReadings === true) moreOpen = true;
+        /* The window, learned before anybody has taken a reading. Both
+           lines matter: the second says the answer ARRIVED. */
+        moreOpen = res.body.moreReadings === true;
+        moreKnown = true;
+        closeStepIfSpent();
         if (typeof res.body.faceDown === 'number' && res.body.faceDown > 0) deckSizes.tarot = res.body.faceDown;
         if (typeof res.body.oracleDown === 'number' && res.body.oracleDown > 0) deckSizes.oracle = res.body.oracleDown;
       }
@@ -2103,13 +2106,36 @@ a { color: var(--plum-deep); }
        🔴 THE PAGE NEVER LEARNS A CODE. It is handed five NAMES in position
        order and sends back a POSITION — the same wall that has always stood
        between this browser and the deck. */
-    /* 🔴 IS THE AFTERNOON WINDOW OPEN? The server owns this; the page only
-       remembers the last thing it was told. Set by the GET on load and by
-       every answer, so a reload and a reading agree.
+    /* 🔴 TWO ANSWERS, ONE DECISION — and it was being taken by whichever
+       arrived first. On a reload the page asks the server whether the
+       afternoon window is open (GET, an edge function) and asks the
+       database whether this person has read (RPC, PostgREST). The streak
+       handler then closed the modes, the question box and the pick panel
+       if the window was shut — reading a flag the GET had not filled in
+       yet, because PostgREST answers faster than a cold function.
 
-       ⚠️ FALSE UNTIL TOLD OTHERWISE, which is the one-reading world and
-       the state after six. */
+       He saw the streak and nothing else. I never saw it, because every
+       test I ran joined fresh and read twice; the race only exists on a
+       reload.
+
+       ⚠️ `moreKnown` IS THE POINT, not `moreOpen`. A decision that needs
+       two answers must not be taken by one, and "not told yet" is not the
+       same fact as "told no". */
+    var moreKnown = false;
     var moreOpen = false;
+    var hasRead = false;
+
+    /* The one place the step is closed down. Does nothing until both
+       answers are in; leaves the door open if the GET never arrives, so a
+       reader who should be able to ask always can. Somebody who should
+       NOT meets a 409 with a sentence written for it, which is a move;
+       somebody who should and cannot has none. */
+    function closeStepIfSpent() {
+      if (!moreKnown || !hasRead || moreOpen) return;
+      modes.hidden = true;
+      askForm.hidden = true;
+      pick.hidden = true;
+    }
 
     var deeperBtn = document.getElementById('try-deeper');
 
@@ -2246,23 +2272,13 @@ a { color: var(--plum-deep); }
         /* The server has just confirmed this token took a reading — which
            is the same fact as "the choice is spent". Said here as well as
            in the answer path, because a reload runs only this one. */
-        /* 🔴 ONLY WHEN THE READING REALLY IS SPENT. This handler closes the
-           step down because on a reload, in the one-reading world, it is
-           spent. During the afternoon window it is not — and because this
-           runs right after the answer path reopens the modes, it was
-           shutting them again a frame later. Measured: the server said
-           `moreReadings: true` and all three elements came back `hidden`.
-
-           ⚠️ On a reload `moreOpen` comes from the GET above, so this is
-           right for somebody who refreshes mid-afternoon as well. */
-        if (!moreOpen) {
-          modes.hidden = true;
-          askForm.hidden = true;
-          /* On a reload `showPick()` opens `try-pick` optimistically,
-             before anything knows the reading is spent; emptying it leaves
-             a 45px box with nothing in it sitting on the page. */
-          pick.hidden = true;
-        }
+        /* 🔴 THIS ANSWER PROVES ONE FACT ONLY: that they have read.
+           `askru_try_streak` refuses a token that never took a reading, so
+           reaching here IS that. Whether the step closes also depends on
+           the window, which is the GET's answer and may not be back yet —
+           so the decision is made in one place, by both. */
+        hasRead = true;
+        closeStepIfSpent();
       }).catch(function () { streakDrawn = false; });
     }
 
