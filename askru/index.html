@@ -2177,7 +2177,15 @@ a { color: var(--plum-deep); }
        rather than a deck. Capping the width the tree is laid in keeps a
        phone and a desktop showing the same size of card, and the tree is
        centred in whatever is left over. */
-    var TREE_MAX_W = 360;
+    /* 🔴 THE CAP IS ON THE CARD, NOT ON THE TREE. Capping the tree WIDTH
+       made each deck a different size: stepX = W/(rows-1+OVERLAP), so nine
+       rows at the same width give an 86px card and twelve give 67. Two
+       decks in one product, visibly different. Measured on the live page,
+       not guessed.
+
+       Capping the CARD makes both decks the same card and lets the tree be
+       as wide as its rows need - which is what a dealt deck looks like. */
+    var CARD_MAX_W = 68;
     var deckCount = 0;
     /* Both decks, from the server. The floors are what to do when the count
        could not be read, not a second copy of it: fewer backs is always
@@ -2196,12 +2204,14 @@ a { color: var(--plum-deep); }
       if (!deck || !deckCount) return;
       var outer = deck.clientWidth;
       if (!outer) return;
-      var W = Math.min(outer, TREE_MAX_W);
-      var pad = (outer - W) / 2;
       var rows = triangleRows(deckCount);
-      var stepX = W / (rows - 1 + OVERLAP);
-      var cardW = stepX * OVERLAP;
+      /* The width still decides on a narrow phone - the cap only stops the
+         card growing past card-size on a wide one. */
+      var cardW = Math.min((outer / (rows - 1 + OVERLAP)) * OVERLAP, CARD_MAX_W);
+      var stepX = cardW / OVERLAP;
       var cardH = cardW * CARD_ASPECT;
+      var treeW = (rows - 1) * stepX + cardW;
+      var pad = (outer - treeW) / 2;
       var stepY = cardH / OVERLAP_Y;
       deck.style.height = ((rows - 1) * stepY + cardH) + 'px';
 
@@ -2211,7 +2221,7 @@ a { color: var(--plum-deep); }
         var inRow = Math.min(r + 1, backs.length - i);
         /* Centred: the row spans (inRow−1) steps plus one whole card. */
         var span = (inRow - 1) * stepX + cardW;
-        var left = (W - span) / 2;
+        var left = (treeW - span) / 2;
         for (var c = 0; c < inRow; c++, i++) {
           var b = backs[i];
           b.style.width = cardW + 'px';
