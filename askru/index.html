@@ -535,6 +535,30 @@ h2 {
   border-top: 1px solid rgba(255,255,255,.14); color: var(--ink-muted); }
 .try-deeper { width: auto; min-height: 44px; padding: 0 22px; margin: 0 auto 16px; display: block; }
 
+/* The review box. Stars first, because most people will give a number and
+   nothing else, and that is still worth having. */
+.try-review { margin: 0 0 16px; }
+.try-stars { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+.try-star { background: none; border: 0; padding: 4px 2px; cursor: pointer; line-height: 1;
+  font-size: 30px; color: var(--line-faint); transition: color .12s ease, transform .12s ease;
+  min-width: 40px; min-height: 44px; }
+.try-star:hover { transform: translateY(-1px); }
+.try-star.lit { color: #f0b429; }
+.try-review textarea { width: 100%; min-height: 58px; resize: vertical; }
+.try-review-go { width: auto; min-height: 44px; padding: 0 22px; margin: 10px auto 0; display: block; }
+
+/* The streak. Chips, not a grid — there are eight of them and they are
+   different lengths, so a grid leaves holes. */
+.try-streak { text-align: center; }
+.try-practices { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0 4px; }
+.try-practice { display: inline-flex; align-items: center; gap: 7px; min-height: 44px;
+  padding: 0 15px; border-radius: 999px; cursor: pointer; font-size: 14px;
+  border: 1px solid var(--line-faint); background: transparent; color: inherit;
+  transition: background .12s ease, border-color .12s ease; }
+.try-practice .em { font-size: 17px; line-height: 1; }
+.try-practice[aria-pressed="true"] { background: var(--plum); border-color: var(--plum); color: #fff; }
+.try-streak-note { margin: 12px 0 0; font-size: 13px; color: var(--ink-muted); }
+
 /* 🔴 THE ORACLE FACE — the same design the app draws (card-face.ts): a
    portrait panel, the family in words, one glyph. It is not a placeholder
    for art. A grey box with a question mark says something is missing;
@@ -1387,6 +1411,26 @@ a { color: var(--plum-deep); }
         <p class="wl-msg" id="try-follow-msg" role="status" aria-live="polite"></p>
       </form>
 
+      <!-- ── the streak, which owes nothing ───────────────────────────
+           Founder, 29 Oct 2026: *"uski jagah uske liye kar de ki wo daily
+           streaks kar sake, but iska reward nahi milega, wo app launch ke
+           baad hi"*.
+
+           🔴 THE LAST CLAUSE IS ON SCREEN, NOT JUST IN THE CODE. A streak
+           with no stated terms is read as a promise, and the first person
+           to count to thirty would be owed something nobody agreed to.
+
+           The practices are `flag.streak_activities` — the same eight rows
+           the app draws, sent back by the server, so the two surfaces
+           cannot drift apart. -->
+      <div class="try-panel try-streak" id="try-streak" hidden>
+        <p class="try-after-title" id="try-streak-title">Come back tomorrow</p>
+        <p class="try-after-body">Pick what you did today. It is yours to keep — a quiet record, nothing more.</p>
+        <div class="try-practices" id="try-practices"></div>
+        <p class="try-streak-note">Rewards for a streak start when the app opens. Until then this only counts the days.</p>
+        <p class="wl-msg" id="try-streak-msg" role="status" aria-live="polite"></p>
+      </div>
+
       <!-- ── after the reading — his order, 29 Oct 2026 ─────────────────
            *"website pe ussi page se pehle dekhao how was your reading please
            provide a honest review or share experience on social media"*, and
@@ -1407,6 +1451,29 @@ a { color: var(--plum-deep); }
       <div class="try-panel try-after" id="try-after" hidden>
         <p class="try-after-title">How was your reading?</p>
         <p class="try-after-body">If it landed, a few honest words help the next person decide to ask. Leave a review, or tell people how it went on our page.</p>
+        <!-- 🔴 SOMEWHERE TO ACTUALLY WRITE IT — 29 Oct 2026: *"review likhne
+             ki liye option to de on website"*. The panel has been saying
+             "Leave a review" since the 29th with nothing behind it:
+             `flag.review_url` is null, so only the two social buttons ever
+             drew. Ask Ru has no Google Business profile to point at, and a
+             link to nothing is the one thing this panel must not draw.
+
+             ⚠️ The link is NOT removed. Set `flag.review_url` and it
+             appears beside this box; nothing here has to change. -->
+        <div class="try-review" id="try-review">
+          <div class="try-stars" id="try-stars" role="radiogroup" aria-label="How many stars?">
+            <button class="try-star" type="button" data-star="1" role="radio" aria-checked="false" aria-label="1 star">★</button>
+            <button class="try-star" type="button" data-star="2" role="radio" aria-checked="false" aria-label="2 stars">★</button>
+            <button class="try-star" type="button" data-star="3" role="radio" aria-checked="false" aria-label="3 stars">★</button>
+            <button class="try-star" type="button" data-star="4" role="radio" aria-checked="false" aria-label="4 stars">★</button>
+            <button class="try-star" type="button" data-star="5" role="radio" aria-checked="false" aria-label="5 stars">★</button>
+          </div>
+          <textarea id="try-review-body" rows="2" maxlength="1000"
+                    placeholder="A line or two, if you feel like it…"
+                    aria-label="Your review"></textarea>
+          <button class="btn btn-primary try-review-go" type="button" id="try-review-go">Send review</button>
+          <p class="wl-msg" id="try-review-msg" role="status" aria-live="polite"></p>
+        </div>
         <div class="try-after-row" id="try-after-links"></div>
         <div class="try-after-feet">
           <button class="btn btn-primary" type="button" id="try-after-next" hidden>Continue</button>
@@ -2064,6 +2131,158 @@ a { color: var(--plum-deep); }
        order and sends back a POSITION — the same wall that has always stood
        between this browser and the deck. */
     var deeperBtn = document.getElementById('try-deeper');
+
+    /* ── a second way to reach the database ──────────────────────────
+       🔴 PostgREST, NOT AN EDGE FUNCTION. `api()` above posts to
+       /functions/v1/ because everything it calls holds the service key —
+       the dakshina opens a payment link, so it has to. Reviews and the
+       streak move no money, so their functions are `security definer` and
+       granted to `anon` (Ask Ru 0086, 0087), and this is the shorter path
+       to them. Same two headers, same anon key already in the page.
+
+       ⚠️ Both of those functions check the token themselves. Nothing here
+       is a wall; the walls are in the database. */
+    function rpc(name, args) {
+      return fetch(cfg.url + '/rest/v1/rpc/' + name, {
+        method: 'POST',
+        headers: {
+          'apikey': cfg.anonKey,
+          'Authorization': 'Bearer ' + cfg.anonKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(args)
+      }).then(function (r) {
+        return r.json().catch(function () { return null; }).then(function (j) {
+          return { status: r.status, body: j };
+        });
+      });
+    }
+
+    /* ── the review ──────────────────────────────────────────────────
+       Stars are required, words are not. Somebody who taps four stars and
+       walks away has still told us something; demanding a sentence loses
+       that entirely. */
+    var reviewBox = document.getElementById('try-review');
+    var starsRow = document.getElementById('try-stars');
+    var reviewBody = document.getElementById('try-review-body');
+    var reviewGo = document.getElementById('try-review-go');
+    var reviewMsg = document.getElementById('try-review-msg');
+    var stars = 0;
+
+    function lightStars(n) {
+      Array.prototype.forEach.call(starsRow.querySelectorAll('.try-star'), function (b) {
+        var v = Number(b.getAttribute('data-star'));
+        b.classList.toggle('lit', v <= n);
+        b.setAttribute('aria-checked', v === n ? 'true' : 'false');
+      });
+    }
+
+    starsRow.addEventListener('click', function (e) {
+      var b = e.target.closest('.try-star');
+      if (!b) return;
+      stars = Number(b.getAttribute('data-star'));
+      lightStars(stars);
+      say(reviewMsg, '');
+    });
+
+    reviewGo.addEventListener('click', function () {
+      if (!stars) { say(reviewMsg, 'Tap a star first — the words are optional.', 'bad'); return; }
+      if (!token) { return; }
+      reviewGo.disabled = true;
+      var was = reviewGo.textContent;
+      reviewGo.textContent = 'Sending…';
+      rpc('askru_review_leave', {
+        p_token: token, p_stars: stars, p_body: (reviewBody.value || "")
+      }).then(function (res) {
+        var b = res.body || {};
+        if (res.status >= 200 && res.status < 300 && b.ok) {
+          /* 🔴 ONE ANSWER FOR BOTH. `stored:false` means they had already
+             reviewed — which is not an error to put in front of somebody
+             who just typed something. They said their piece either way. */
+          reviewBox.innerHTML = '<p class="try-after-body">Thank you — that helps the next person more than you would think.</p>';
+          return;
+        }
+        reviewGo.disabled = false;
+        reviewGo.textContent = was;
+        say(reviewMsg, 'That did not send. Try once more in a moment.', 'bad');
+      }).catch(function () {
+        reviewGo.disabled = false;
+        reviewGo.textContent = was;
+        say(reviewMsg, 'That did not send. Try once more in a moment.', 'bad');
+      });
+    });
+
+    /* ── the streak ──────────────────────────────────────────────────
+       Drawn once the reading is done, in the slot the follow-up box used
+       to have. The first call sends no practice: looking at the panel must
+       not mark a day for somebody who only looked at it. */
+    var streakPanel = document.getElementById('try-streak');
+    var streakTitle = document.getElementById('try-streak-title');
+    var practicesRow = document.getElementById('try-practices');
+    var streakMsg = document.getElementById('try-streak-msg');
+    var streakDrawn = false;
+
+    function streakHeading(days, today) {
+      if (!days) return 'Come back tomorrow';
+      var d = days === 1 ? '1 day' : days + ' days';
+      return today ? d + ' — marked for today' : d + ' — mark today';
+    }
+
+    function paintStreak(b) {
+      streakTitle.textContent = streakHeading(b.days || 0, !!b.today);
+      var list = b.practices || [];
+      if (!practicesRow.firstChild) {
+        for (var i = 0; i < list.length; i++) {
+          var p = list[i], btn = document.createElement('button');
+          btn.className = 'try-practice';
+          btn.type = 'button';
+          btn.setAttribute('data-practice', p.key);
+          btn.setAttribute('aria-pressed', 'false');
+          btn.innerHTML = '<span class="em" aria-hidden="true"></span><span class="nm"></span>';
+          btn.querySelector('.em').textContent = p.icon || '';
+          btn.querySelector('.nm').textContent = p.en || p.key;
+          practicesRow.appendChild(btn);
+        }
+      }
+    }
+
+    function showStreak() {
+      if (streakDrawn || !token) return;
+      streakDrawn = true;
+      rpc('askru_try_streak', { p_token: token }).then(function (res) {
+        var b = res.body || {};
+        /* ⚠️ A closed switch or a refusal draws NOTHING. An empty panel
+           saying "streak" with no practices under it is worse than no
+           panel, and `flag.try_streak` exists so he can close it without
+           waiting for a deploy. */
+        if (!(res.status >= 200 && res.status < 300) || !b.ok) { streakDrawn = false; return; }
+        paintStreak(b);
+        streakPanel.hidden = false;
+      }).catch(function () { streakDrawn = false; });
+    }
+
+    practicesRow.addEventListener('click', function (e) {
+      var b = e.target.closest('.try-practice');
+      if (!b || !token) return;
+      var key = b.getAttribute('data-practice');
+      b.setAttribute('aria-pressed', 'true');
+      b.disabled = true;
+      rpc('askru_try_streak', { p_token: token, p_practice: key }).then(function (res) {
+        var j = res.body || {};
+        b.disabled = false;
+        if (!(res.status >= 200 && res.status < 300) || !j.ok) {
+          b.setAttribute('aria-pressed', 'false');
+          say(streakMsg, 'That did not save. Try once more.', 'bad');
+          return;
+        }
+        streakTitle.textContent = streakHeading(j.days || 0, !!j.today);
+        say(streakMsg, '');
+      }).catch(function () {
+        b.disabled = false;
+        b.setAttribute('aria-pressed', 'false');
+        say(streakMsg, 'That did not save. Try once more.', 'bad');
+      });
+    });
     var spreadEl = document.getElementById('try-spread');
     var spreadLaid = false;
 
@@ -2554,16 +2773,33 @@ a { color: var(--plum-deep); }
          mode and is empty after a reload, so a tarot session resumed in a new
          tab would never be offered the five. The session's mode comes back
          with every answer. */
-      if (!spreadLaid && !b.spread && b.mode === 'tarot') deeperBtn.hidden = false;
+      /* 🔴 BOTH BRANCHES. This line only ever set `hidden = false`, so once
+         a tarot reading had shown the button nothing ever took it away —
+         the next Vedic or Oracle answer in the same tab still carried it,
+         and the founder saw "Detail it out" sitting under a Saturn
+         pratyantar. The gate was right; it simply had no closing side.
+
+         Founder, 29 Oct 2026: *"vedic aur oracle mein se Detail it out
+         hata"*. A control that is only ever turned on is a control that is
+         always on. */
+      deeperBtn.hidden = !(!spreadLaid && !b.spread && b.mode === 'tarot');
       if (b.spread) layTheFive(b.spread);
 
-      var left = typeof b.followUpsLeft === 'number' ? b.followUpsLeft : 0;
-      if (left > 0) {
-        follow.hidden = false;
-        say(fmsg, left === 1 ? 'One more question.' : left + ' more questions.');
-      } else {
-        follow.hidden = true;
-      }
+      /* 🔴 NO FOLLOW-UP QUESTIONS ON THE WEBSITE — 29 Oct 2026. He asked for
+         *"question puchne ka option mat dikha, uski jagah daily streaks"*,
+         and chose, when asked, to drop them rather than cap them lower.
+
+         The cost was the reason: ten follow-ups is ten model calls per
+         reader on top of the reading itself — measured at ₹0.529 a call,
+         about ₹5.80 a person, and the difference between roughly $28 and
+         $94 for a thousand readers. The app keeps its follow-ups; this is
+         the free pre-launch surface.
+
+         ⚠️ `b.followUpsLeft` is still sent and still deliberately ignored.
+         The server-side cap has not moved — this page simply stops offering
+         the box, and the streak takes its place. */
+      follow.hidden = true;
+      showStreak();
       return true;
     }
 
@@ -2818,6 +3054,11 @@ a { color: var(--plum-deep); }
     /* ── step 3 — the ten ──────────────────────────────────────────── */
     follow.addEventListener('submit', function (e) {
       e.preventDefault();
+      /* 🔴 OFF — see the streak comment above. The form is never unhidden
+         now, so this is a wall rather than a path, and it is here because
+         the element outliving its purpose is exactly how a removed feature
+         comes back by accident. */
+      return;
       var text = (fq.value || '').trim();
       if (text.length < 4) { say(fmsg, 'A few words is enough.', 'bad'); fq.focus(); return; }
 
