@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choghadiya &amp; Rahu Kaal today — for your own place | Ask Ru</title>
+<meta name="description" content="Aaj ka choghadiya, Rahu Kaal, Gulika and Yamaganda worked from your own sunrise — not a generic table. With Abhijit and the day's full panchang.">
+<link rel="canonical" href="https://teatalz.com/askru/choghadiya/">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta property="og:title" content="Choghadiya & Rahu Kaal today — for your own place">
+<meta property="og:description" content="Worked from your own sunrise and sunset rather than a generic table: choghadiya, Rahu Kaal, Gulika, Yamaganda, Abhijit and the day's panchang.">
+<meta property="og:url" content="https://teatalz.com/askru/choghadiya/">
+<meta property="og:site_name" content="Teatalz">
+<meta property="og:locale" content="en_IN">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://teatalz.com/askru/assets/askru-15s-poster.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="Ask Ru, shown on a phone screen.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Choghadiya & Rahu Kaal today — for your own place">
+<meta name="twitter:description" content="Choghadiya, Rahu Kaal, Gulika and Yamaganda worked from your own sunrise, with the day's tithi, nakshatra, yoga and karana.">
+<meta name="twitter:image" content="https://teatalz.com/askru/assets/askru-15s-poster.jpg">
+<link rel="icon" href="../assets/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!--
+  🔴 EVERY TABLE ON THIS PAGE WAS READ FROM THE BUILD, not from the brief.
+  Verified 29 Oct 2026 against askru-push-ready, _shared/vedic/:
+
+    day choghadiya ring     muhurat.ts:42   Udveg Char Labh Amrit Kaal Shubh Rog
+    night choghadiya ring   muhurat.ts:100  Shubh Amrit Char Rog Kaal Labh Udveg
+      ⚠️ the night is its OWN ring, not the day's at an offset. Two rows —
+      Tuesday and Saturday — are marked in the source as disputed between
+      published panchangs, so this page does not print a per-weekday table.
+    which are auspicious    muhurat.ts:45   Amrit, Shubh, Labh, Char
+    Rahu Kaal / Yamaganda / Gulika — eighths of the day, muhurat.ts (RAHU_EIGHTH,
+      YAMA_EIGHTH, GULIKA_EIGHTH); all three match classical convention, checked
+      row by row against published tables on 20 Oct 2026.
+    Abhijit                 muhurat.ts:189, :202 — the 8th of 15 muhurats between
+      sunrise and sunset, and NOT given on Wednesday (`weekday === 3` → null)
+    panchang limbs          panchang.ts:85  tithi + paksha, nakshatra, yoga, karana
+    location                features/muhurat/where.ts — coarse only, and a refusal
+      falls back to the saved birth city and says which place it used
+
+  No price on this page, and no claim that the app is published.
+  The FAQ is VISIBLE and the FAQPage markup repeats only what is on the page.
+-->
+<style>
+:root{
+  color-scheme: dark;
+  --paper:#2a2039; --paper-alt:#342647; --card:#372c4a; --card-alt:#3d3152;
+  --ink:#efe6f6; --ink-muted:#d6cae4; --ink-faint:#b0a2c2;
+  --line:#4d4068; --line-faint:#463a5f;
+  --plum:#b79bff; --plum-deep:#9b7bff; --rose:#ff8fb4; --gold:#e0a84a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(170deg,var(--paper),var(--paper-alt));color:var(--ink);
+  font:400 17px/1.65 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:28px 20px 80px}
+a{color:var(--plum)}
+.top{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-faint);margin-bottom:34px}
+.top img{width:30px;height:30px;border-radius:8px}
+.top a{color:var(--ink-faint);text-decoration:none}
+.top a:hover{color:var(--plum)}
+h1{font:600 clamp(30px,6vw,44px)/1.14 "Playfair Display",Georgia,serif;margin:0 0 14px;letter-spacing:-.01em}
+.lede{font-size:19px;color:var(--ink-muted);margin:0 0 30px}
+h2{font:600 clamp(22px,4vw,28px)/1.25 "Playfair Display",Georgia,serif;margin:44px 0 12px}
+h3{font:600 17px/1.4 Inter,sans-serif;margin:26px 0 6px;color:var(--plum)}
+p{margin:0 0 16px;color:var(--ink-muted)}
+strong{color:var(--ink);font-weight:600}
+ul{margin:0 0 18px;padding-left:20px;color:var(--ink-muted)}
+li{margin-bottom:7px}
+table{width:100%;border-collapse:collapse;margin:18px 0 24px;font-size:15px;display:block;overflow-x:auto}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-faint);white-space:nowrap}
+th{color:var(--ink-faint);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+td.good{color:#7fd6a2;font-weight:600}
+td.bad{color:var(--rose);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line-faint);border-radius:14px;padding:18px 20px;margin:22px 0}
+.card p:last-child{margin-bottom:0}
+.faq{border-top:1px solid var(--line-faint);padding-top:18px;margin-top:10px}
+.faq h3{margin-top:0}
+.cta{display:inline-block;background:var(--plum-deep);color:#1b1428;font-weight:600;text-decoration:none;
+  padding:13px 24px;border-radius:999px;margin-top:8px}
+footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line-faint);font-size:14px;color:var(--ink-faint)}
+footer a{color:var(--ink-faint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="top">
+  <img src="../assets/logo.webp" alt="Ask Ru">
+  <a href="../">Ask Ru</a> <span>·</span> <span>Choghadiya &amp; Rahu Kaal</span>
+</div>
+
+<h1>Aaj ka choghadiya, for your sunrise — not somebody else's</h1>
+<p class="lede">Every choghadiya table is only true for one place. Ask Ru divides <em>your</em> day,
+between <em>your</em> sunrise and sunset, and names the periods that follow from it: choghadiya, Rahu
+Kaal, Gulika, Yamaganda and Abhijit.</p>
+
+<h2>Why the place matters more than the table</h2>
+<p>Choghadiya is not a clock time. The day from sunrise to sunset is cut into eight equal parts and
+the night from sunset to the next sunrise into eight more, so every boundary moves with your latitude
+and the season. A table computed for Delhi is wrong in Chennai by the better part of an hour, and
+wrong in Delhi six months later.</p>
+<p>That is the whole reason Ask Ru asks where you are. It uses an <strong>approximate location
+only</strong> — city accuracy is all a sunrise needs — and if you would rather not share it,
+<strong>it falls back to the birth city already saved in your profile and tells you which place it
+used</strong>. Nothing is computed from a place you were not shown.</p>
+
+<h2>The eight of the day, and the eight of the night</h2>
+<p>Seven names repeat around a ring, and the day begins at a different point for each weekday —
+Sunday opens with Udveg, Monday with Amrit, Tuesday with Rog, and so on by the lord of the day.</p>
+<p><strong>The night is its own ring, not the day's continued.</strong> This is where most tables —
+and our own first attempt — go wrong: the night order is Shubh, Amrit, Char, Rog, Kaal, Labh, Udveg,
+and the weekday it opens on does not fall out of the day's by any fixed offset.</p>
+
+<table>
+<thead><tr><th>Choghadiya</th><th>Taken as</th><th>Commonly used for</th></tr></thead>
+<tbody>
+<tr><td>Amrit</td><td class="good">Auspicious</td><td>Anything you want to last</td></tr>
+<tr><td>Shubh</td><td class="good">Auspicious</td><td>Ceremonies, auspicious starts</td></tr>
+<tr><td>Labh</td><td class="good">Auspicious</td><td>Work, money, new undertakings</td></tr>
+<tr><td>Char</td><td class="good">Auspicious</td><td>Travel and movement</td></tr>
+<tr><td>Udveg</td><td class="bad">Avoided</td><td>—</td></tr>
+<tr><td>Kaal</td><td class="bad">Avoided</td><td>—</td></tr>
+<tr><td>Rog</td><td class="bad">Avoided</td><td>—</td></tr>
+</tbody>
+</table>
+
+<div class="card">
+  <p><strong>Where the sources disagree, we say so.</strong> Published panchangs do not fully agree on
+  which choghadiya the night opens with on <strong>Tuesday and Saturday</strong>. The app follows the
+  majority reading and marks those two as contested rather than printing them as settled. If your
+  family follows a particular panchang, trust it over us on those two rows.</p>
+</div>
+
+<h2>Rahu Kaal, Gulika and Yamaganda</h2>
+<p>These three are not choghadiya. Each is <strong>one eighth of the daytime</strong>, and which
+eighth depends only on the weekday — Rahu Kaal falls in the eighth part on Sunday, the second on
+Monday, the seventh on Tuesday, and so on. Because they are eighths of <em>your</em> day, they move
+with your sunrise exactly as the choghadiya do.</p>
+<ul>
+  <li><strong>Rahu Kaal</strong> — the period most widely avoided for beginning something.</li>
+  <li><strong>Yamaganda</strong> and <strong>Gulika</strong> — the two usually named beside it.</li>
+</ul>
+
+<h2>Abhijit — and the day it does not come</h2>
+<p>Abhijit is the eighth of the fifteen muhurats between sunrise and sunset, roughly the middle of the
+day, and it is widely taken as auspicious even when the choghadiya around it is not.
+<strong>It is not given on Wednesday.</strong> Ask Ru omits it that day rather than printing a period
+it does not stand behind.</p>
+
+<h2>The day itself: tithi, nakshatra, yoga, karana</h2>
+<p>Alongside the periods, Ask Ru shows the day's panchang — the <strong>tithi</strong> and its paksha,
+the <strong>nakshatra</strong> the Moon is in, the <strong>yoga</strong> and the
+<strong>karana</strong> — computed from the same sidereal positions as everything else in the app,
+rather than copied from a feed.</p>
+
+<h2 id="faq">Questions people ask</h2>
+<div class="faq">
+  <h3>What is Rahu Kaal, in one line?</h3>
+  <p>One eighth of the daytime, different for each weekday, widely avoided for starting something
+  new. Because it is an eighth of the day between your sunrise and your sunset, it moves with your
+  place and the season.</p>
+
+  <h3>Why does your choghadiya differ from the one in my panchang?</h3>
+  <p>Almost always because of place: the periods are cut from local sunrise and sunset, so a table
+  made for another city will not match. Two rows — the night choghadiya on Tuesday and Saturday — are
+  also genuinely contested between published panchangs, and we mark those rather than hide them.</p>
+
+  <h3>Does Ask Ru need my location?</h3>
+  <p>It asks for an approximate location only, because city accuracy is all a sunrise calculation
+  needs. If you decline, it uses the birth city saved in your profile and tells you which place the
+  answer was computed for.</p>
+
+  <h3>Is this a prediction?</h3>
+  <p>No. These are divisions of the day from classical method, not a forecast of what will happen in
+  them. Ru is an AI and says so on every reading she gives.</p>
+</div>
+
+<div class="card">
+  <p><strong>Ask Ru is in final testing.</strong> Android first, iOS next, in English and Hinglish.
+  <a href="../">Join the waiting list on the main page</a> and you will know when she opens.</p>
+  <p><a class="cta" href="../">See Ask Ru</a></p>
+</div>
+
+<footer>
+  <a href="../">Ask Ru</a> · <a href="../kundli-milan/">Kundli Milan — 36 guna</a> ·
+  <a href="https://teatalz.com/">Teatalz</a><br>
+  Ask Ru is built by Teatalz House Of Rume Private Limited.
+</footer>
+
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Rahu Kaal, in one line?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "One eighth of the daytime, different for each weekday, widely avoided for starting something new. Because it is an eighth of the day between your sunrise and your sunset, it moves with your place and the season."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does your choghadiya differ from the one in my panchang?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Almost always because of place: the periods are cut from local sunrise and sunset, so a table made for another city will not match. Two rows — the night choghadiya on Tuesday and Saturday — are also genuinely contested between published panchangs, and we mark those rather than hide them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Ask Ru need my location?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It asks for an approximate location only, because city accuracy is all a sunrise calculation needs. If you decline, it uses the birth city saved in your profile and tells you which place the answer was computed for."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this a prediction?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. These are divisions of the day from classical method, not a forecast of what will happen in them. Ru is an AI and says so on every reading she gives."
+      }
+    }
+  ]
+}
+</script>
+</body>
+</html>
