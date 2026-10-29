@@ -2324,7 +2324,30 @@ a { color: var(--plum-deep); }
       try { pick.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* older browsers */ }
     }
 
-    if (token) showPick();
+    /* 🔴 A STORED TOKEN IS NOT A LIVE SESSION — checked on load, 29 Oct 2026.
+       The token lives in this browser; the row it names lives in the database.
+       Delete the row and the page would go on showing the pick panel, the
+       modes, the deck - everything - and only find out when somebody asked for
+       a reading and got a 401. The founder spent an hour in that state.
+
+       ⚠️ THE CHEAPEST POSSIBLE PROBE. The places branch of try-ru validates the
+       token and returns a list; it takes no seat, spends no money and makes no
+       model call. A two-letter query is enough to be told 401.
+
+       Optimistic on purpose: the panel opens straight away and is withdrawn
+       only if the server says the session is gone. A network blip must not
+       throw somebody back to the join form while their session is fine. */
+    if (token) {
+      showPick();
+      api('try-ru', { body: { token: token, places: 'aa' } }).then(function (res) {
+        if (res.status !== 401) return;
+        token = null;
+        try { window.localStorage.removeItem(STORE); } catch (e) { }
+        pick.hidden = true;
+        join.hidden = false;
+        say(joinMsg, 'That session has expired. Pop your email in again and she will read you.', 'bad');
+      }).catch(function () { /* a blip is not an expiry */ });
+    }
 
     /* ── step 1 — join ─────────────────────────────────────────────── */
     join.addEventListener('submit', function (e) {
