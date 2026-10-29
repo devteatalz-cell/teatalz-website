@@ -616,6 +616,17 @@ h2 {
    🔴 `.try-panel button { width: 100% }` IS WHY EVERY BUTTON HERE IS
    RE-WIDTHED. Without `width: auto` the two amounts stack into a column and
    ₹51 above ₹101 reads as a ladder of prices rather than a choice. */
+/* The angel: gold, because it is a blessing and not another control. */
+.try-angel { margin-top: 16px; text-align: center; }
+.try-angel .btn {
+  width: auto; min-height: 44px; padding: 0 22px; margin-top: 0;
+  border-color: #d8b56a; color: #e8cf9a; }
+.try-angel-blessing {
+  border: 1px solid #d8b56a; border-radius: 14px; padding: 14px 16px;
+  max-width: 520px; margin: 0 auto; }
+.try-angel-name { margin: 0; font-weight: 700; letter-spacing: .4px; }
+.try-angel-line { margin: 6px 0 0; color: var(--ink-muted); line-height: 1.6; }
+
 .try-after { margin-top: 18px; text-align: center; }
 .try-after-title { margin: 0; font-size: 19px; font-weight: 700; }
 .try-after-body { margin: 8px 0 0; color: var(--ink-muted); line-height: 1.6; }
@@ -1181,6 +1192,22 @@ a { color: var(--plum-deep); }
       </div>
 
       <div class="try-out" id="try-out" hidden aria-live="polite"></div>
+
+      <!-- ── the angel ───────────────────────────────────────────────
+           🔴 29 Oct 2026: *"get and angel website wali mai bhi dalo after
+           user has picked card"*. Ships hidden; it appears only once the
+           server has sent one, which it does with the reading.
+
+           ⚠️ The page never learns the CARD — only the angel the card
+           called. That is the same wall `try-ru` keeps everywhere else:
+           a browser that knew the code could post its own. -->
+      <div class="try-angel" id="try-angel" hidden>
+        <button class="btn btn-ghost" type="button" id="try-angel-go">Get me an angel</button>
+        <div class="try-angel-blessing" id="try-angel-out" hidden>
+          <p class="try-angel-name" id="try-angel-name"></p>
+          <p class="try-angel-line" id="try-angel-line"></p>
+        </div>
+      </div>
 
       <!-- step 3 — the ten. -->
       <form class="try-panel try-follow" id="try-follow" novalidate hidden>
@@ -1944,6 +1971,15 @@ a { color: var(--plum-deep); }
       var parts = (b.parts && b.parts.length) ? b.parts : [String(b.reply || '')];
       for (var i = 0; i < parts.length; i++) bubble('ru', String(parts[i]));
 
+      /* 🔴 HELD, NOT SHOWN. He asked for a button, not an automatic
+         blessing — and once it HAS been taken, a later follow-up must not
+         put the button back. So the panel is only revealed while the
+         blessing is still hidden. */
+      if (b.angel && b.angel.name) {
+        theAngel = b.angel;
+        if (angelOut.hidden) angelWrap.hidden = false;
+      }
+
       var left = typeof b.followUpsLeft === 'number' ? b.followUpsLeft : 0;
       if (left > 0) {
         follow.hidden = false;
@@ -2016,6 +2052,28 @@ a { color: var(--plum-deep); }
        ⚠️ AND A FAILED GET DRAWS NOTHING RATHER THAN A DEFAULT. Before the
        function is deployed this request 404s. An empty panel is the honest
        shape of "we do not know what to ask for"; a guessed ladder is not. */
+    var angelWrap = document.getElementById('try-angel');
+    var angelGo = document.getElementById('try-angel-go');
+    var angelOut = document.getElementById('try-angel-out');
+    var angelName = document.getElementById('try-angel-name');
+    var angelLine = document.getElementById('try-angel-line');
+
+    /* The angel the server sent with the reading. Null until it does. */
+    var theAngel = null;
+
+    /* 🔴 ONCE TAKEN, IT DOES NOT COME BACK IN THIS READING — his rule, and
+       the same one the app holds in `angelAvailable` via `alreadyAsked`.
+       The button is replaced by the blessing rather than disabled: a dead
+       button is a thing people keep pressing. */
+    angelGo.addEventListener('click', function () {
+      if (!theAngel) return;
+      var hing = langEl && langEl.value === 'hinglish';
+      angelName.textContent = theAngel.name;
+      angelLine.textContent = hing ? theAngel.blessing_hinglish : theAngel.blessing_en;
+      angelGo.hidden = true;
+      angelOut.hidden = false;
+    });
+
     var after = document.getElementById('try-after');
     var afterLinks = document.getElementById('try-after-links');
     var afterNext = document.getElementById('try-after-next');
