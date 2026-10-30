@@ -182,9 +182,37 @@ reads the result to you in sentences rather than handing over a verdict.</p>
 
 </div>
 
+<!-- 30 Oct 2026: this page carried a FAQPage node and nothing else, while the home
+     page carries Organization and SoftwareApplication. So the two pages that exist
+     to be found in search were the two with no stated author, publisher or date —
+     my own omission, found on the tenth watch pass.
+
+     🔴 THE DATES ARE READ FROM GIT, NOT CHOSEN. datePublished is the commit that
+     added this file (2026-10-29) and dateModified is its last real change
+     (2026-10-30). A dateModified that moves without the page changing is both a
+     lie and the kind of fake-freshness signal search engines discount. It must be
+     edited only when the page is. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
+  "@graph": [
+  {
+  "@type": "Article",
+  "headline": "Kundli Milan: 36 guna, counted — and the reason for every one",
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://teatalz.com/askru/kundli-milan/" },
+  "datePublished": "2026-10-29",
+  "dateModified": "2026-10-30",
+  "inLanguage": "en-IN",
+  "author": { "@type": "Organization", "name": "CodeUpVik", "url": "https://codeupvik.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Teatalz House Of Rume Private Limited",
+    "url": "https://teatalz.com/"
+  },
+  "image": "https://teatalz.com/askru/assets/askru-15s-poster.jpg",
+  "isPartOf": { "@type": "WebSite", "name": "Ask Ru", "url": "https://teatalz.com/askru/" }
+  },
+  {
   "@type": "FAQPage",
   "mainEntity": [
     {
@@ -219,6 +247,8 @@ reads the result to you in sentences rather than handing over a verdict.</p>
         "text": "No. Ru is an AI, and the app says so on the screen of every reading. She is a companion rather than a human astrologer, and she is not a therapist."
       }
     }
+  ]
+  }
   ]
 }
 </script>

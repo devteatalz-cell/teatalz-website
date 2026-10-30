@@ -195,9 +195,39 @@ rather than copied from a feed.</p>
 
 </div>
 
+<!-- 30 Oct 2026: same omission as the kundli-milan page — a FAQPage node and no
+     stated author, publisher or date, on a page whose whole job is to be found.
+
+     🔴 THE DATES ARE READ FROM GIT, NOT CHOSEN. datePublished is the commit that
+     added this file (2026-10-29), dateModified its last real change (2026-10-30).
+
+     ⚠️ AND dateModified MUST NOT BE BUMPED DAILY HERE, however tempting it looks
+     on a page with "aaj ka" in the title. This page explains how the choghadiya
+     and Rahu Kaal rings are derived; it does not print today's times, which the
+     app computes for the reader's own place. A date that moves while the words
+     stay the same is a false freshness claim, and search engines discount exactly
+     that. Edit it when the page is edited, never on a schedule. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
+  "@graph": [
+  {
+  "@type": "Article",
+  "headline": "Aaj ka choghadiya, for your sunrise — not somebody else's",
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://teatalz.com/askru/choghadiya/" },
+  "datePublished": "2026-10-29",
+  "dateModified": "2026-10-30",
+  "inLanguage": "en-IN",
+  "author": { "@type": "Organization", "name": "CodeUpVik", "url": "https://codeupvik.com/" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Teatalz House Of Rume Private Limited",
+    "url": "https://teatalz.com/"
+  },
+  "image": "https://teatalz.com/askru/assets/askru-15s-poster.jpg",
+  "isPartOf": { "@type": "WebSite", "name": "Ask Ru", "url": "https://teatalz.com/askru/" }
+  },
+  {
   "@type": "FAQPage",
   "mainEntity": [
     {
@@ -232,6 +262,8 @@ rather than copied from a feed.</p>
         "text": "No. These are divisions of the day from classical method, not a forecast of what will happen in them. Ru is an AI and says so on every reading she gives."
       }
     }
+  ]
+  }
   ]
 }
 </script>
