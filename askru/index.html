@@ -2232,6 +2232,9 @@ a { color: var(--plum-deep); }
         }
       };
       if (opts.body) init.body = JSON.stringify(opts.body);
+      /* So a report sent while this tab is navigating away still goes. A
+         plain fetch is cancelled on unload; keepalive is the one that is not. */
+      if (opts.keepalive) init.keepalive = true;
       return fetch(cfg.url + '/functions/v1/' + path, init).then(function (r) {
         return r.json().catch(function () { return null; }).then(function (j) {
           return { status: r.status, body: j };
@@ -2387,6 +2390,20 @@ a { color: var(--plum-deep); }
              signal we do not receive would leave somebody who HAS paid with
              no way to ask. If they do not pay, the ask meets the same offer
              again — recoverable, and nothing is lost either way. */
+          /* 🔴 TELL THE SERVER WHAT THE BROWSER MANAGED, BEFORE WE LEAVE.
+             This is the field that ends an argument nobody could settle: an
+             order stuck at created looks identical whether the page never
+             opened or the person opened it and walked away. tab means a new
+             tab was granted; same means the popup was refused and the
+             fallback carried them anyway. Sent keepalive, because the very
+             next line may unload this page. Failure is ignored on purpose —
+             a lost diagnostic must never cost somebody their payment. */
+          try {
+            api('try-reading-pay', {
+              body: { token: token, orderId: b.orderId, opened: payTab ? 'tab' : 'same' },
+              keepalive: true,
+            }).catch(function () { });
+          } catch (e) { }
           payTabGo(payTab, b.payUrl);
           return;
         }
