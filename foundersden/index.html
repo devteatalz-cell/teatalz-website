@@ -78,6 +78,55 @@
   @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(4vw,-5vh)} }
   @media (prefers-reduced-motion: reduce) { .glow i { animation:none } .rise { animation:none !important; opacity:1 !important } }
 
+  /* ── the gate's own weather, and a code you can look at ──────────────────
+     30 Oct 2026. The founder: *"passcode jaha dalte hai waha view karne ka
+     option de and saath mai bg mai thoda creativity kar, ad some art work
+     images in low opacity and bg color bhi time ke saath change ho"*.
+
+     🔴 THE DATA ROOM ALREADY HAD THE REVEAL AND THESE TWO DID NOT. Its
+     button carries a comment explaining why it matters most there: a wrong
+     try raises a GLOBAL counter and thirty of them lock everyone out for an
+     hour, so somebody who cannot see what they typed burns attempts that are
+     not theirs. That reasoning is copied here rather than reinvented, down to
+     restoring the caret after the type swap. */
+  .pw { position:relative; margin-bottom:12px; }
+  /* 🔴 PADDED ON BOTH SIDES, NOT JUST THE RIGHT. `.gate input` is
+     text-align:center with letter-spacing, so reserving space only on the
+     right shifts the centre rather than clearing the button — measured on
+     the rendered page, the placeholder ran straight under "Show". Equal
+     padding keeps the dots centred in the space that is actually free. */
+  .pw input { margin-bottom:0 !important; padding-left:76px; padding-right:76px; }
+  /* 🔴 `width:auto` IS LOAD-BEARING. `.gate button { width:100% }` is
+     written for the Open button and catches every button inside the gate,
+     including this one — measured on the rendered page it came out 334px
+     wide, covering the whole field, which is why the label appeared in the
+     middle of the code. The screenshot read like a padding problem and was
+     not one. */
+  .pw .pw-reveal { position:absolute; right:5px; top:50%; transform:translateY(-50%);
+               width:auto; min-height:40px; padding:0 13px; border:0; border-radius:10px;
+               background:transparent; color:var(--plum-deep); font:inherit;
+               font-size:13px; font-weight:600; letter-spacing:.2px; cursor:pointer; }
+  .pw .pw-reveal:hover { background:rgba(124,92,255,.10); }
+  .pw .pw-reveal:focus-visible { outline:2px solid var(--plum); outline-offset:2px; }
+
+  /* 🔴 ARTWORK, NOT IMAGE FILES. Inline SVG: nothing to fetch, nothing to
+     404, no layout shift while it loads, and it takes the time-of-day tint
+     from the same variable the background does — a bitmap could not. Kept
+     under .06 opacity so it reads as texture rather than decoration, and
+     pinned behind everything with the glow. */
+  .art { position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden;
+         color:var(--art-tint, #7c5cff); }
+  .art svg { position:absolute; opacity:.055; }
+  .art .wheel { width:min(78vmin,760px); height:min(78vmin,760px);
+                right:-16vmin; top:-14vmin; animation:turn 240s linear infinite; }
+  .art .wheel-2 { width:min(52vmin,480px); height:min(52vmin,480px);
+                  left:-14vmin; bottom:-12vmin; opacity:.04;
+                  animation:turn 360s linear infinite reverse; }
+  .art .stars { inset:0; width:100%; height:100%; opacity:.07; }
+  @keyframes turn { to { transform:rotate(360deg) } }
+  @media (prefers-reduced-motion: reduce) { .art svg { animation:none !important } }
+
+
   .wrap { max-width:1080px; margin:0 auto; position:relative; }
   .serif { font-family:"Playfair Display", Georgia, serif; }
   .rise { animation:rise .5s cubic-bezier(.2,.7,.3,1) both; }
@@ -236,6 +285,45 @@
 </head>
 <body>
 <div class="glow" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="art" aria-hidden="true">
+  <svg class="wheel" viewBox="0 0 400 400" fill="none" stroke="currentColor">
+    <circle cx="200" cy="200" r="196" stroke-width="1"/>
+    <circle cx="200" cy="200" r="168" stroke-width="1"/>
+    <circle cx="200" cy="200" r="118" stroke-width="1"/>
+    <circle cx="200" cy="200" r="74" stroke-width="1"/>
+    <g stroke-width="1">
+      <path d="M200 32V368M32 200h336M80.6 80.6 319.4 319.4M319.4 80.6 80.6 319.4"/>
+      <path d="M200 32 290 50M200 32 110 50M368 200 350 290M368 200 350 110M200 368 110 350M200 368 290 350M32 200 50 110M32 200 50 290"/>
+    </g>
+    <g stroke-width="1.2">
+      <path d="M200 74l26 44h-52z"/><path d="M200 326l-26-44h52z"/>
+      <path d="M74 200l44-26v52z"/><path d="M326 200l-44 26v-52z"/>
+    </g>
+  </svg>
+  <svg class="wheel-2" viewBox="0 0 300 300" fill="none" stroke="currentColor">
+    <circle cx="150" cy="150" r="146" stroke-width="1"/>
+    <circle cx="150" cy="150" r="96" stroke-width="1"/>
+    <g stroke-width="1"><path d="M150 4v292M4 150h292"/>
+      <path d="M46.7 46.7 253.3 253.3M253.3 46.7 46.7 253.3"/></g>
+    <path d="M150 54a96 96 0 1 0 0 192 78 78 0 0 1 0-192z" stroke-width="1.2"/>
+  </svg>
+  <svg class="stars" viewBox="0 0 1000 700" fill="currentColor" preserveAspectRatio="xMidYMid slice">
+    <g stroke="currentColor" stroke-width=".7" fill="none" opacity=".55">
+      <path d="M120 140 210 96l84 72 96-38"/>
+      <path d="M700 520 790 470l72 66"/>
+      <path d="M430 610 520 568l78 54 92-30"/>
+    </g>
+    <circle cx="120" cy="140" r="2.6"/><circle cx="210" cy="96" r="1.8"/>
+    <circle cx="294" cy="168" r="2.2"/><circle cx="390" cy="130" r="1.6"/>
+    <circle cx="700" cy="520" r="2.4"/><circle cx="790" cy="470" r="1.7"/>
+    <circle cx="862" cy="536" r="2.1"/>
+    <circle cx="430" cy="610" r="1.9"/><circle cx="520" cy="568" r="2.5"/>
+    <circle cx="598" cy="622" r="1.7"/><circle cx="690" cy="592" r="2.2"/>
+    <circle cx="880" cy="140" r="2"/><circle cx="930" cy="210" r="1.5"/>
+    <circle cx="60" cy="430" r="1.8"/><circle cx="150" cy="500" r="2.3"/>
+    <circle cx="560" cy="110" r="1.6"/><circle cx="640" cy="180" r="2"/>
+  </svg>
+</div>
 <div class="wrap">
 
   <div class="gate rise" id="gate">
@@ -829,6 +917,108 @@
               .catch(function(){ b.textContent = "Refresh"; b.disabled = false; });
   });
 }());
+</script>
+<script>
+/* ── the gate's weather and a code you can look at ─────────────────────────
+   30 October 2026.
+
+   TWO INDEPENDENT THINGS, both asked for by the founder.
+
+   1. THE REVEAL. Lifted from the data room's `#b-reveal`, including the part
+      that is easy to miss: the caret position is saved and restored across
+      the type swap, so revealing halfway through typing does not throw the
+      cursor to the end. It also re-hides on submit — a code left visible on
+      a screen somebody is sharing is the whole risk this control carries,
+      and nobody remembers to put it back.
+
+   2. THE TIME OF DAY. 🔴 IT STAYS LIGHT AT EVERY HOUR. The app is required
+      to stay light, so this is not a day/night switch — every stop below is
+      a cream, and what moves is only its warmth: cool before dawn, rose at
+      dawn, plain at midday, amber through the afternoon, rose again at dusk.
+      The colour is interpolated between the two surrounding stops from the
+      actual hour and minute, so it is genuinely different at 10:30 and at
+      14:00 rather than snapping between four presets. The artwork takes its
+      tint from the same pair, so the two can never disagree.
+
+   ⚠️ `--paper` and `--paper-alt` are the only things written. Everything on
+   these pages derives from them, so nothing else has to know the time. */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---- 1. show / hide the code ---------------------------------------- */
+  (function () {
+    var inp = $("code"); if (!inp) return;
+    var wrap = document.createElement("div");
+    wrap.className = "pw";
+    inp.parentNode.insertBefore(wrap, inp);
+    wrap.appendChild(inp);
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "pw-reveal";
+    btn.id = "pw-reveal"; btn.textContent = "Show";
+    btn.setAttribute("aria-pressed", "false");
+    btn.setAttribute("aria-label", "Show the code");
+    btn.title = "Show the code";
+    wrap.appendChild(btn);
+
+    function setShown(on) {
+      var at = inp.selectionStart;
+      inp.type = on ? "text" : "password";
+      btn.textContent = on ? "Hide" : "Show";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.setAttribute("aria-label", on ? "Hide the code" : "Show the code");
+      btn.title = btn.getAttribute("aria-label");
+      try { inp.setSelectionRange(at, at); } catch (e) {}
+    }
+    btn.addEventListener("click", function () { setShown(inp.type === "password"); inp.focus(); });
+    var form = $("f-gate");
+    /* Hidden again on every attempt, right or wrong. */
+    if (form) form.addEventListener("submit", function () { setShown(false); });
+  })();
+
+  /* ---- 2. the hour's colour ------------------------------------------- */
+  /* hour, paper, paper-alt, artwork tint. All light; only the warmth moves. */
+  var STOPS = [
+    [0,    [246,239,228], [239,230,214], [110,100,160]],  /* small hours — cool  */
+    [5.5,  [253,240,228], [249,230,214], [168,110,140]],  /* dawn — rose         */
+    [9,    [253,245,228], [248,237,211], [150,118,80]],   /* morning             */
+    [13,   [250,241,221], [247,234,208], [124,92,255]],   /* midday — the theme  */
+    [17,   [252,240,216], [247,230,200], [176,124,48]],   /* afternoon — amber   */
+    [19.5, [249,236,223], [242,224,210], [172,104,128]],  /* dusk — rose again   */
+    [22,   [247,234,223], [239,227,212], [128,104,170]],  /* evening             */
+    [24,   [246,239,228], [239,230,214], [110,100,160]]   /* wraps to the first  */
+  ];
+
+  function mix(a, b, t) {
+    return "rgb(" + [0,1,2].map(function (i) {
+      return Math.round(a[i] + (b[i] - a[i]) * t);
+    }).join(",") + ")";
+  }
+
+  function paint() {
+    var d = new Date();
+    var h = d.getHours() + d.getMinutes() / 60;
+    var i = 0;
+    while (i < STOPS.length - 2 && h >= STOPS[i + 1][0]) i++;
+    var from = STOPS[i], to = STOPS[i + 1];
+    var span = to[0] - from[0];
+    var t = span > 0 ? (h - from[0]) / span : 0;
+    if (t < 0) t = 0; if (t > 1) t = 1;
+    var r = document.documentElement.style;
+    r.setProperty("--paper", mix(from[1], to[1], t));
+    r.setProperty("--paper-alt", mix(from[2], to[2], t));
+    r.setProperty("--art-tint", mix(from[3], to[3], t));
+  }
+
+  paint();
+  /* Every ten minutes: enough that a long session drifts with the afternoon,
+     rare enough to cost nothing. */
+  setInterval(paint, 600000);
+  /* And on return, because a backgrounded tab's timers are throttled and the
+     colour would otherwise be stale by hours. */
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) paint();
+  });
+})();
 </script>
 </body>
 </html>
