@@ -3,6 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ── 🔴 META PIXEL — 30 Oct 2026, id 3933602676781012 ──────────────────
+     Here because the ads could not be optimised without it. Both ad sets
+     were set to optimise for "Landing page views", which Meta can only
+     count through a pixel — and there was none. Meta was being asked to
+     find people likely to produce an event it had no way of observing, so
+     it throttled rather than spend: ₹0.22 of a ₹350/day budget bought ten
+     impressions in a whole evening.
+
+     ⚠️ THIS IS A THIRD PARTY AND IT SETS A COOKIE (`_fbp`). Our own
+     analytics, further down this file, is neither — it sets nothing and
+     sends nowhere but our own Supabase. The two are not the same thing and
+     the privacy policy names them separately, because one of them hands
+     page views to Meta.
+
+     The proof of this working is the DEPLOYED page, never this file:
+       curl -sL https://teatalz.com/askru/ | grep -c 3933602676781012
+     should be 2. It was 0 before today. -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '3933602676781012');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=3933602676781012&ev=PageView&noscript=1"
+/></noscript>
 <title>Ask Ru — Kundli, Tarot and Oracle readings, in plain words</title>
 <meta name="description" content="Ask Ru reads your kundli, your cards and the question under your question — Vedic, Tarot and Oracle, in plain English or Hinglish.">
 <meta property="og:title" content="Ask Ru — Kundli, Tarot and Oracle readings, in plain words">
@@ -3604,5 +3636,82 @@ a { color: var(--plum-deep); }
   })();
 </script>
 
+<script>
+/* ── OUR OWN ANALYTICS — 30 October 2026 ───────────────────────────────────
+   The founder: *"site and app pe analytys lagao"*.
+
+   Before today this page carried nothing: no gtag, no Plausible, no Clarity,
+   no PostHog — counted, not assumed, across all 184,267 bytes. GitHub Pages
+   keeps no request logs either, so the only funnel anybody could see began at
+   *joined the list*. Everyone who arrived and left was invisible, which is
+   exactly the population paid traffic is judged on.
+
+   🔴 NO COOKIE, NO THIRD PARTY, NO RAW ADDRESS. The visit key lives in
+   sessionStorage, so it dies with the tab and cannot follow anybody between
+   visits. It goes to our own Supabase and nowhere else. The server hashes the
+   address with a salt and the day before storing it, exactly as the rate
+   limiter does, so two visits can be told apart within a day and no row can
+   be turned back into a person.
+
+   The Meta pixel in the head is a different thing on both counts — third
+   party, and it does set a cookie. The privacy policy names them separately.
+
+   ⚠️ IT MUST NEVER COST SOMEBODY THEIR READING. Every call is fire and
+   forget, every failure is swallowed, and the server answers 200 even when it
+   records nothing — a red line in the console of a page a stranger is reading
+   would make them think the product is broken because our telemetry hiccuped. */
+(function () {
+  var cfg = window.ASKRU;
+  if (!cfg || !cfg.url || !cfg.anonKey) return;
+
+  var KEY = 'askru.visit.key';
+  var key, landing;
+  try {
+    key = sessionStorage.getItem(KEY);
+    if (!key) {
+      key = (Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+      sessionStorage.setItem(KEY, key);
+      sessionStorage.setItem('askru.visit.landing', location.pathname);
+    }
+    landing = sessionStorage.getItem('askru.visit.landing') || location.pathname;
+  } catch (e) {
+    /* Private window, or storage blocked. One row per view instead of one per
+       visit is a worse number, not a broken one — so it still reports. */
+    key = 'nostore-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    landing = location.pathname;
+  }
+
+  function send(payload, keepalive) {
+    try {
+      fetch(cfg.url + '/functions/v1/askru-visit', {
+        method: 'POST',
+        headers: { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey, 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+        keepalive: !!keepalive
+      }).catch(function () { });
+    } catch (e) { }
+  }
+
+  var startedAt = Date.now();
+  send({ key: key, path: location.pathname, ref: document.referrer || null, landing: landing }, false);
+
+  /* 🔴 `pagehide`, NOT `unload`. Safari on iOS does not fire `unload` at all
+     when a tab is closed or backgrounded, so a duration measured on it would
+     be missing exactly the visitors most likely to be on a phone — which is
+     most of them. `visibilitychange` catches the backgrounding case that
+     `pagehide` on its own can miss. The server ignores a second close for the
+     same view, so firing twice costs nothing. */
+  var closed = false;
+  function close() {
+    if (closed) return;
+    closed = true;
+    send({ key: key, path: location.pathname, seconds: Math.round((Date.now() - startedAt) / 1000) }, true);
+  }
+  window.addEventListener('pagehide', close);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') close();
+  });
+})();
+</script>
 </body>
 </html>
