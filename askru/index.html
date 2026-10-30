@@ -2207,7 +2207,18 @@ a { color: var(--plum-deep); }
        It stays hidden until the server sends a line. The threshold is the
        server's: *"jab count 200 se upar jaye to test user count dekhne
        lage."* Nothing here knows the number before then. */
-    api('try-ru', { method: 'GET' }).then(function (res) {
+    /* 🔴 THE TOKEN GOES WITH THE QUESTION — 30 Oct 2026. This load asks the
+       server, among other things, whether this reader may ask AGAIN, and the
+       answer is not the same for everybody: the founder's window never
+       shuts. Asked anonymously, the server could only answer for the general
+       afternoon window, so it said no to him on every reload and
+       `closeStepIfSpent()` below hid the modes, the question box and the
+       pick panel. He reported it three times. The server would have read
+       him; this line never told it who was asking.
+
+       ⚠️ Nothing is revealed by sending it: the page already holds this
+       token and puts it in the body of every POST. */
+    api('try-ru' + (token ? '?token=' + encodeURIComponent(token) : ''), { method: 'GET' }).then(function (res) {
       if (res.body && res.body.ok && res.body.line) {
         countEl.textContent = res.body.line;
         countEl.hidden = false;
