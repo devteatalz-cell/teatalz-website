@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ask Ru — Kundli, Tarot and Oracle readings, in plain words</title>
-<meta name="description" content="Ask Ru reads your birth chart, your cards and the question under your question — Vedic, Tarot and Oracle, in plain English or Hinglish. A product of Teatalz House of Rume Private Limited, created by CodeUpVik. Launching soon.">
-<meta property="og:title" content="Ask Ru">
+<meta name="description" content="Ask Ru reads your kundli, your cards and the question under your question — Vedic, Tarot and Oracle, in plain English or Hinglish.">
+<meta property="og:title" content="Ask Ru — Kundli, Tarot and Oracle readings, in plain words">
 <meta property="og:description" content="Vedic, Tarot and Oracle — read in plain words, by Ru. A product of Teatalz House of Rume, created by CodeUpVik.">
 <meta property="og:image" content="https://teatalz.com/askru/assets/askru-15s-poster.jpg">
 <meta property="og:image:width" content="1280">
@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Teatalz">
 <meta property="og:locale" content="en_IN">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Ask Ru — Vedic, Tarot and Oracle readings, in plain words">
+<meta name="twitter:title" content="Ask Ru — Kundli, Tarot and Oracle readings, in plain words">
 <meta name="twitter:description" content="You pick your own cards from all 78 — Ru only shuffles. A real birth chart, not a sun sign. One question, one price, shown before you ask.">
 <meta name="twitter:image" content="https://teatalz.com/askru/assets/askru-15s-poster.jpg">
 <!-- 🔴 /askru, /askru/ and /askru/index.html all return 200 with byte-identical content
@@ -469,6 +469,12 @@ h2 {
 .fact strong { color: var(--ink); font-weight: 600; }
 
 /* ── close ───────────────────────────────────────────────────────────── */
+/* The FAQ. Same rhythm as .honest, which it sits beside at the foot of the
+   page — a border above it and the same 56px, so it reads as part of the
+   closing material rather than a bolted-on block. */
+.faq { padding: 56px 0 10px; border-top: 1px solid var(--line-faint); }
+.faq h3 { margin: 24px 0 6px; font-size: 1.02rem; }
+.faq p { color: var(--ink-muted); max-width: 46em; margin: 0; }
 .close { padding: 66px 0 40px; text-align: center; }
 .close h2 { max-width: 14em; margin-inline: auto; }
 .close p { color: var(--ink-muted); max-width: 30em; margin: 0 auto 26px; }
@@ -806,6 +812,16 @@ h2 {
 .try-angel-line { margin: 6px 0 0; color: var(--ink-muted); line-height: 1.6; }
 
 .try-after { margin-top: 18px; text-align: center; }
+/* The preview note. A tinted strip rather than another paragraph: it is a
+   different KIND of statement from the review ask under it — one is about
+   the product, the other is a request — and a reader should not have to
+   work that out from the wording. */
+.try-preview {
+  margin: 0 0 14px; padding: 12px 14px; border-radius: 14px;
+  background: var(--card-alt); border: 1px solid var(--line);
+  color: var(--ink); font-size: 14.5px; line-height: 1.6;
+}
+.try-preview strong { font-weight: 700; }
 .try-after-title { margin: 0; font-size: 19px; font-weight: 700; }
 .try-after-body { margin: 8px 0 0; color: var(--ink-muted); line-height: 1.6; }
 .try-after-row, .try-after-feet {
@@ -1053,12 +1069,27 @@ a { color: var(--plum-deep); }
       "@context": "https://schema.org",
       "@graph": [
         {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "What is Ask Ru?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Ask Ru is an AI astrology and tarot companion: it reads your real Vedic birth chart, tarot cards you pick yourself from all 78, or a single oracle card, and answers in plain English or Hinglish. Ask Ru is a product of Teatalz House of Rume Private Limited, created by CodeUpVik." } },
+            { "@type": "Question", "name": "Who created Ask Ru, and who publishes it?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Ask Ru was created by CodeUpVik, a web, app and AI development studio. It is published by Teatalz House of Rume Private Limited, an Indian company." } },
+            { "@type": "Question", "name": "Is Ru a real astrologer?",
+              "acceptedAnswer": { "@type": "Answer", "text": "No. Ru is an AI, trained on classical method, and the app says so plainly. She is a companion rather than a therapist, and she will say \"I do not know\" when a birth time cannot carry an answer instead of inventing one." } },
+            { "@type": "Question", "name": "What can Ask Ru read?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Vedic (Lagna, Rasi, D9 and D10, Vimshottari periods and today's transits counted from both your Moon and your Lagna), Tarot (one card or a five-card spread, picked by you), Oracle (a single card from its own deck), plus Muhurat for timing, Matchmaking by Ashtakoota, and Prashna when no birth time is known." } },
+            { "@type": "Question", "name": "Is Ask Ru available yet?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Not yet. It is in final testing, Android first and iOS next. One free reading is available on the website to anyone who joins the waiting list, and everyone who joins gets one free reading a week for their first three months from the day it opens." } }
+          ]
+        },
+        {
           "@type": "Organization",
           "@id": "https://teatalz.com/#org",
           "name": "Teatalz House Of Rume Private Limited",
           "alternateName": "Teatalz House of Rume",
           "url": "https://teatalz.com/",
-          "email": "helloaskru@gmail.com",
+          "email": "help@teatalz.com",
           "foundingLocation": {
             "@type": "Place",
             "address": {
@@ -1478,6 +1509,12 @@ a { color: var(--plum-deep); }
            exist, the GET answers with nothing, and neither panel appears.
            That is correct rather than broken. -->
       <div class="try-panel try-after" id="try-after" hidden>
+        <!-- 🔴 SAID AFTER THE READING, NOT BEFORE IT. His words, 30 Oct 2026:
+             *"ye mention kar do ki this is a preview of how power Ru is"* and
+             *"pop up mai dekho de jab user reading leta hai"*. Before the
+             reading it is a claim; here it is a claim about something they
+             have just had, which is the only version worth making. -->
+        <p class="try-preview">This is a <strong>preview</strong> of how much Ru can do. The full reading — your whole chart, the periods you are in, follow-up questions she remembers — opens with the app. <strong>Stay tuned.</strong></p>
         <p class="try-after-title">How was your reading?</p>
         <p class="try-after-body">If it landed, a few honest words help the next person decide to ask. Leave a review, or tell people how it went on our page.</p>
         <!-- 🔴 SOMEWHERE TO ACTUALLY WRITE IT — 29 Oct 2026: *"review likhne
@@ -1762,18 +1799,51 @@ a { color: var(--plum-deep); }
     </div>
   </section>
 
+  <!-- 🔴 THE ANSWERS COME FIRST AND THE MARKUP SECOND. A FAQPage node was
+       added on 28 Oct and removed on 29 Oct because none of its five answers
+       was visible anywhere on this page — and the penalty for marking up what
+       a visitor cannot see lands on teatalz.com as a whole, not on one page.
+       The five answers below are the originals, recovered verbatim. -->
+  <section class="faq" id="faq" aria-labelledby="faq-h">
+    <div class="wrap">
+      <h2 id="faq-h">Questions people ask</h2>
+
+      <h3>What is Ask Ru?</h3>
+      <p>Ask Ru is an AI astrology and tarot companion: it reads your real Vedic birth chart, tarot cards you pick yourself from all 78, or a single oracle card, and answers in plain English or Hinglish. Ask Ru is a product of Teatalz House of Rume Private Limited, created by CodeUpVik.</p>
+
+      <h3>Who created Ask Ru, and who publishes it?</h3>
+      <p>Ask Ru was created by CodeUpVik, a web, app and AI development studio. It is published by Teatalz House of Rume Private Limited, an Indian company.</p>
+
+      <h3>Is Ru a real astrologer?</h3>
+      <p>No. Ru is an AI, trained on classical method, and the app says so plainly. She is a companion rather than a therapist, and she will say &ldquo;I do not know&rdquo; when a birth time cannot carry an answer instead of inventing one.</p>
+
+      <h3>What can Ask Ru read?</h3>
+      <p>Vedic (Lagna, Rasi, D9 and D10, Vimshottari periods and today&rsquo;s transits counted from both your Moon and your Lagna), Tarot (one card or a five-card spread, picked by you), Oracle (a single card from its own deck), plus Muhurat for timing, Matchmaking by Ashtakoota, and Prashna when no birth time is known.</p>
+
+      <h3>Is Ask Ru available yet?</h3>
+      <p>Not yet. It is in final testing, Android first and iOS next. One free reading is available on the website to anyone who joins the waiting list, and everyone who joins gets one free reading a week for their first three months from the day it opens.</p>
+    </div>
+  </section>
+
 </main>
 
 <footer>
   <div class="wrap foot">
     <span>© 2026 Teatalz House of Rume</span>
-    <a href="mailto:helloaskru@gmail.com">helloaskru@gmail.com</a>
+    <a href="mailto:help@teatalz.com">help@teatalz.com</a>
     <!-- His instruction, 28 Oct 2026: *"codeupvik ne built kiya hai mention
          karo, backlink do."* A plain followed link — `rel="nofollow"` would
          hand Google a note saying the credit does not count, which is the
          opposite of a backlink. -->
     <span>Built by <a href="https://codeupvik.com">CodeUpVik</a></span>
     <span class="right">Made in India</span>
+  </div>
+  <!-- 30 Oct 2026: /kundli-milan/ and /choghadiya/ were live and orphaned — in the
+       sitemap, but with no link from this page. A sitemap gets a page crawled; a link
+       is what carries authority to it and what a reader actually follows. -->
+  <div class="wrap foot">
+    <span><a href="kundli-milan/">Kundli Milan &mdash; 36 guna</a></span>
+    <span><a href="choghadiya/">Aaj ka Choghadiya &amp; Rahu Kaal</a></span>
   </div>
 
 
@@ -2840,7 +2910,7 @@ a { color: var(--plum-deep); }
         joinGo.textContent = was;
         var b = res.body;
         if (!b || !b.ok) {
-          say(joinMsg, 'That did not go through. Try again in a moment, or write to helloaskru@gmail.com.', 'bad');
+          say(joinMsg, 'That did not go through. Try again in a moment, or write to help@teatalz.com.', 'bad');
           return;
         }
 
@@ -2859,7 +2929,7 @@ a { color: var(--plum-deep); }
       }).catch(function () {
         joinGo.disabled = false;
         joinGo.textContent = was;
-        say(joinMsg, 'That did not go through. Try again in a moment, or write to helloaskru@gmail.com.', 'bad');
+        say(joinMsg, 'That did not go through. Try again in a moment, or write to help@teatalz.com.', 'bad');
       });
     });
 

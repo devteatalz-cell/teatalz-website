@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Founder Den</title>
+<meta name="robots" content="noindex, nofollow">
+<!--
+  THE MAIN CONTROL.
+
+  FOUNDER, 30 Oct 2026: *"mera bhi dashboard teatalz ke alg sub domain mai
+  banana like teatalz.com/founderden"*, and, written in his own monitoring
+  sheet: *"I want option that I get the main control with toggle to show what
+  has to be shown to each investor — not every investor should see everything"*.
+
+  The 64 metrics and 11 sections come from that sheet, read out of it rather
+  than retyped (Ask Ru 0099). The switches are per investor (0100).
+
+  ── 🔴 NOTHING IS VISIBLE UNTIL IT IS SWITCHED ON ──────────────────────
+
+  A metric an investor cannot see is not hidden by this page — it is absent
+  from the payload their page receives. The switch is the only thing that puts
+  it there, and a new investor starts with none.
+
+  ── ⚠️ THREE KINDS OF METRIC, AND THE PAGE SAYS WHICH ──────────────────
+
+  computed — Ask Ru's own tables can answer it.
+  entered  — only he knows it; there is a box here to write it in.
+  not yet  — no source exists at all. There is no crash reporter and no ad
+             spend anywhere in the database, so CAC, CPI, uptime and crash rate
+             have nothing behind them. The page says so rather than printing a
+             confident zero, because 40 boxes reading "0" tells an investor
+             something false.
+
+  ⚠️ THE CODE IS HELD IN MEMORY AND NOWHERE ELSE. Not localStorage, not the
+  URL. Closing the tab forgets it.
+-->
+<style>
+  :root {
+    color-scheme: dark;
+    --paper:#2a2039; --paper-alt:#342647; --card:#372c4a; --card-alt:#3d3152;
+    --ink:#efe6f6; --ink-muted:#d6cae4; --ink-faint:#b0a2c2;
+    --line:#4d4068; --line-faint:#463a5f; --plum:#b89cff;
+    --warn:#ffb4a8; --good:#9ae6b4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background: linear-gradient(170deg, var(--paper), var(--paper-alt) 60%, var(--paper));
+    background-attachment: fixed; color: var(--ink);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh; padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  button, input, select, textarea {
+    font: inherit; color: var(--ink); background: var(--card-alt);
+    border: 1px solid var(--line); border-radius: 10px;
+  }
+  button { cursor: pointer; min-height: 40px; padding: 0 16px; }
+  button.primary { background: var(--plum); color:#241a33; border-color: transparent; font-weight:600; }
+  button[disabled] { opacity:.55; cursor:default; }
+  input, textarea, select { padding: 9px 12px; width: 100%; background: var(--paper); }
+
+  .gate { max-width:380px; margin:8vh auto 0; background:var(--card); border:1px solid var(--line);
+          border-radius:18px; padding:28px 24px; text-align:center; }
+  .gate h1 { font-size:20px; margin:0 0 6px; }
+  .gate p { color:var(--ink-muted); margin:0 0 18px; font-size:14px; }
+  .gate input { margin-bottom:12px; text-align:center; }
+  .msg { margin:12px 0 0; font-size:14px; min-height:20px; }
+  .msg.err { color: var(--warn); } .msg.ok { color: var(--good); }
+
+  header.top { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+  header.top h1 { font-size:22px; margin:0; font-weight:600; letter-spacing:-.01em; }
+  header.top .sp { flex:1 1 auto; }
+  header.top .when { color:var(--ink-faint); font-size:13px; }
+
+  section.sec { background:var(--card); border:1px solid var(--line); border-radius:16px;
+                padding:18px 20px; margin:0 0 14px; }
+  section.sec > h2 { font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+                     color:var(--ink-faint); margin:0 0 12px; font-weight:600; }
+
+  /* ---- who am I switching for ---- */
+  .who { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .who button { min-height:36px; padding:0 14px; border-radius:999px; font-size:14px; }
+  .who button.on { background:var(--plum); color:#241a33; border-color:transparent; font-weight:600; }
+  .who .add { border-style:dashed; color:var(--ink-faint); }
+
+  /* ---- a metric row ---- */
+  .m { display:flex; gap:12px; align-items:flex-start; padding:10px 0;
+       border-bottom:1px solid var(--line-faint); }
+  .m:last-child { border-bottom:none; }
+  .m .body { flex:1 1 auto; min-width:0; }
+  .m .label { font-weight:600; }
+  .m .sub { font-size:12.5px; color:var(--ink-faint); margin-top:2px; }
+  .m .val { font-size:13.5px; color:var(--ink-muted); margin-top:6px; }
+  .m .val input { max-width:320px; display:inline-block; width:auto; }
+
+  .tag { display:inline-block; font-size:11px; letter-spacing:.04em; text-transform:uppercase;
+         padding:2px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-faint);
+         margin-left:8px; vertical-align:1px; }
+  .tag.notyet { border-color:var(--warn); color:var(--warn); }
+  .tag.entered { border-color:var(--plum); color:var(--plum); }
+
+  /* The switch. 44px of target, because this is the control he presses most. */
+  .sw { flex:none; width:52px; height:30px; border-radius:999px; border:1px solid var(--line);
+        background:var(--paper); position:relative; padding:0; min-height:30px; cursor:pointer; }
+  .sw::after { content:""; position:absolute; top:3px; left:3px; width:22px; height:22px;
+               border-radius:50%; background:var(--ink-faint); transition:left .13s, background .13s; }
+  .sw[aria-pressed="true"] { background:var(--plum); border-color:transparent; }
+  .sw[aria-pressed="true"]::after { left:25px; background:#241a33; }
+  .sw[disabled] { opacity:.45; cursor:default; }
+
+  .note { color:var(--ink-faint); font-size:12.5px; margin:10px 0 0; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .row > div { flex:1 1 150px; }
+  .row label { display:block; font-size:12px; color:var(--ink-faint); margin-bottom:4px; }
+
+  @media (max-width:560px){ body{padding:16px 14px 48px} section.sec{padding:14px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="gate" id="gate">
+    <h1>Founder Den</h1>
+    <p>Your code — not the investors’.</p>
+    <form id="f-gate" autocomplete="off">
+      <input id="code" type="password" placeholder="Code" autocomplete="off" autocapitalize="off" spellcheck="false" required />
+      <button class="primary" type="submit" id="go">Open</button>
+    </form>
+    <p class="msg" id="gatemsg" role="status" aria-live="polite"></p>
+  </div>
+
+  <div id="panel" hidden>
+    <header class="top">
+      <h1>Founder Den</h1>
+      <span class="when" id="when"></span>
+      <span class="sp"></span>
+      <button type="button" id="refresh">Refresh</button>
+    </header>
+
+    <section class="sec">
+      <h2>Switching for</h2>
+      <div class="who" id="who"></div>
+      <p class="note" id="whonote"></p>
+    </section>
+
+    <div id="investor-form" hidden>
+      <section class="sec">
+        <h2 id="invtitle">Add an investor</h2>
+        <div class="row">
+          <div><label for="i-name">Name</label><input id="i-name" /></div>
+          <div><label for="i-firm">Firm</label><input id="i-firm" /></div>
+          <div><label for="i-email">Email</label><input id="i-email" type="email" /></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div><label for="i-handle">Handle (a–z, 0–9)</label><input id="i-handle" autocapitalize="off" spellcheck="false" /></div>
+          <div><label for="i-secret">Their secret</label><input id="i-secret" type="password" autocomplete="new-password" /></div>
+          <div style="flex:0 0 auto"><button class="primary" type="button" id="i-save">Save</button></div>
+          <div style="flex:0 0 auto"><button type="button" id="i-cancel">Cancel</button></div>
+        </div>
+        <!-- 🔴 THE CODE IS BUILT HERE AND STORED NOWHERE. The database keeps a
+             bcrypt of the secret; this sentence is the only place the whole
+             code ever exists, and it is gone when the page is closed. -->
+        <p class="note" id="i-note">Their code will be <b>handle-secret</b>. Write it down now — it is hashed on save and cannot be read back.</p>
+        <p class="msg" id="i-msg" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+
+    <div id="body"></div>
+  </div>
+</div>
+<script>
+(function () {
+  var URL_ = "https://hyxkhjxrpsmjztbdtcee.supabase.co";
+  var ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eGtoanhycHNtanp0YmR0Y2VlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjc3MTgsImV4cCI6MjEwNDg0MzcxOH0.203raeaoCf_t6nawo1IkFm-Ayc5uMti-WkxksYn3ORs";
+
+  /* 🔴 IN MEMORY, NOWHERE ELSE. */
+  var CODE = null, DATA = null, PICKED = null, EDITING = null;
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function stamp(d){ try { return (d||new Date()).toLocaleString("en-IN",
+    { timeZone:"Asia/Kolkata", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) + " IST"; }
+    catch(e){ return ""; } }
+  function say(el, cls, text){ el.className = "msg" + (cls?" "+cls:""); el.textContent = text; }
+
+  function rpc(fn, body){
+    return fetch(URL_ + "/rest/v1/rpc/" + fn, {
+      method:"POST",
+      headers:{ apikey:ANON, authorization:"Bearer "+ANON, "content-type":"application/json" },
+      body: JSON.stringify(body)
+    }).then(function(r){ return r.ok ? r.json() : null; });
+  }
+
+  /* ---- who am I switching for ---- */
+  function paintWho(){
+    var box = $("who"); box.innerHTML = "";
+    (DATA.investors||[]).forEach(function(inv){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = inv.name + (inv.firm ? " · " + inv.firm : "");
+      if (PICKED === inv.id) b.className = "on";
+      b.addEventListener("click", function(){ PICKED = inv.id; paintWho(); paintMetrics(); });
+      box.appendChild(b);
+    });
+    var add = document.createElement("button");
+    add.type = "button"; add.className = "add"; add.textContent = "+ investor";
+    add.addEventListener("click", function(){ openInvestor(null); });
+    box.appendChild(add);
+
+    var inv = picked();
+    if (!(DATA.investors||[]).length) {
+      $("whonote").textContent = "No investors yet. Add one, then switch on what they may see.";
+    } else if (!inv) {
+      $("whonote").textContent = "Pick an investor to switch metrics on and off for them.";
+    } else {
+      var n = (inv.on||[]).length;
+      $("whonote").innerHTML = esc(inv.name) + " can see <b>" + n + "</b> of " + (DATA.metrics||[]).length
+        + " metrics." + (inv.has_code ? "" : " <b>No code set</b> — they cannot sign in yet.")
+        + ' <a href="#" id="editinv" style="color:var(--plum)">Edit</a>';
+      var e = $("editinv");
+      if (e) e.addEventListener("click", function(ev){ ev.preventDefault(); openInvestor(inv); });
+    }
+  }
+  function picked(){ return (DATA.investors||[]).filter(function(i){ return i.id === PICKED; })[0] || null; }
+
+  function openInvestor(inv){
+    EDITING = inv;
+    $("invtitle").textContent = inv ? "Edit investor" : "Add an investor";
+    $("i-name").value = inv ? (inv.name||"") : "";
+    $("i-firm").value = inv ? (inv.firm||"") : "";
+    $("i-email").value = inv ? (inv.email||"") : "";
+    $("i-handle").value = inv ? (inv.handle||"") : "";
+    $("i-secret").value = "";
+    $("i-note").innerHTML = inv
+      ? 'Leave the secret empty to keep their current one. A new secret replaces it — their old code stops working.'
+      : 'Their code will be <b>handle-secret</b>. Write it down now — it is hashed on save and cannot be read back.';
+    say($("i-msg"), "", "");
+    $("investor-form").hidden = false;
+    $("i-name").focus();
+  }
+  $("i-cancel").addEventListener("click", function(){ $("investor-form").hidden = true; });
+
+  $("i-save").addEventListener("click", function(){
+    var m = $("i-msg");
+    var handle = $("i-handle").value.trim().toLowerCase();
+    var secret = $("i-secret").value;
+    if (!$("i-name").value.trim()) { say(m,"err","A name, at least."); return; }
+    if (handle && !/^[a-z0-9]{2,20}$/.test(handle)) { say(m,"err","Handle: 2–20 letters or digits, nothing else."); return; }
+    if (!EDITING && !handle) { say(m,"err","A handle, so their code can find them."); return; }
+    if (secret && secret.length < 6) { say(m,"err","Six characters at least for the secret."); return; }
+    $("i-save").disabled = true; say(m,"","Saving…");
+    rpc("askru_founder_investor_save", {
+      code: CODE, p_id: EDITING ? EDITING.id : null,
+      p_name: $("i-name").value, p_firm: $("i-firm").value, p_email: $("i-email").value,
+      p_handle: handle || null, p_secret: secret || null, p_active: true
+    }).then(function(d){
+      $("i-save").disabled = false;
+      if (!d || d.ok !== true) { say(m,"err", d && d.reason ? ("Refused: " + d.reason) : "That did not save."); return; }
+      var full = handle && secret ? (handle + "-" + secret) : null;
+      say(m,"ok", full ? ("Saved. Their code is  " + full + "  — write it down now.") : "Saved.");
+      $("i-secret").value = "";
+      PICKED = d.id;
+      load(CODE).then(function(){ if (!full) $("investor-form").hidden = true; });
+    }).catch(function(){ $("i-save").disabled = false; say(m,"err","Could not reach the database."); });
+  });
+
+  /* ---- the metrics ---- */
+  function paintMetrics(){
+    var inv = picked();
+    var on = {};
+    if (inv) (inv.on||[]).forEach(function(k){ on[k] = true; });
+
+    var bySection = [];
+    var last = null;
+    (DATA.metrics||[]).forEach(function(mt){
+      if (!last || last.name !== mt.section) { last = { name: mt.section, items: [] }; bySection.push(last); }
+      last.items.push(mt);
+    });
+
+    var html = bySection.map(function(s){
+      var rows = s.items.map(function(mt){
+        var tag = mt.kind === "not_yet" ? '<span class="tag notyet">not measured yet</span>'
+                : mt.kind === "entered" ? '<span class="tag entered">you write this</span>' : "";
+        var val = "";
+        if (mt.kind === "entered") {
+          val = '<div class="val"><input data-value="' + esc(mt.key) + '" value="' + esc(mt.value || "") + '" placeholder="—" />'
+              + ' <button type="button" data-save="' + esc(mt.key) + '">Save</button></div>';
+        } else if (mt.kind === "not_yet") {
+          val = '<div class="val">Nothing feeds this yet.</div>';
+        }
+        return '<div class="m">'
+          + '<div class="body"><div class="label">' + esc(mt.label) + tag + '</div>'
+          + '<div class="sub">' + esc(mt.description || "") + (mt.purpose ? " · " + esc(mt.purpose) : "") + '</div>'
+          + val + '</div>'
+          + '<button class="sw" type="button" data-metric="' + esc(mt.key) + '"'
+          + ' aria-pressed="' + (on[mt.key] ? "true" : "false") + '"'
+          + (inv ? "" : " disabled")
+          + ' aria-label="Show ' + esc(mt.label) + ' to this investor"></button>'
+          + '</div>';
+      }).join("");
+      var onCount = s.items.filter(function(x){ return on[x.key]; }).length;
+      return '<section class="sec"><h2>' + esc(s.name) + ' — ' + onCount + ' of ' + s.items.length + ' on</h2>' + rows + '</section>';
+    }).join("");
+
+    $("body").innerHTML = html;
+
+    Array.prototype.forEach.call($("body").querySelectorAll(".sw"), function(b){
+      b.addEventListener("click", function(){
+        var invNow = picked(); if (!invNow) return;
+        var want = b.getAttribute("aria-pressed") !== "true";
+        b.setAttribute("aria-pressed", want ? "true" : "false");
+        b.disabled = true;
+        rpc("askru_founder_switch", { code: CODE, p_investor: invNow.id, p_metric: b.dataset.metric, p_on: want })
+          .then(function(d){
+            b.disabled = false;
+            if (!d || d.ok !== true) { b.setAttribute("aria-pressed", want ? "false" : "true"); return; }
+            /* Keep the local copy in step so the counts above are not stale. */
+            invNow.on = (invNow.on || []).filter(function(k){ return k !== b.dataset.metric; });
+            if (want) invNow.on.push(b.dataset.metric);
+            paintWho(); paintMetrics();
+          })
+          .catch(function(){ b.disabled = false; b.setAttribute("aria-pressed", want ? "false" : "true"); });
+      });
+    });
+
+    Array.prototype.forEach.call($("body").querySelectorAll("[data-save]"), function(b){
+      b.addEventListener("click", function(){
+        var key = b.dataset.save;
+        var input = $("body").querySelector('[data-value="' + key + '"]');
+        b.disabled = true; var was = b.textContent; b.textContent = "…";
+        rpc("askru_founder_value", { code: CODE, p_metric: key, p_value: input.value, p_as_of: null })
+          .then(function(d){ b.disabled = false; b.textContent = d && d.ok ? "Saved" : "Failed";
+                             setTimeout(function(){ b.textContent = was; }, 1400); })
+          .catch(function(){ b.disabled = false; b.textContent = was; });
+      });
+    });
+  }
+
+  function load(code){
+    return rpc("askru_founder_dashboard", { code: code }).then(function(d){
+      if (!d || d.ok !== true) return d;
+      DATA = d; CODE = code;
+      if (!PICKED && (d.investors||[]).length) PICKED = d.investors[0].id;
+      $("gate").hidden = true; $("panel").hidden = false;
+      $("when").textContent = "as of " + stamp(new Date());
+      paintWho(); paintMetrics();
+      return d;
+    });
+  }
+
+  $("f-gate").addEventListener("submit", function(e){
+    e.preventDefault();
+    var v = $("code").value.trim(), m = $("gatemsg");
+    if (!v) { say(m,"err","Enter your code."); return; }
+    say(m,"","Opening…"); $("go").disabled = true;
+    load(v).then(function(d){
+      $("go").disabled = false; $("code").value = "";
+      if (!d || d.ok !== true) {
+        say(m,"err", d && d.reason === "not_set"
+          ? "No Founder Den code is set yet. Set one in the database first."
+          : d && d.reason === "locked" ? "Too many wrong codes in the last hour. It opens again by itself."
+          : "That code didn’t work.");
+      } else { say(m,"",""); }
+    }).catch(function(){ $("go").disabled = false; say(m,"err","Could not reach the database."); });
+  });
+
+  $("refresh").addEventListener("click", function(){
+    if (!CODE) return;
+    var b = $("refresh"); b.textContent = "Refreshing…";
+    load(CODE).then(function(){ b.textContent = "Refresh"; });
+  });
+}());
+</script>
+</body>
+</html>
