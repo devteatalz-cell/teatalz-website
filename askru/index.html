@@ -2178,6 +2178,49 @@ a { color: var(--plum-deep); }
       el.className = 'wl-msg' + (kind ? ' ' + kind : '');
     }
 
+    /* ── 🔴 THE PAYMENT TAB IS GRANTED ON THE TAP, NOT AFTER THE SERVER ANSWERS
+       30 October 2026. Both payment buttons used to call `window.open(payUrl)`
+       INSIDE the `.then()` — after a fetch that takes a moment, because the
+       server creates the Razorpay link in between. A `window.open` that is not
+       in the call stack of a real tap is a popup, and every current browser
+       blocks it; on a phone, always. So the order row was created, the person
+       was told "Opening the payment page", and nothing opened.
+
+       Two real visitors hit exactly this — 29 Oct 22:26 and 30 Oct 13:34 IST.
+       Their rows sit at status 'created' with `updated_at` equal to
+       `created_at` and no `paid_event_id`, which is what "never reached the
+       gateway at all" looks like in that table. It read as abandonment and it
+       was not: they never saw a payment page to abandon. The internal test at
+       30 Oct 07:52 paid and settled in sixty seconds, which is why the gateway
+       itself was never the suspect.
+
+       `payTabOpen` runs synchronously in the handler, so the tab is granted
+       while the tap is still on the stack. `payTabGo` then points that tab at
+       the link. If a browser refused even the synchronous open, it navigates
+       THIS tab instead — a redirect is never blocked, so there is no third
+       case where the person is left looking at nothing.
+
+       ⚠️ `noopener` CANNOT be used here, and that is the detail that made the
+       old line unfixable in place: with it `window.open` returns null, so
+       there is no tab to point anywhere later. The opener reference is dropped
+       by hand on the blank tab instead, which works because `about:blank`
+       inherits this origin until it navigates away. */
+    function payTabOpen() {
+      try { return window.open('about:blank', '_blank'); } catch (e) { return null; }
+    }
+    function payTabGo(tab, url) {
+      if (tab && !tab.closed) {
+        try { tab.opener = null; } catch (e) { }
+        try { tab.location.href = url; return 'tab'; } catch (e) { }
+      }
+      /* No tab to use. Go there in this one rather than nowhere. */
+      window.location.href = url;
+      return 'same';
+    }
+    function payTabClose(tab) {
+      if (tab && !tab.closed) { try { tab.close(); } catch (e) { } }
+    }
+
     function api(path, opts) {
       opts = opts || {};
       var init = {
@@ -2321,6 +2364,8 @@ a { color: var(--plum-deep); }
       var was = buyGo.textContent;
       buyGo.textContent = 'Opening…';
       say(buyMsg, '');
+      /* Granted on the tap. See `payTabOpen` — after the fetch it is a popup. */
+      var payTab = payTabOpen();
       api('try-reading-pay', { body: { token: token } }).then(function (res) {
         var b = res.body || {};
         buyGo.disabled = false;
@@ -2331,20 +2376,29 @@ a { color: var(--plum-deep); }
              database did not charge. */
           var rs = typeof b.amountPaise === 'number' ? (b.amountPaise / 100) : null;
           say(buyMsg, rs !== null ? ('Opening the payment page for ₹' + rs + '. Come back here and ask.') : 'Opening the payment page. Come back here and ask.', 'ok');
-          window.open(b.payUrl, '_blank', 'noopener');
+          /* 🔴 SAID AND REVEALED BEFORE WE GO. `payTabGo` may navigate THIS
+             tab, which unloads everything below it — so the sentence and the
+             form that a returning payer needs are put in place first. */
+          pick.hidden = false;
+          modes.hidden = false;
+          askForm.hidden = false;
           /* ⚠️ THE MODES COME BACK NOW, NOT WHEN THEY PAY. The payment happens
              in another tab and this page is never told, so waiting for a
              signal we do not receive would leave somebody who HAS paid with
              no way to ask. If they do not pay, the ask meets the same offer
              again — recoverable, and nothing is lost either way. */
-          pick.hidden = false;
-          modes.hidden = false;
-          askForm.hidden = false;
+          payTabGo(payTab, b.payUrl);
           return;
         }
+        /* The blank tab was granted for a link that never came. Closing it is
+           not tidiness: a tab left sitting on about:blank is the same silence
+           the popup block used to produce, and the person would read it as
+           the payment page failing to load. */
+        payTabClose(payTab);
         try { console.error('try-reading-pay failed', res.status, (b && (b.error && b.error.code)) || ''); } catch (e) { }
         say(buyMsg, (b && b.error && b.error.message) || 'Could not open the payment page just now. Try once more in a moment.', 'bad');
       }).catch(function () {
+        payTabClose(payTab);
         buyGo.disabled = false;
         buyGo.textContent = was;
         say(buyMsg, 'Could not open the payment page just now. Try once more in a moment.', 'bad');
@@ -3427,11 +3481,14 @@ a { color: var(--plum-deep); }
       var was = btn.textContent;
       btn.textContent = 'Opening…';
       say(dakMsg, '');
+      /* Same rule as the reading button — granted on the tap, or it is a popup. */
+      var payTab = payTabOpen();
       api('try-dakshina', { body: { token: token, amount_paise: paise } }).then(function (res) {
         busy(false);
         btn.textContent = was;
         var b = res.body;
         if (!b || res.status >= 400 || b.ok !== true || !b.payUrl) {
+          payTabClose(payTab);
           /* `err()` nests its message under `error`; `json()` does not. Both
              shapes are read, because one of them is a sentence written for
              this exact moment — "Take your reading first." */
@@ -3442,9 +3499,10 @@ a { color: var(--plum-deep); }
         /* ⚠️ OPENED, NOT RECEIVED. Only the webhook knows whether anything
            was paid and it may arrive long after this tab is gone, so nothing
            here says thank you. */
-        window.open(b.payUrl, '_blank', 'noopener');
-        say(dakMsg, 'The payment page is open in a new tab.');
+        say(dakMsg, 'Opening the payment page.');
+        payTabGo(payTab, b.payUrl);
       }).catch(function () {
+        payTabClose(payTab);
         busy(false);
         btn.textContent = was;
         say(dakMsg, 'That could not be opened. Nothing was taken.', 'bad');
