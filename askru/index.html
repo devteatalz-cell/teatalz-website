@@ -533,7 +533,13 @@ h2 {
 .try-pos .clar[disabled] { opacity: .5; cursor: default; }
 .try-pos .extra { display: block; margin-top: 8px; padding-top: 8px; font-size: 13px;
   border-top: 1px solid rgba(255,255,255,.14); color: var(--ink-muted); }
-.try-deeper { width: auto; min-height: 44px; padding: 0 22px; margin: 0 auto 16px; display: block; }
+/* 🔴 16px ABOVE IT, NOT ZERO. "Get me an angel" sits in a block with its own
+   16px above it, and this button had no top margin at all — so the two calls
+   to action touched, and this one's glow spilled over the gold outline.
+   Founder, 30 Oct 2026: *"get me an angel aur detail it out ke beech mai
+   thoda gap de"*. Same 16 as the block above, so the column keeps one
+   rhythm instead of gaining a one-off number. */
+.try-deeper { width: auto; min-height: 44px; padding: 0 22px; margin: 16px auto; display: block; }
 
 /* The drawn tarot card. `contain`, not `cover`: a tarot card carries its
    title along the bottom and its number along the top, and cropping takes
