@@ -264,8 +264,32 @@ reads the result to you in sentences rather than handing over a verdict.</p>
       }).catch(function () { });
     } catch (e) { }
   }
+  /* 🔴 THE CAMPAIGN TAG, READ FROM THE URL AND KEPT FOR THE WHOLE VISIT.
+     The beacon sends location.pathname, which DROPS the query string — so
+     without this the tag naming which ad sent somebody is thrown away on
+     the first line, and a paid arrival becomes indistinguishable from
+     somebody typing the address.
+
+     It cannot be left to document.referrer either: Meta's in-app browsers
+     and rel="noreferrer" links routinely arrive with an EMPTY referrer, so
+     paid traffic lands in the same bucket as direct. Judging a campaign on
+     referrer alone would read a working ad as having sent nobody.
+
+     Held in sessionStorage so the second and third page of a visit are
+     still attributed to the ad that started it, not to nothing. */
+  var campaign = null;
+  try {
+    var q = new URLSearchParams(location.search);
+    var src = q.get('utm_source'), med = q.get('utm_medium'), cmp = q.get('utm_campaign');
+    if (src || med || cmp) {
+      campaign = [src || '-', med || '-', cmp || '-'].join(' | ').slice(0, 200);
+      sessionStorage.setItem('askru.visit.campaign', campaign);
+    } else {
+      campaign = sessionStorage.getItem('askru.visit.campaign');
+    }
+  } catch (e) { campaign = null; }
   var t0 = Date.now();
-  send({ key: key, path: location.pathname, ref: document.referrer || null, landing: landing }, false);
+  send({ key: key, path: location.pathname, ref: document.referrer || null, landing: landing, campaign: campaign }, false);
   /* `pagehide`, not `unload`: iOS Safari never fires `unload`, so a duration
      measured on it would miss exactly the phone visitors who are most of them. */
   var done = false;
