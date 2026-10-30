@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask Ru — Investor Dashboard</title>
+<meta name="robots" content="noindex, nofollow">
+<!--
+  WHAT AN INVESTOR SEES.
+
+  FOUNDER, 30 Oct 2026: *"investor dashboard auto update ho with data from app
+  and website"*, and *"ye website se bhi jo data ayega in revenue and users wo
+  bhi investor dashboard mai dekha, switch de dena for website and app to
+  investor to see matrix"*.
+
+  ── 🔴 THIS PAGE DECIDES NOTHING ───────────────────────────────────────
+
+  A metric an investor has not been switched on for is not hidden here — it
+  is ABSENT from the payload `askru_investor_dashboard` returns. Reading this
+  page's source tells you nothing about what anybody else can see, and
+  tampering with it reveals nothing. The switches live in the Founder Den.
+
+  ── NOTHING IS STORED, SO NOTHING GOES STALE ───────────────────────────
+
+  Every computed number is counted by the database at the moment this page
+  asks. There is no cron, no cache and no "last refreshed" to distrust: the
+  figure on screen is the figure in the tables, as of the timestamp shown.
+
+  ── ⚠️ WEBSITE · APP · BOTH ────────────────────────────────────────────
+
+  One metric, three numbers. The toggle changes which of the three is shown
+  and asks the server nothing — the payload already carries all three, so
+  switching is instant and cannot disagree with itself.
+
+  ── 🔴 A BLANK IS AN ANSWER HERE ───────────────────────────────────────
+
+  Seven-day retention on day two is not 0% — it is unanswerable, and the
+  server says so in a sentence. This page prints that sentence instead of a
+  number. A confident zero ends the question; a blank with a reason invites
+  the right one.
+
+  ⚠️ THE CODE IS HELD IN MEMORY AND NOWHERE ELSE. Not localStorage, not the
+  URL. Closing the tab forgets it.
+-->
+<style>
+  :root {
+    color-scheme: dark;
+    --paper:#2a2039; --paper-alt:#342647; --card:#372c4a; --card-alt:#3d3152;
+    --ink:#efe6f6; --ink-muted:#d6cae4; --ink-faint:#b0a2c2;
+    --line:#4d4068; --line-faint:#463a5f; --plum:#b89cff;
+    --warn:#ffb4a8; --good:#9ae6b4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background: linear-gradient(170deg, var(--paper), var(--paper-alt) 60%, var(--paper));
+    background-attachment: fixed; color: var(--ink);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh; padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  button, input { font: inherit; color: var(--ink); background: var(--card-alt);
+                  border: 1px solid var(--line); border-radius: 10px; }
+  button { cursor: pointer; min-height: 40px; padding: 0 16px; }
+  button.primary { background: var(--plum); color:#241a33; border-color: transparent; font-weight:600; }
+  button[disabled] { opacity:.55; cursor:default; }
+  input { padding: 9px 12px; width: 100%; background: var(--paper); }
+
+  .gate { max-width:380px; margin:8vh auto 0; background:var(--card); border:1px solid var(--line);
+          border-radius:18px; padding:28px 24px; text-align:center; }
+  .gate h1 { font-size:20px; margin:0 0 6px; }
+  .gate p { color:var(--ink-muted); margin:0 0 18px; font-size:14px; }
+  .gate input { margin-bottom:12px; text-align:center; }
+  .msg { margin:12px 0 0; font-size:14px; min-height:20px; }
+  .msg.err { color: var(--warn); } .msg.ok { color: var(--good); }
+
+  header.top { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+  header.top h1 { font-size:22px; margin:0; font-weight:600; letter-spacing:-.01em; }
+  header.top .sp { flex:1 1 auto; }
+  header.top .when { color:var(--ink-faint); font-size:13px; }
+  .hello { color:var(--ink-muted); margin:0 0 18px; font-size:14px; }
+
+  /* The surface toggle. Segmented, because the three are one choice. */
+  .surf { display:inline-flex; border:1px solid var(--line); border-radius:999px;
+          overflow:hidden; margin:0 0 18px; }
+  .surf button { border:0; border-radius:0; min-height:38px; padding:0 18px;
+                 background:transparent; color:var(--ink-muted); font-size:14px; }
+  .surf button + button { border-left:1px solid var(--line); }
+  .surf button[aria-pressed="true"] { background:var(--plum); color:#241a33; font-weight:600; }
+
+  section.sec { background:var(--card); border:1px solid var(--line); border-radius:16px;
+                padding:18px 20px; margin:0 0 14px; }
+  section.sec > h2 { font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+                     color:var(--ink-faint); margin:0 0 12px; font-weight:600; }
+
+  .m { display:flex; gap:16px; align-items:baseline; padding:12px 0;
+       border-bottom:1px solid var(--line-faint); }
+  .m:last-child { border-bottom:none; }
+  .m .body { flex:1 1 auto; min-width:0; }
+  .m .label { font-weight:600; }
+  .m .sub { font-size:12.5px; color:var(--ink-faint); margin-top:2px; }
+  .m .basis { font-size:12.5px; color:var(--ink-faint); margin-top:6px; font-style:italic; }
+  .m .num { flex:none; text-align:right; font-size:22px; font-weight:600;
+            font-variant-numeric: tabular-nums; letter-spacing:-.01em; min-width:92px; }
+  .m .num.small { font-size:15px; font-weight:500; color:var(--ink-muted);
+                  text-align:right; max-width:320px; }
+  .m .num.none { font-size:14px; font-weight:500; color:var(--ink-faint); }
+
+  .foot { color:var(--ink-faint); font-size:12.5px; margin:22px 0 0; line-height:1.7; }
+  @media (max-width:560px){
+    body{padding:16px 14px 48px} section.sec{padding:14px}
+    .m { flex-wrap:wrap; }
+    .m .num { text-align:left; min-width:0; width:100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="gate" id="gate">
+    <h1>Ask Ru</h1>
+    <p>The code you were given.</p>
+    <form id="f-gate" autocomplete="off">
+      <input id="code" type="password" placeholder="Code" autocomplete="off" autocapitalize="off" spellcheck="false" required />
+      <button class="primary" type="submit" id="go">Open</button>
+    </form>
+    <p class="msg" id="gatemsg" role="status" aria-live="polite"></p>
+  </div>
+
+  <div id="panel" hidden>
+    <header class="top">
+      <h1>Ask Ru</h1>
+      <span class="when" id="when"></span>
+      <span class="sp"></span>
+      <button type="button" id="refresh">Refresh</button>
+    </header>
+    <p class="hello" id="hello"></p>
+
+    <div class="surf" id="surf" role="group" aria-label="Which surface">
+      <button type="button" data-surface="website" aria-pressed="true">Website</button>
+      <button type="button" data-surface="app" aria-pressed="false">App</button>
+      <button type="button" data-surface="total" aria-pressed="false">Both</button>
+    </div>
+
+    <div id="body"></div>
+
+    <p class="foot" id="foot"></p>
+  </div>
+</div>
+<script>
+(function () {
+  var URL_ = "https://hyxkhjxrpsmjztbdtcee.supabase.co";
+  var ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5eGtoanhycHNtanp0YmR0Y2VlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjc3MTgsImV4cCI6MjEwNDg0MzcxOH0.203raeaoCf_t6nawo1IkFm-Ayc5uMti-WkxksYn3ORs";
+
+  /* 🔴 IN MEMORY, NOWHERE ELSE. */
+  var CODE = null, DATA = null, SURFACE = "website";
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function say(el, cls, text){ el.className = "msg" + (cls?" "+cls:""); el.textContent = text; }
+  function stamp(iso){
+    try { return new Date(iso).toLocaleString("en-IN",
+      { timeZone:"Asia/Kolkata", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) + " IST"; }
+    catch(e){ return ""; }
+  }
+
+  function rpc(fn, body){
+    return fetch(URL_ + "/rest/v1/rpc/" + fn, {
+      method:"POST",
+      headers:{ apikey:ANON, authorization:"Bearer "+ANON, "content-type":"application/json" },
+      body: JSON.stringify(body)
+    }).then(function(r){ return r.ok ? r.json() : null; });
+  }
+
+  /* ── how a number is written ──────────────────────────────────────────
+     🔴 A ZERO IS PRINTED AS A ZERO. Only null means "no answer" — the
+     difference between "nobody has paid" and "we cannot tell you" is the
+     whole point of this page, and `!value` would collapse them. */
+  function render(live){
+    if (!live) return { cls:"none", text:"—" };
+    var v = live[SURFACE];
+    if (v === null || v === undefined) {
+      return { cls:"none", text: live.basis ? "not yet" : "—" };
+    }
+    if (live.unit === "rupees")  return { cls:"", text: "₹" + Number(v).toLocaleString("en-IN") };
+    if (live.unit === "percent") return { cls:"", text: Number(v) + "%" };
+    if (live.unit === "text")    return { cls:"small", text: String(v) };
+    return { cls:"", text: Number(v).toLocaleString("en-IN") };
+  }
+
+  function paint(){
+    var metrics = DATA.metrics || [];
+
+    /* Sections in the order the server sent them — that order is his sheet's. */
+    var bySection = [], last = null;
+    metrics.forEach(function(mt){
+      if (!last || last.name !== mt.section) { last = { name: mt.section, items: [] }; bySection.push(last); }
+      last.items.push(mt);
+    });
+
+    if (!metrics.length) {
+      $("body").innerHTML = '<section class="sec"><h2>Nothing yet</h2>'
+        + '<p style="color:var(--ink-muted);margin:0">Nothing has been shared with you so far. '
+        + 'That is a setting on our side, not a fault here — ask and it can be switched on.</p></section>';
+      return;
+    }
+
+    $("body").innerHTML = bySection.map(function(s){
+      var rows = s.items.map(function(mt){
+        var right, basis = "";
+
+        if (mt.kind === "computed") {
+          var r = render(mt.live);
+          right = '<div class="num ' + r.cls + '">' + esc(r.text) + '</div>';
+          if (mt.live && mt.live.basis && (mt.live[SURFACE] === null || mt.live[SURFACE] === undefined)) {
+            basis = '<div class="basis">' + esc(mt.live.basis) + '</div>';
+          }
+        } else if (mt.kind === "entered") {
+          right = mt.value
+            ? '<div class="num small">' + esc(mt.value) + '</div>'
+            : '<div class="num none">—</div>';
+          if (mt.as_of) basis = '<div class="basis">as at ' + esc(stamp(mt.as_of)) + '</div>';
+        } else {
+          right = '<div class="num none">not yet</div>';
+          basis = '<div class="basis">Nothing feeds this number yet. We would rather leave it blank than publish a figure with nothing behind it.</div>';
+        }
+
+        return '<div class="m"><div class="body">'
+          + '<div class="label">' + esc(mt.label) + '</div>'
+          + '<div class="sub">' + esc(mt.description || "") + (mt.purpose ? " · " + esc(mt.purpose) : "") + '</div>'
+          + basis
+          + '</div>' + right + '</div>';
+      }).join("");
+      return '<section class="sec"><h2>' + esc(s.name) + '</h2>' + rows + '</section>';
+    }).join("");
+  }
+
+  Array.prototype.forEach.call($("surf").querySelectorAll("button"), function(b){
+    b.addEventListener("click", function(){
+      SURFACE = b.dataset.surface;
+      Array.prototype.forEach.call($("surf").querySelectorAll("button"), function(x){
+        x.setAttribute("aria-pressed", String(x === b));
+      });
+      paint();
+    });
+  });
+
+  function load(code){
+    return rpc("askru_investor_dashboard", { code: code }).then(function(d){
+      if (!d || d.ok !== true) return d;
+      DATA = d; CODE = code;
+      $("gate").hidden = true; $("panel").hidden = false;
+      var inv = d.investor || {};
+      $("hello").textContent = inv.name
+        ? (inv.name + (inv.firm ? " · " + inv.firm : ""))
+        : "";
+      $("when").textContent = d.as_of ? ("as of " + stamp(d.as_of)) : "";
+      $("foot").textContent =
+        "Counted from Ask Ru's own database the moment this page asked — nothing here is stored, "
+        + "estimated or projected. " + (d.days_of_data ? (d.days_of_data + " day(s) of public data so far. ") : "")
+        + "Figures that cannot exist yet say so rather than showing a zero.";
+      paint();
+      return d;
+    });
+  }
+
+  $("f-gate").addEventListener("submit", function(e){
+    e.preventDefault();
+    var v = $("code").value.trim(), m = $("gatemsg");
+    if (!v) { say(m,"err","Enter your code."); return; }
+    say(m,"","Opening…"); $("go").disabled = true;
+    load(v).then(function(d){
+      $("go").disabled = false; $("code").value = "";
+      if (!d || d.ok !== true) {
+        /* 🔴 ONE MESSAGE FOR A WRONG HANDLE AND A WRONG SECRET, because the
+           server deliberately gives one answer for both — telling them apart
+           here would hand back exactly what the server refused to reveal. */
+        say(m,"err", d && d.reason === "locked"
+          ? "Too many wrong codes in the last hour. It opens again by itself."
+          : "That code didn't work.");
+      } else { say(m,"",""); }
+    }).catch(function(){ $("go").disabled = false; say(m,"err","Could not reach the database."); });
+  });
+
+  $("refresh").addEventListener("click", function(){
+    if (!CODE) return;
+    var b = $("refresh"); b.textContent = "Refreshing…"; b.disabled = true;
+    load(CODE).then(function(){ b.textContent = "Refresh"; b.disabled = false; })
+              .catch(function(){ b.textContent = "Refresh"; b.disabled = false; });
+  });
+}());
+</script>
+</body>
+</html>
