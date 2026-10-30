@@ -222,5 +222,62 @@ reads the result to you in sentences rather than handing over a verdict.</p>
   ]
 }
 </script>
+<script src="../assets/config.js"></script>
+<script>
+/* ── OUR OWN MEASUREMENT, AND ONLY OURS — 30 October 2026 ─────────────────
+   These two pages exist to win organic search, and until now nobody could
+   say whether a single person had read either one. The keyword list already
+   has no search volumes (no Search Console), so without this the SEO work
+   was being judged on nothing at all.
+
+   🔴 NO META PIXEL HERE, DELIBERATELY. The pixel is on /askru/ because that
+   is where paid traffic lands and Meta needs to count it. These pages take
+   organic visitors, so sending their visits to an advertising company would
+   buy us nothing and cost them something. First-party only: our own table,
+   no cookie, no third party, and the address hashed with the Indian day
+   rather than stored.
+
+   Fire and forget. A failed beacon must never put a red line in front of
+   somebody reading the page. */
+(function () {
+  var cfg = window.ASKRU;
+  if (!cfg || !cfg.url || !cfg.anonKey) return;
+  var K = 'askru.visit.key', key, landing;
+  try {
+    key = sessionStorage.getItem(K);
+    if (!key) {
+      key = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      sessionStorage.setItem(K, key);
+      sessionStorage.setItem('askru.visit.landing', location.pathname);
+    }
+    landing = sessionStorage.getItem('askru.visit.landing') || location.pathname;
+  } catch (e) {
+    key = 'nostore-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    landing = location.pathname;
+  }
+  function send(p, k) {
+    try {
+      fetch(cfg.url + '/functions/v1/askru-visit', {
+        method: 'POST',
+        headers: { apikey: cfg.anonKey, Authorization: 'Bearer ' + cfg.anonKey, 'content-type': 'application/json' },
+        body: JSON.stringify(p), keepalive: !!k
+      }).catch(function () { });
+    } catch (e) { }
+  }
+  var t0 = Date.now();
+  send({ key: key, path: location.pathname, ref: document.referrer || null, landing: landing }, false);
+  /* `pagehide`, not `unload`: iOS Safari never fires `unload`, so a duration
+     measured on it would miss exactly the phone visitors who are most of them. */
+  var done = false;
+  function close() {
+    if (done) return; done = true;
+    send({ key: key, path: location.pathname, seconds: Math.round((Date.now() - t0) / 1000) }, true);
+  }
+  window.addEventListener('pagehide', close);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') close();
+  });
+})();
+</script>
 </body>
 </html>
