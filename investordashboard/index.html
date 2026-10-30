@@ -5,137 +5,230 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ask Ru — Investor Dashboard</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 <!--
   WHAT AN INVESTOR SEES.
 
   FOUNDER, 30 Oct 2026: *"investor dashboard auto update ho with data from app
-  and website"*, and *"ye website se bhi jo data ayega in revenue and users wo
-  bhi investor dashboard mai dekha, switch de dena for website and app to
-  investor to see matrix"*.
+  and website"*, *"switch de dena for website and app"*, then on the first
+  draft: *"design mai tables mai dekha, graphs dekha, pie charts dekha, make
+  it interactive, even user reviews ka ek section ... 5 review dekhe, rest
+  read more pe click then next 5"*, and — the one that mattered most —
+  *"color scheme to app se bilkul off set hai"*.
+
+  ── 🔴 THE PALETTE IS THE APP'S, READ OUT OF IT ────────────────────────
+
+  The first draft was dark plum, which is the investor ROOM's palette, not
+  the app's. `src/theme/colors.ts` is cream with purple accents and the app
+  is required to stay light:
+
+    paper #faf1dd · card #fffbf0 · ink #3b2f47
+    plum  #7c5cff · gold #c98b2a · rose #ff8fb4
+
+  Every colour below is one of those. None was chosen here.
 
   ── 🔴 THIS PAGE DECIDES NOTHING ───────────────────────────────────────
 
-  A metric an investor has not been switched on for is not hidden here — it
-  is ABSENT from the payload `askru_investor_dashboard` returns. Reading this
-  page's source tells you nothing about what anybody else can see, and
-  tampering with it reveals nothing. The switches live in the Founder Den.
+  A metric an investor has not been switched on for is ABSENT from the
+  payload, not hidden by the page. Reading this source tells you nothing
+  about what anybody else can see. The switches live in the Founder Den.
 
   ── NOTHING IS STORED, SO NOTHING GOES STALE ───────────────────────────
 
-  Every computed number is counted by the database at the moment this page
-  asks. There is no cron, no cache and no "last refreshed" to distrust: the
-  figure on screen is the figure in the tables, as of the timestamp shown.
+  Every number is counted by the database at the moment this page asks.
 
-  ── ⚠️ WEBSITE · APP · BOTH ────────────────────────────────────────────
+  ── ⚠️ THE CHARTS AND THE TABLE READ THE SAME COUNT ────────────────────
 
-  One metric, three numbers. The toggle changes which of the three is shown
-  and asks the server nothing — the payload already carries all three, so
-  switching is instant and cannot disagree with itself.
+  The slices come from `series`, the figures from `m` — and 0113's own check
+  refuses to apply if they disagree. A pie whose slices do not add up to the
+  number printed beside it is the investor-facing version of lying.
 
   ── 🔴 A BLANK IS AN ANSWER HERE ───────────────────────────────────────
 
   Seven-day retention on day two is not 0% — it is unanswerable, and the
-  server says so in a sentence. This page prints that sentence instead of a
-  number. A confident zero ends the question; a blank with a reason invites
-  the right one.
+  server says so in a sentence, which this page prints instead of a number.
 
-  ⚠️ THE CODE IS HELD IN MEMORY AND NOWHERE ELSE. Not localStorage, not the
-  URL. Closing the tab forgets it.
+  ⚠️ THE CODE IS HELD IN MEMORY AND NOWHERE ELSE.
 -->
 <style>
   :root {
-    color-scheme: dark;
-    --paper:#2a2039; --paper-alt:#342647; --card:#372c4a; --card-alt:#3d3152;
-    --ink:#efe6f6; --ink-muted:#d6cae4; --ink-faint:#b0a2c2;
-    --line:#4d4068; --line-faint:#463a5f; --plum:#b89cff;
-    --warn:#ffb4a8; --good:#9ae6b4;
+    color-scheme: light;
+    /* Straight from src/theme/colors.ts — the app's light theme. */
+    --paper:#faf1dd; --paper-alt:#f7ead0; --card:#fffbf0; --card-alt:#f5ead6;
+    --ink:#3b2f47; --ink-2:#5a4d66; --ink-3:#6f6480;
+    --line:#ecdfc8; --line-2:#f1e8d6;
+    --plum:#7c5cff; --plum-deep:#5b3fc0; --rose:#ff8fb4; --gold:#c98b2a;
+    --good:#2f9e6a; --warn:#c25b6b;
+    --r:20px;
   }
-  * { box-sizing: border-box; }
-  html, body { margin:0; padding:0; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
   body {
-    background: linear-gradient(170deg, var(--paper), var(--paper-alt) 60%, var(--paper));
-    background-attachment: fixed; color: var(--ink);
-    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    min-height: 100vh; padding: 24px 16px 64px;
+    background:linear-gradient(168deg, var(--paper), var(--paper-alt) 58%, var(--paper));
+    background-attachment:fixed; color:var(--ink);
+    font:15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height:100vh; padding:30px 18px 84px; -webkit-font-smoothing:antialiased;
+    position:relative; overflow-x:hidden;
   }
-  .wrap { max-width: 980px; margin: 0 auto; }
+  /* ── the background, moving slowly ──────────────────────────────────
+     Three soft washes in the brand's own accents. `fixed` and
+     `pointer-events:none` so they never interfere with the page, and the
+     whole thing stops for anyone who asked their system for less motion. */
+  .glow { position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+  .glow i { position:absolute; display:block; border-radius:50%; filter:blur(60px); opacity:.5; }
+  .glow i:nth-child(1){ width:46vw; height:46vw; left:-10vw; top:-12vw;
+    background:radial-gradient(circle, rgba(124,92,255,.30), transparent 70%); animation:drift1 26s ease-in-out infinite; }
+  .glow i:nth-child(2){ width:38vw; height:38vw; right:-8vw; top:6vh;
+    background:radial-gradient(circle, rgba(255,143,180,.26), transparent 70%); animation:drift2 32s ease-in-out infinite; }
+  .glow i:nth-child(3){ width:42vw; height:42vw; left:28vw; bottom:-16vw;
+    background:radial-gradient(circle, rgba(201,139,42,.20), transparent 70%); animation:drift3 38s ease-in-out infinite; }
+  @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(6vw,4vh)} }
+  @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-5vw,6vh)} }
+  @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(4vw,-5vh)} }
+  @media (prefers-reduced-motion: reduce) { .glow i { animation:none } .rise { animation:none !important; opacity:1 !important } }
 
-  button, input { font: inherit; color: var(--ink); background: var(--card-alt);
-                  border: 1px solid var(--line); border-radius: 10px; }
-  button { cursor: pointer; min-height: 40px; padding: 0 16px; }
-  button.primary { background: var(--plum); color:#241a33; border-color: transparent; font-weight:600; }
-  button[disabled] { opacity:.55; cursor:default; }
-  input { padding: 9px 12px; width: 100%; background: var(--paper); }
+  .wrap { max-width:1060px; margin:0 auto; position:relative; }
+  .serif { font-family:"Playfair Display", Georgia, serif; }
 
-  .gate { max-width:380px; margin:8vh auto 0; background:var(--card); border:1px solid var(--line);
-          border-radius:18px; padding:28px 24px; text-align:center; }
-  .gate h1 { font-size:20px; margin:0 0 6px; }
-  .gate p { color:var(--ink-muted); margin:0 0 18px; font-size:14px; }
-  .gate input { margin-bottom:12px; text-align:center; }
-  .msg { margin:12px 0 0; font-size:14px; min-height:20px; }
-  .msg.err { color: var(--warn); } .msg.ok { color: var(--good); }
+  .rise { animation:rise .5s cubic-bezier(.2,.7,.3,1) both; }
+  @keyframes rise { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
 
-  header.top { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
-  header.top h1 { font-size:22px; margin:0; font-weight:600; letter-spacing:-.01em; }
+  button,input { font:inherit; color:var(--ink); background:var(--card);
+                 border:1px solid var(--line); border-radius:13px; }
+  button { cursor:pointer; min-height:41px; padding:0 17px; transition:transform .08s, box-shadow .18s, background .18s; }
+  button:hover:not([disabled]) { box-shadow:0 5px 16px -8px rgba(59,47,71,.45); }
+  button:active:not([disabled]) { transform:translateY(1px); }
+  button.primary { background:linear-gradient(135deg, var(--plum), var(--plum-deep));
+                   color:#fff; border-color:transparent; font-weight:650; }
+  button.ghost { background:transparent; color:var(--ink-2); }
+  button[disabled] { opacity:.45; cursor:default; }
+  input { padding:12px 14px; width:100%; background:#fff; }
+  input:focus { outline:2px solid var(--plum); outline-offset:1px; }
+
+  .gate { max-width:400px; margin:12vh auto 0; background:rgba(255,251,240,.9);
+          border:1px solid var(--line); border-radius:26px; padding:38px 32px; text-align:center;
+          box-shadow:0 28px 70px -34px rgba(59,47,71,.5); backdrop-filter:blur(8px); }
+  .gate .mark { width:48px; height:48px; margin:0 auto 15px; border-radius:15px;
+                background:linear-gradient(135deg, var(--plum), var(--plum-deep));
+                display:flex; align-items:center; justify-content:center; color:#fff;
+                font-weight:700; font-size:20px; }
+  .gate h1 { font-size:26px; margin:0 0 4px; font-weight:600; }
+  .gate p { color:var(--ink-3); margin:0 0 22px; font-size:13.5px; }
+  .gate input { margin-bottom:12px; text-align:center; letter-spacing:.16em; }
+  .gate button { width:100%; }
+  .msg { margin:12px 0 0; font-size:13.5px; min-height:20px; }
+  .msg.err { color:var(--warn); } .msg.ok { color:var(--good); }
+
+  header.top { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 4px; }
+  header.top .mark { width:42px; height:42px; border-radius:13px; flex:none; color:#fff;
+                     background:linear-gradient(135deg, var(--plum), var(--plum-deep));
+                     display:flex; align-items:center; justify-content:center; font-weight:700; }
+  header.top h1 { font-size:28px; margin:0; font-weight:600; letter-spacing:-.015em; }
   header.top .sp { flex:1 1 auto; }
-  header.top .when { color:var(--ink-faint); font-size:13px; }
-  .hello { color:var(--ink-muted); margin:0 0 18px; font-size:14px; }
+  .hello { color:var(--ink-2); margin:0 0 3px; font-size:14.5px; }
+  .when { color:var(--ink-3); font-size:12.5px; margin:0 0 24px; }
 
-  /* The surface toggle. Segmented, because the three are one choice. */
+  .heroes { display:grid; gap:13px; grid-template-columns:repeat(auto-fit,minmax(176px,1fr)); margin:0 0 20px; }
+  .hero { background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+          padding:17px 19px; box-shadow:0 10px 26px -22px rgba(59,47,71,.6); }
+  .hero .n { font-size:33px; font-weight:650; letter-spacing:-.03em; font-variant-numeric:tabular-nums; line-height:1.08; }
+  .hero .k { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); margin-top:7px; font-weight:650; }
+  .hero .x { font-size:12px; color:var(--ink-3); margin-top:3px; }
+
   .surf { display:inline-flex; border:1px solid var(--line); border-radius:999px;
-          overflow:hidden; margin:0 0 18px; }
-  .surf button { border:0; border-radius:0; min-height:38px; padding:0 18px;
-                 background:transparent; color:var(--ink-muted); font-size:14px; }
+          overflow:hidden; margin:0 0 20px; background:var(--card); }
+  .surf button { border:0; border-radius:0; min-height:39px; padding:0 21px;
+                 background:transparent; color:var(--ink-3); font-size:14px; }
   .surf button + button { border-left:1px solid var(--line); }
-  .surf button[aria-pressed="true"] { background:var(--plum); color:#241a33; font-weight:600; }
+  .surf button[aria-pressed="true"] { background:linear-gradient(135deg, var(--plum), var(--plum-deep));
+                                      color:#fff; font-weight:650; }
 
-  section.sec { background:var(--card); border:1px solid var(--line); border-radius:16px;
-                padding:18px 20px; margin:0 0 14px; }
-  section.sec > h2 { font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
-                     color:var(--ink-faint); margin:0 0 12px; font-weight:600; }
+  section.sec { background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+                padding:21px 23px; margin:0 0 16px; box-shadow:0 12px 30px -26px rgba(59,47,71,.55); }
+  section.sec > h2 { font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+                     color:var(--ink-3); margin:0 0 15px; font-weight:700; }
 
-  .m { display:flex; gap:16px; align-items:baseline; padding:12px 0;
-       border-bottom:1px solid var(--line-faint); }
-  .m:last-child { border-bottom:none; }
-  .m .body { flex:1 1 auto; min-width:0; }
-  .m .label { font-weight:600; }
-  .m .sub { font-size:12.5px; color:var(--ink-faint); margin-top:2px; }
-  .m .basis { font-size:12.5px; color:var(--ink-faint); margin-top:6px; font-style:italic; }
-  .m .num { flex:none; text-align:right; font-size:22px; font-weight:600;
-            font-variant-numeric: tabular-nums; letter-spacing:-.01em; min-width:92px; }
-  .m .num.small { font-size:15px; font-weight:500; color:var(--ink-muted);
-                  text-align:right; max-width:320px; }
-  .m .num.none { font-size:14px; font-weight:500; color:var(--ink-faint); }
+  .charts { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); }
+  .chart h3 { margin:0 0 2px; font-size:15px; font-weight:600; }
+  .chart .cap { font-size:12.5px; color:var(--ink-3); margin:0 0 12px; }
+  .chart svg { display:block; width:100%; height:auto; overflow:visible; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--ink-2); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .legend i { width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .none-yet { color:var(--ink-3); font-size:13.5px; font-style:italic; padding:14px 0; }
 
-  .foot { color:var(--ink-faint); font-size:12.5px; margin:22px 0 0; line-height:1.7; }
-  @media (max-width:560px){
-    body{padding:16px 14px 48px} section.sec{padding:14px}
-    .m { flex-wrap:wrap; }
-    .m .num { text-align:left; min-width:0; width:100%; }
+  table.t { width:100%; border-collapse:collapse; }
+  table.t th { text-align:right; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+               color:var(--ink-3); font-weight:700; padding:0 0 9px; border-bottom:1px solid var(--line); }
+  table.t th:first-child { text-align:left; }
+  table.t td { padding:13px 0; border-bottom:1px solid var(--line-2); vertical-align:top; text-align:right;
+               font-variant-numeric:tabular-nums; }
+  table.t td:first-child { text-align:left; }
+  table.t tr:last-child td { border-bottom:none; }
+  table.t td.v { font-size:19px; font-weight:650; letter-spacing:-.02em; width:116px; }
+  table.t td.v.small { font-size:14px; font-weight:500; color:var(--ink-2); letter-spacing:0; width:auto; max-width:230px; }
+  table.t td.v.none { font-size:13px; font-weight:500; color:var(--ink-3); letter-spacing:0; }
+  table.t td.v.dim { opacity:.4; }
+  .lbl { font-weight:600; }
+  .sub { font-size:12.5px; color:var(--ink-3); margin-top:2px; }
+  .basis { font-size:12.5px; color:var(--ink-3); margin-top:7px; font-style:italic; max-width:48em; }
+
+  section.news { background:linear-gradient(160deg, #fff6e4, var(--card));
+                 border-color:rgba(201,139,42,.32); }
+  .upd { border-top:1px solid var(--line-2); padding:16px 0 0; margin-top:16px; }
+  .upd:first-of-type { border-top:0; padding-top:0; margin-top:0; }
+  .upd h3 { margin:0; font-size:19px; font-weight:600; }
+  .upd .at { font-size:12px; color:var(--ink-3); margin:4px 0 8px; }
+  .upd p { margin:0; color:var(--ink-2); white-space:pre-wrap; }
+
+  .rev { border-top:1px solid var(--line-2); padding:15px 0 0; margin-top:15px; }
+  .rev:first-of-type { border-top:0; padding-top:0; margin-top:0; }
+  .rev .st { color:var(--gold); letter-spacing:2px; font-size:15px; }
+  .rev .at { font-size:12px; color:var(--ink-3); margin-left:8px; }
+  .rev p { margin:6px 0 0; color:var(--ink-2); }
+  .more { margin-top:16px; }
+
+  .foot { color:var(--ink-3); font-size:12.5px; margin:24px 0 0; line-height:1.75; }
+  .foot a { color:var(--plum-deep); }
+  @media (max-width:620px){
+    body{padding:18px 14px 56px}
+    section.sec{padding:17px 16px}
+    header.top h1{font-size:24px}
+    .hero .n{font-size:28px}
+    table.t th:nth-child(3), table.t td:nth-child(3) { display:none }
   }
 </style>
 </head>
 <body>
+<div class="glow" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="wrap">
 
-  <div class="gate" id="gate">
-    <h1>Ask Ru</h1>
+  <div class="gate rise" id="gate">
+    <div class="mark">R</div>
+    <h1 class="serif">Ask Ru</h1>
     <p>The code you were given.</p>
     <form id="f-gate" autocomplete="off">
-      <input id="code" type="password" placeholder="Code" autocomplete="off" autocapitalize="off" spellcheck="false" required />
+      <input id="code" type="password" placeholder="••••••••" autocomplete="off" autocapitalize="off" spellcheck="false" required />
       <button class="primary" type="submit" id="go">Open</button>
     </form>
     <p class="msg" id="gatemsg" role="status" aria-live="polite"></p>
   </div>
 
   <div id="panel" hidden>
-    <header class="top">
-      <h1>Ask Ru</h1>
-      <span class="when" id="when"></span>
+    <header class="top rise">
+      <div class="mark">R</div>
+      <h1 class="serif">Ask Ru</h1>
       <span class="sp"></span>
-      <button type="button" id="refresh">Refresh</button>
+      <button type="button" class="ghost" id="refresh">Refresh</button>
     </header>
     <p class="hello" id="hello"></p>
+    <p class="when" id="when"></p>
+
+    <div class="heroes" id="heroes"></div>
+    <div id="news"></div>
+    <div id="charts"></div>
 
     <div class="surf" id="surf" role="group" aria-label="Which surface">
       <button type="button" data-surface="website" aria-pressed="true">Website</button>
@@ -144,6 +237,7 @@
     </div>
 
     <div id="body"></div>
+    <div id="reviews"></div>
 
     <p class="foot" id="foot"></p>
   </div>
@@ -155,6 +249,9 @@
 
   /* 🔴 IN MEMORY, NOWHERE ELSE. */
   var CODE = null, DATA = null, SURFACE = "website";
+  var REVIEWS = [], REV_TOTAL = 0, REV_PAGE = 5;
+
+  var PIE = ["#7c5cff", "#ff8fb4", "#c98b2a", "#5b3fc0", "#2f9e6a", "#4b63b0"];
 
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
@@ -165,6 +262,10 @@
       { timeZone:"Asia/Kolkata", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) + " IST"; }
     catch(e){ return ""; }
   }
+  function dayLabel(d){
+    try { return new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day:"numeric", month:"short" }); }
+    catch(e){ return d; }
+  }
 
   function rpc(fn, body){
     return fetch(URL_ + "/rest/v1/rpc/" + fn, {
@@ -174,67 +275,259 @@
     }).then(function(r){ return r.ok ? r.json() : null; });
   }
 
-  /* ── how a number is written ──────────────────────────────────────────
-     🔴 A ZERO IS PRINTED AS A ZERO. Only null means "no answer" — the
+  /* 🔴 A ZERO IS PRINTED AS A ZERO. Only null means "no answer" — the
      difference between "nobody has paid" and "we cannot tell you" is the
      whole point of this page, and `!value` would collapse them. */
-  function render(live){
+  function fmt(live, surface){
     if (!live) return { cls:"none", text:"—" };
-    var v = live[SURFACE];
-    if (v === null || v === undefined) {
-      return { cls:"none", text: live.basis ? "not yet" : "—" };
-    }
-    if (live.unit === "rupees")  return { cls:"", text: "₹" + Number(v).toLocaleString("en-IN") };
-    if (live.unit === "percent") return { cls:"", text: Number(v) + "%" };
-    if (live.unit === "text")    return { cls:"small", text: String(v) };
-    return { cls:"", text: Number(v).toLocaleString("en-IN") };
+    var v = live[surface || SURFACE];
+    if (v === null || v === undefined) return { cls:"none", text: live.basis ? "not yet" : "—" };
+    if (live.unit === "rupees")  return { cls:"", text:"₹" + Number(v).toLocaleString("en-IN") };
+    if (live.unit === "percent") return { cls:"", text:Number(v) + "%" };
+    if (live.unit === "text")    return { cls:"small", text:String(v) };
+    return { cls:"", text:Number(v).toLocaleString("en-IN") };
+  }
+  function metric(key){ return (DATA.metrics||[]).filter(function(x){ return x.key === key; })[0]; }
+  function series(){ return (DATA.series) || {}; }
+
+  /* ════════ charts, drawn by hand so there is nothing to load ════════ */
+
+  function donut(rows, total){
+    if (!total) return "";
+    var R = 62, r = 40, cx = 76, cy = 76, a = -Math.PI/2, out = "";
+    rows.forEach(function(row, i){
+      var frac = row.n / total;
+      /* A full circle has no arc — two identical points draw nothing, so a
+         single-slice donut would vanish. Drawn as a ring instead. */
+      if (frac >= 0.9999) {
+        out += '<circle cx="'+cx+'" cy="'+cy+'" r="'+((R+r)/2)+'" fill="none" stroke="'+PIE[i%PIE.length]
+             + '" stroke-width="'+(R-r)+'"><title>'+esc(row.label)+': '+row.n+'</title></circle>';
+        return;
+      }
+      var b = a + frac * Math.PI * 2, big = (b - a) > Math.PI ? 1 : 0;
+      var p = [
+        "M", cx + R*Math.cos(a), cy + R*Math.sin(a),
+        "A", R, R, 0, big, 1, cx + R*Math.cos(b), cy + R*Math.sin(b),
+        "L", cx + r*Math.cos(b), cy + r*Math.sin(b),
+        "A", r, r, 0, big, 0, cx + r*Math.cos(a), cy + r*Math.sin(a), "Z"
+      ].join(" ");
+      out += '<path d="'+p+'" fill="'+PIE[i%PIE.length]+'" opacity=".92">'
+           + '<title>'+esc(row.label)+': '+row.n+'</title></path>';
+      a = b;
+    });
+    return '<svg viewBox="0 0 152 152" role="img" aria-label="Breakdown">' + out
+      + '<text x="76" y="72" text-anchor="middle" font-size="26" font-weight="650" fill="#3b2f47">'+total+'</text>'
+      + '<text x="76" y="90" text-anchor="middle" font-size="10" letter-spacing="1.2" fill="#6f6480">TOTAL</text>'
+      + '</svg>';
+  }
+  function legend(rows, total){
+    return '<div class="legend">' + rows.map(function(row,i){
+      return '<span><i style="background:'+PIE[i%PIE.length]+'"></i>'+esc(row.label)+' — <b>'+row.n+'</b>'
+        + (total ? ' ('+Math.round(row.n/total*100)+'%)' : '') + '</span>';
+    }).join("") + '</div>';
   }
 
+  function area(points){
+    if (!points.length) return "";
+    var W = 420, H = 150, pad = 26;
+    var max = Math.max.apply(null, points.map(function(p){ return p.n; }));
+    if (max <= 0) max = 1;
+    var step = points.length > 1 ? (W - pad*2) / (points.length - 1) : 0;
+    var xy = points.map(function(p, i){
+      return [pad + i*step, H - pad - (p.n / max) * (H - pad*2)];
+    });
+    /* One point cannot make a line; it is drawn as a dot so a single day of
+       data does not come out as an empty chart. */
+    var line = xy.map(function(c,i){ return (i?"L":"M") + c[0].toFixed(1) + " " + c[1].toFixed(1); }).join(" ");
+    var fill = line + " L " + xy[xy.length-1][0].toFixed(1) + " " + (H-pad) + " L " + xy[0][0].toFixed(1) + " " + (H-pad) + " Z";
+    var dots = xy.map(function(c, i){
+      return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="4" fill="#7c5cff">'
+        + '<title>'+esc(dayLabel(points[i].day))+': '+points[i].n+'</title></circle>';
+    }).join("");
+    var ticks = points.map(function(p, i){
+      if (points.length > 6 && i % Math.ceil(points.length/5) !== 0 && i !== points.length-1) return "";
+      return '<text x="'+xy[i][0].toFixed(1)+'" y="'+(H-7)+'" text-anchor="middle" font-size="10" fill="#6f6480">'
+        + esc(dayLabel(p.day)) + '</text>';
+    }).join("");
+    return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Joined per day">'
+      + '<defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0%" stop-color="#7c5cff" stop-opacity=".30"/>'
+      + '<stop offset="100%" stop-color="#7c5cff" stop-opacity="0"/></linearGradient></defs>'
+      + '<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad)+'" y2="'+(H-pad)+'" stroke="#ecdfc8"/>'
+      + '<text x="'+pad+'" y="18" font-size="10" fill="#6f6480">peak '+max+'</text>'
+      + (xy.length > 1 ? '<path d="'+fill+'" fill="url(#g1)"/><path d="'+line+'" fill="none" stroke="#7c5cff" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' : "")
+      + dots + ticks + '</svg>';
+  }
+
+  function bars(rows){
+    var max = Math.max.apply(null, rows.map(function(r){ return r.n; }).concat([1]));
+    return '<svg viewBox="0 0 300 '+(rows.length*44+10)+'" role="img" aria-label="Money">'
+      + rows.map(function(r, i){
+          var w = Math.max(2, (r.n / max) * 190), y = i*44 + 8;
+          return '<text x="0" y="'+(y+13)+'" font-size="12" fill="#5a4d66">'+esc(r.label)+'</text>'
+            + '<rect x="0" y="'+(y+20)+'" width="'+w.toFixed(1)+'" height="14" rx="7" fill="'+(i?"#c98b2a":"#7c5cff")+'" opacity=".9"><title>'+esc(r.label)+': ₹'+r.n+'</title></rect>'
+            + '<text x="'+(w+8).toFixed(1)+'" y="'+(y+31)+'" font-size="12" font-weight="650" fill="#3b2f47">₹'+Number(r.n).toLocaleString("en-IN")+'</text>';
+        }).join("") + '</svg>';
+  }
+
+  function paintCharts(){
+    var s = series();
+    if (!s.joined_by_day) { $("charts").innerHTML = ""; return; }
+
+    var byDay = s.joined_by_day || [];
+    var byMode = (s.readings_by_mode || []).map(function(x){ return { label:x.mode, n:x.n }; });
+    var modeTotal = byMode.reduce(function(a,b){ return a + b.n; }, 0);
+    var fp = (s.free_vs_paid || {})[SURFACE] || { free:0, paid:0 };
+    var fpRows = [{label:"Free", n:fp.free||0}, {label:"Paid", n:fp.paid||0}];
+    var fpTotal = fpRows[0].n + fpRows[1].n;
+    var money = s.money || { revenue:0, cost:0 };
+
+    var cards = [];
+    cards.push('<div class="chart"><h3>Joining, day by day</h3>'
+      + '<p class="cap">Only the days that have somebody on them.</p>'
+      + (byDay.length ? area(byDay) : '<p class="none-yet">Nobody has joined yet, so there is no line to draw.</p>')
+      + '</div>');
+    cards.push('<div class="chart"><h3>What they asked for</h3>'
+      + '<p class="cap">Every reading given, by kind.</p>'
+      + (modeTotal ? donut(byMode, modeTotal) + legend(byMode, modeTotal)
+                   : '<p class="none-yet">No readings yet.</p>')
+      + '</div>');
+    cards.push('<div class="chart"><h3>Free and paid</h3>'
+      + '<p class="cap">On the surface selected below.</p>'
+      + (fpTotal ? donut(fpRows, fpTotal) + legend(fpRows, fpTotal)
+                 : '<p class="none-yet">Nobody on this surface yet.</p>')
+      + '</div>');
+    cards.push('<div class="chart"><h3>Money in, money out</h3>'
+      + '<p class="cap">Collected against what the readings cost us to serve.</p>'
+      + ((money.revenue || money.cost)
+          ? bars([{label:"Revenue collected", n:money.revenue||0},{label:"Model cost", n:money.cost||0}])
+          : '<p class="none-yet">Nothing collected and nothing spent on public readings yet.</p>')
+      + '</div>');
+
+    $("charts").innerHTML = '<section class="sec rise"><h2>At a glance</h2><div class="charts">'
+      + cards.join("") + '</div></section>';
+  }
+
+  /* ════════ heroes ════════ */
+  function paintHeroes(){
+    var want = [
+      ["executive.total_users_registered", "People"],
+      ["executive.total_sessions_completed", "Readings given"],
+      ["executive.revenue_to_date", "Revenue"],
+      ["executive.mau", "Monthly active"]
+    ];
+    var cards = [];
+    want.forEach(function(w){
+      var mt = metric(w[0]);
+      if (!mt || !mt.live) return;
+      cards.push('<div class="hero rise"><div class="n">' + esc(fmt(mt.live).text) + '</div>'
+        + '<div class="k">' + esc(w[1]) + '</div></div>');
+    });
+    var rv = (series().reviews) || {};
+    if (rv.count) {
+      cards.push('<div class="hero rise"><div class="n">' + (rv.avg_stars || "—") + '</div>'
+        + '<div class="k">Average stars</div><div class="x">' + rv.count + ' review(s)</div></div>');
+    }
+    if (DATA.days_of_data) {
+      cards.push('<div class="hero rise"><div class="n">' + esc(String(DATA.days_of_data)) + '</div>'
+        + '<div class="k">Days of data</div><div class="x">since the first public row</div></div>');
+    }
+    $("heroes").innerHTML = cards.join("");
+  }
+
+  function paintNews(){
+    var list = DATA.updates || [];
+    if (!list.length) { $("news").innerHTML = ""; return; }
+    $("news").innerHTML = '<section class="sec news rise"><h2>From the founder</h2>'
+      + list.map(function(u){
+          return '<div class="upd"><h3 class="serif">' + esc(u.title) + '</h3>'
+            + '<div class="at">' + esc(stamp(u.published_at)) + '</div>'
+            + '<p>' + esc(u.body) + '</p></div>';
+        }).join("") + '</section>';
+  }
+
+  /* ════════ the table ════════ */
   function paint(){
     var metrics = DATA.metrics || [];
+    if (!metrics.length) {
+      $("body").innerHTML = '<section class="sec"><h2>Nothing yet</h2>'
+        + '<p style="color:var(--ink-2);margin:0">Nothing has been shared with you so far. '
+        + 'That is a setting on our side, not a fault here — ask and it can be switched on.</p></section>';
+      return;
+    }
 
-    /* Sections in the order the server sent them — that order is his sheet's. */
     var bySection = [], last = null;
     metrics.forEach(function(mt){
       if (!last || last.name !== mt.section) { last = { name: mt.section, items: [] }; bySection.push(last); }
       last.items.push(mt);
     });
 
-    if (!metrics.length) {
-      $("body").innerHTML = '<section class="sec"><h2>Nothing yet</h2>'
-        + '<p style="color:var(--ink-muted);margin:0">Nothing has been shared with you so far. '
-        + 'That is a setting on our side, not a fault here — ask and it can be switched on.</p></section>';
-      return;
-    }
-
     $("body").innerHTML = bySection.map(function(s){
       var rows = s.items.map(function(mt){
-        var right, basis = "";
-
+        var cells = "", basis = "";
         if (mt.kind === "computed") {
-          var r = render(mt.live);
-          right = '<div class="num ' + r.cls + '">' + esc(r.text) + '</div>';
+          ["website","app","total"].forEach(function(k){
+            var r = fmt(mt.live, k);
+            cells += '<td class="v ' + r.cls + (k === SURFACE ? "" : " dim") + '">' + esc(r.text) + '</td>';
+          });
           if (mt.live && mt.live.basis && (mt.live[SURFACE] === null || mt.live[SURFACE] === undefined)) {
             basis = '<div class="basis">' + esc(mt.live.basis) + '</div>';
           }
         } else if (mt.kind === "entered") {
-          right = mt.value
-            ? '<div class="num small">' + esc(mt.value) + '</div>'
-            : '<div class="num none">—</div>';
+          cells = '<td class="v small" colspan="3">' + (mt.value ? esc(mt.value) : "—") + '</td>';
           if (mt.as_of) basis = '<div class="basis">as at ' + esc(stamp(mt.as_of)) + '</div>';
         } else {
-          right = '<div class="num none">not yet</div>';
+          cells = '<td class="v none" colspan="3">not measured yet</td>';
           basis = '<div class="basis">Nothing feeds this number yet. We would rather leave it blank than publish a figure with nothing behind it.</div>';
         }
-
-        return '<div class="m"><div class="body">'
-          + '<div class="label">' + esc(mt.label) + '</div>'
+        return '<tr><td><div class="lbl">' + esc(mt.label) + '</div>'
           + '<div class="sub">' + esc(mt.description || "") + (mt.purpose ? " · " + esc(mt.purpose) : "") + '</div>'
-          + basis
-          + '</div>' + right + '</div>';
+          + basis + '</td>' + cells + '</tr>';
       }).join("");
-      return '<section class="sec"><h2>' + esc(s.name) + '</h2>' + rows + '</section>';
+      return '<section class="sec rise"><h2>' + esc(s.name) + '</h2>'
+        + '<table class="t"><thead><tr><th>Metric</th><th>Website</th><th>App</th><th>Both</th></tr></thead>'
+        + '<tbody>' + rows + '</tbody></table></section>';
     }).join("");
+  }
+
+  /* ════════ reviews, five at a time ════════ */
+  function paintReviews(){
+    var rv = (series().reviews) || {};
+    var shown = REVIEWS.length;
+    var body;
+    if (!REV_TOTAL) {
+      body = '<p class="none-yet">No one has left a review yet. They are asked for one straight after a reading, '
+           + 'so this fills up as readings do.</p>';
+    } else {
+      body = REVIEWS.map(function(r){
+        var stars = "★★★★★".slice(0, r.stars) + "☆☆☆☆☆".slice(0, 5 - r.stars);
+        return '<div class="rev"><span class="st">' + stars + '</span>'
+          + '<span class="at">' + esc(dayLabel(r.on)) + '</span>'
+          + (r.body ? '<p>' + esc(r.body) + '</p>' : '') + '</div>';
+      }).join("");
+      if (shown < REV_TOTAL) {
+        body += '<div class="more"><button type="button" class="ghost" id="rev-more">'
+             + 'Read more — ' + (REV_TOTAL - shown) + ' left</button></div>';
+      }
+    }
+    $("reviews").innerHTML = '<section class="sec rise"><h2>What people said'
+      + (REV_TOTAL ? ' — showing ' + shown + ' of ' + REV_TOTAL : '') + '</h2>' + body + '</section>';
+
+    var b = $("rev-more");
+    if (b) b.addEventListener("click", function(){
+      b.disabled = true; b.textContent = "Loading…";
+      moreReviews().then(function(){ paintReviews(); });
+    });
+  }
+
+  function moreReviews(){
+    return rpc("askru_investor_reviews", { code: CODE, p_offset: REVIEWS.length, p_limit: REV_PAGE })
+      .then(function(d){
+        if (!d || d.ok !== true) return;
+        REV_TOTAL = d.total || 0;
+        REVIEWS = REVIEWS.concat(d.reviews || []);
+      })
+      .catch(function(){ /* a page of reviews is not worth an error banner */ });
   }
 
   Array.prototype.forEach.call($("surf").querySelectorAll("button"), function(b){
@@ -243,7 +536,7 @@
       Array.prototype.forEach.call($("surf").querySelectorAll("button"), function(x){
         x.setAttribute("aria-pressed", String(x === b));
       });
-      paint();
+      paintHeroes(); paintCharts(); paint();
     });
   });
 
@@ -253,16 +546,16 @@
       DATA = d; CODE = code;
       $("gate").hidden = true; $("panel").hidden = false;
       var inv = d.investor || {};
-      $("hello").textContent = inv.name
-        ? (inv.name + (inv.firm ? " · " + inv.firm : ""))
-        : "";
-      $("when").textContent = d.as_of ? ("as of " + stamp(d.as_of)) : "";
-      $("foot").textContent =
-        "Counted from Ask Ru's own database the moment this page asked — nothing here is stored, "
-        + "estimated or projected. " + (d.days_of_data ? (d.days_of_data + " day(s) of public data so far. ") : "")
-        + "Figures that cannot exist yet say so rather than showing a zero.";
-      paint();
-      return d;
+      $("hello").textContent = inv.name ? (inv.name + (inv.firm ? " · " + inv.firm : "")) : "";
+      $("when").textContent = d.as_of ? ("Counted " + stamp(d.as_of)) : "";
+      $("foot").innerHTML =
+        "Counted from Ask Ru’s own database the moment this page asked — nothing here is stored, estimated or projected. "
+        + (d.days_of_data ? (d.days_of_data + " day(s) of public data so far. ") : "")
+        + "Figures that cannot exist yet say so rather than showing a zero."
+        + (d.contact ? '<br>Questions: <a href="mailto:' + esc(d.contact) + '">' + esc(d.contact) + '</a>' : '');
+      paintHeroes(); paintNews(); paintCharts(); paint();
+      REVIEWS = []; REV_TOTAL = 0;
+      return moreReviews().then(function(){ paintReviews(); return d; });
     });
   }
 
@@ -279,7 +572,7 @@
            here would hand back exactly what the server refused to reveal. */
         say(m,"err", d && d.reason === "locked"
           ? "Too many wrong codes in the last hour. It opens again by itself."
-          : "That code didn't work.");
+          : "That code didn’t work.");
       } else { say(m,"",""); }
     }).catch(function(){ $("go").disabled = false; say(m,"err","Could not reach the database."); });
   });

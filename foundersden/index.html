@@ -5,147 +5,266 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Founder Den</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 <!--
   THE MAIN CONTROL.
 
-  FOUNDER, 30 Oct 2026: *"mera bhi dashboard teatalz ke alg sub domain mai
-  banana"*, and then, once GitHub Pages turned out to serve only ONE custom
-  domain per repository: *"ye nahi, ye hoga domain teatalz.com/foundersden
-  and teatalz.com/investordashboard"*. Written in his own monitoring
-  sheet: *"I want option that I get the main control with toggle to show what
-  has to be shown to each investor — not every investor should see everything"*.
+  FOUNDER, 30 Oct 2026: *"ye mera den hai, it should look attractive"*,
+  *"graphs dekha, pie charts dekha, make it interactive"*, and the one that
+  mattered most — *"color scheme to app se bilkul off set hai"*.
 
-  The 64 metrics and 11 sections come from that sheet, read out of it rather
-  than retyped (Ask Ru 0099). The switches are per investor (0100).
+  ── 🔴 THE PALETTE IS THE APP'S, READ OUT OF IT ────────────────────────
+
+  The first draft was dark plum — the investor ROOM's palette, not the app's.
+  `src/theme/colors.ts` is cream with purple accents, and the app is required
+  to stay light:
+
+    paper #faf1dd · card #fffbf0 · ink #3b2f47
+    plum  #7c5cff · gold #c98b2a · rose #ff8fb4
+
+  Every colour below is one of those. None was chosen here.
 
   ── 🔴 NOTHING IS VISIBLE UNTIL IT IS SWITCHED ON ──────────────────────
 
-  A metric an investor cannot see is not hidden by this page — it is absent
-  from the payload their page receives. The switch is the only thing that puts
-  it there, and a new investor starts with none.
+  A metric an investor cannot see is not hidden by their page — it is absent
+  from the payload their page receives. A new investor starts with none.
 
-  ── ⚠️ THREE KINDS OF METRIC, AND THE PAGE SAYS WHICH ──────────────────
+  ── 🔴 REVOKE AND DELETE ARE DIFFERENT, AND THE PAGE SAYS SO ───────────
 
-  computed — Ask Ru's own tables can answer it.
+  Revoke shuts the door and keeps the record of what they were shown; one tap
+  brings them back. Delete takes the switches with it and cannot be undone,
+  so it asks first. His reason for removing somebody — they stopped being an
+  investor — is the first one.
+
+  ── ⚠️ THREE KINDS OF METRIC ───────────────────────────────────────────
+
+  computed — the database answers it; the number sits beside the switch.
   entered  — only he knows it; there is a box here to write it in.
-  not yet  — no source exists at all. There is no crash reporter and no ad
-             spend anywhere in the database, so CAC, CPI, uptime and crash rate
-             have nothing behind them. The page says so rather than printing a
-             confident zero, because 40 boxes reading "0" tells an investor
-             something false.
+  not yet  — no source exists. Said plainly rather than printed as a zero.
 
-  ⚠️ THE CODE IS HELD IN MEMORY AND NOWHERE ELSE. Not localStorage, not the
-  URL. Closing the tab forgets it.
+  ⚠️ THE CODE IS HELD IN MEMORY AND NOWHERE ELSE.
 -->
 <style>
   :root {
-    color-scheme: dark;
-    --paper:#2a2039; --paper-alt:#342647; --card:#372c4a; --card-alt:#3d3152;
-    --ink:#efe6f6; --ink-muted:#d6cae4; --ink-faint:#b0a2c2;
-    --line:#4d4068; --line-faint:#463a5f; --plum:#b89cff;
-    --warn:#ffb4a8; --good:#9ae6b4;
+    color-scheme: light;
+    --paper:#faf1dd; --paper-alt:#f7ead0; --card:#fffbf0; --card-alt:#f5ead6;
+    --ink:#3b2f47; --ink-2:#5a4d66; --ink-3:#6f6480;
+    --line:#ecdfc8; --line-2:#f1e8d6;
+    --plum:#7c5cff; --plum-deep:#5b3fc0; --rose:#ff8fb4; --gold:#c98b2a;
+    --good:#2f9e6a; --warn:#c25b6b;
+    --r:20px;
   }
-  * { box-sizing: border-box; }
-  html, body { margin:0; padding:0; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
   body {
-    background: linear-gradient(170deg, var(--paper), var(--paper-alt) 60%, var(--paper));
-    background-attachment: fixed; color: var(--ink);
-    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    min-height: 100vh; padding: 24px 16px 64px;
+    background:linear-gradient(168deg, var(--paper), var(--paper-alt) 58%, var(--paper));
+    background-attachment:fixed; color:var(--ink);
+    font:15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height:100vh; padding:30px 18px 84px; -webkit-font-smoothing:antialiased;
+    position:relative; overflow-x:hidden;
   }
-  .wrap { max-width: 980px; margin: 0 auto; }
+  .glow { position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+  .glow i { position:absolute; display:block; border-radius:50%; filter:blur(60px); opacity:.5; }
+  .glow i:nth-child(1){ width:46vw; height:46vw; left:-10vw; top:-12vw;
+    background:radial-gradient(circle, rgba(124,92,255,.30), transparent 70%); animation:drift1 26s ease-in-out infinite; }
+  .glow i:nth-child(2){ width:38vw; height:38vw; right:-8vw; top:6vh;
+    background:radial-gradient(circle, rgba(255,143,180,.26), transparent 70%); animation:drift2 32s ease-in-out infinite; }
+  .glow i:nth-child(3){ width:42vw; height:42vw; left:28vw; bottom:-16vw;
+    background:radial-gradient(circle, rgba(201,139,42,.20), transparent 70%); animation:drift3 38s ease-in-out infinite; }
+  @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(6vw,4vh)} }
+  @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-5vw,6vh)} }
+  @keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(4vw,-5vh)} }
+  @media (prefers-reduced-motion: reduce) { .glow i { animation:none } .rise { animation:none !important; opacity:1 !important } }
 
-  button, input, select, textarea {
-    font: inherit; color: var(--ink); background: var(--card-alt);
-    border: 1px solid var(--line); border-radius: 10px;
-  }
-  button { cursor: pointer; min-height: 40px; padding: 0 16px; }
-  button.primary { background: var(--plum); color:#241a33; border-color: transparent; font-weight:600; }
-  button[disabled] { opacity:.55; cursor:default; }
-  input, textarea, select { padding: 9px 12px; width: 100%; background: var(--paper); }
+  .wrap { max-width:1080px; margin:0 auto; position:relative; }
+  .serif { font-family:"Playfair Display", Georgia, serif; }
+  .rise { animation:rise .5s cubic-bezier(.2,.7,.3,1) both; }
+  @keyframes rise { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
 
-  .gate { max-width:380px; margin:8vh auto 0; background:var(--card); border:1px solid var(--line);
-          border-radius:18px; padding:28px 24px; text-align:center; }
-  .gate h1 { font-size:20px; margin:0 0 6px; }
-  .gate p { color:var(--ink-muted); margin:0 0 18px; font-size:14px; }
-  .gate input { margin-bottom:12px; text-align:center; }
-  .msg { margin:12px 0 0; font-size:14px; min-height:20px; }
-  .msg.err { color: var(--warn); } .msg.ok { color: var(--good); }
+  button,input,textarea { font:inherit; color:var(--ink); background:var(--card);
+                          border:1px solid var(--line); border-radius:13px; }
+  button { cursor:pointer; min-height:41px; padding:0 17px; transition:transform .08s, box-shadow .18s; }
+  button:hover:not([disabled]) { box-shadow:0 5px 16px -8px rgba(59,47,71,.45); }
+  button:active:not([disabled]) { transform:translateY(1px); }
+  button.primary { background:linear-gradient(135deg, var(--plum), var(--plum-deep));
+                   color:#fff; border-color:transparent; font-weight:650; }
+  button.ghost { background:transparent; color:var(--ink-2); }
+  button.danger { background:transparent; color:var(--warn); border-color:rgba(194,91,107,.35); }
+  button[disabled] { opacity:.45; cursor:default; }
+  input,textarea { padding:12px 14px; width:100%; background:#fff; }
+  input:focus,textarea:focus { outline:2px solid var(--plum); outline-offset:1px; }
+  textarea { resize:vertical; min-height:100px; line-height:1.6; }
 
-  header.top { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
-  header.top h1 { font-size:22px; margin:0; font-weight:600; letter-spacing:-.01em; }
+  .gate { max-width:400px; margin:12vh auto 0; background:rgba(255,251,240,.9);
+          border:1px solid var(--line); border-radius:26px; padding:38px 32px; text-align:center;
+          box-shadow:0 28px 70px -34px rgba(59,47,71,.5); backdrop-filter:blur(8px); }
+  .gate .mark, header.top .mark { background:linear-gradient(135deg, var(--plum), var(--plum-deep));
+                                  color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .gate .mark { width:48px; height:48px; margin:0 auto 15px; border-radius:15px; font-size:20px; }
+  .gate h1 { font-size:26px; margin:0 0 4px; font-weight:600; }
+  .gate p { color:var(--ink-3); margin:0 0 22px; font-size:13.5px; }
+  .gate input { margin-bottom:12px; text-align:center; letter-spacing:.16em; }
+  .gate button { width:100%; }
+  .msg { margin:12px 0 0; font-size:13.5px; min-height:20px; }
+  .msg.err { color:var(--warn); } .msg.ok { color:var(--good); }
+
+  header.top { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 4px; }
+  header.top .mark { width:42px; height:42px; border-radius:13px; flex:none; }
+  header.top h1 { font-size:28px; margin:0; font-weight:600; letter-spacing:-.015em; }
   header.top .sp { flex:1 1 auto; }
-  header.top .when { color:var(--ink-faint); font-size:13px; }
+  .when { color:var(--ink-3); font-size:12.5px; margin:0 0 24px; }
 
-  section.sec { background:var(--card); border:1px solid var(--line); border-radius:16px;
-                padding:18px 20px; margin:0 0 14px; }
-  section.sec > h2 { font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
-                     color:var(--ink-faint); margin:0 0 12px; font-weight:600; }
+  .heroes { display:grid; gap:13px; grid-template-columns:repeat(auto-fit,minmax(176px,1fr)); margin:0 0 20px; }
+  .hero { background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+          padding:17px 19px; box-shadow:0 10px 26px -22px rgba(59,47,71,.6); }
+  .hero .n { font-size:33px; font-weight:650; letter-spacing:-.03em; font-variant-numeric:tabular-nums; line-height:1.08; }
+  .hero .k { font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); margin-top:7px; font-weight:650; }
+  .hero .x { font-size:12px; color:var(--ink-3); margin-top:3px; }
 
-  /* ---- who am I switching for ---- */
-  .who { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .who button { min-height:36px; padding:0 14px; border-radius:999px; font-size:14px; }
-  .who button.on { background:var(--plum); color:#241a33; border-color:transparent; font-weight:600; }
-  .who .add { border-style:dashed; color:var(--ink-faint); }
+  section.sec { background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+                padding:21px 23px; margin:0 0 16px; box-shadow:0 12px 30px -26px rgba(59,47,71,.55); }
+  section.sec > h2 { font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+                     color:var(--ink-3); margin:0 0 15px; font-weight:700; }
+  .sec-note { color:var(--ink-3); font-size:12.5px; margin:11px 0 0; }
 
-  /* ---- a metric row ---- */
-  .m { display:flex; gap:12px; align-items:flex-start; padding:10px 0;
-       border-bottom:1px solid var(--line-faint); }
+  .charts { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); }
+  .chart h3 { margin:0 0 2px; font-size:15px; font-weight:600; }
+  .chart .cap { font-size:12.5px; color:var(--ink-3); margin:0 0 12px; }
+  .chart svg { display:block; width:100%; height:auto; overflow:visible; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--ink-2); }
+  .legend span { display:inline-flex; align-items:center; gap:6px; }
+  .legend i { width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .none-yet { color:var(--ink-3); font-size:13.5px; font-style:italic; padding:14px 0; }
+
+  .invs { display:grid; gap:11px; grid-template-columns:repeat(auto-fit,minmax(262px,1fr)); }
+  .inv { border:1px solid var(--line); border-radius:16px; padding:15px 16px; background:#fff;
+         cursor:pointer; transition:border-color .15s, box-shadow .18s; }
+  .inv:hover { border-color:var(--plum); box-shadow:0 8px 22px -16px rgba(124,92,255,.7); }
+  .inv.on { border-color:var(--plum); box-shadow:0 0 0 2px rgba(124,92,255,.16); }
+  .inv.off { opacity:.62; }
+  .inv .row1 { display:flex; align-items:center; gap:11px; }
+  .inv .av { width:36px; height:36px; border-radius:11px; flex:none; font-size:13px; font-weight:700;
+             background:linear-gradient(135deg, var(--plum), var(--plum-deep)); color:#fff;
+             display:flex; align-items:center; justify-content:center; }
+  .inv .nm { font-weight:600; }
+  .inv .fm { font-size:12.5px; color:var(--ink-3); }
+  .inv .meta { font-size:12px; color:var(--ink-3); margin-top:10px; }
+  .pill { display:inline-block; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+          padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--ink-3); }
+  .pill.live { border-color:rgba(47,158,106,.45); color:var(--good); }
+  .pill.off  { border-color:rgba(194,91,107,.4); color:var(--warn); }
+  .inv .acts { display:flex; gap:7px; margin-top:12px; flex-wrap:wrap; }
+  .inv .acts button { min-height:33px; padding:0 12px; font-size:12.5px; border-radius:10px; }
+  .add-inv { border:1px dashed var(--line); border-radius:16px; padding:15px; color:var(--ink-3);
+             background:transparent; display:flex; align-items:center; justify-content:center; min-height:100px; }
+
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .row > div { flex:1 1 160px; }
+  .row label { display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+               color:var(--ink-3); margin-bottom:5px; font-weight:650; }
+
+  .upd { border-top:1px solid var(--line-2); padding:15px 0 0; margin-top:15px; }
+  .upd:first-of-type { border-top:0; padding-top:0; margin-top:0; }
+  .upd h3 { margin:0; font-size:17px; font-weight:600; }
+  .upd .at { font-size:12px; color:var(--ink-3); margin:3px 0 7px; }
+  .upd p { margin:0; color:var(--ink-2); white-space:pre-wrap; }
+  .upd .x { margin-top:9px; }
+
+  .m { display:flex; gap:15px; align-items:flex-start; padding:14px 0; border-bottom:1px solid var(--line-2); }
   .m:last-child { border-bottom:none; }
   .m .body { flex:1 1 auto; min-width:0; }
   .m .label { font-weight:600; }
-  .m .sub { font-size:12.5px; color:var(--ink-faint); margin-top:2px; }
-  .m .val { font-size:13.5px; color:var(--ink-muted); margin-top:6px; }
-  .m .val input { max-width:320px; display:inline-block; width:auto; }
+  .m .sub { font-size:12.5px; color:var(--ink-3); margin-top:2px; }
+  .m .val { font-size:14px; color:var(--ink-2); margin-top:8px; }
+  .m .val b { color:var(--ink); font-variant-numeric:tabular-nums; }
+  .m .val input { max-width:300px; display:inline-block; width:auto; }
+  .m .val button { min-height:35px; padding:0 13px; font-size:13px; }
 
-  .tag { display:inline-block; font-size:11px; letter-spacing:.04em; text-transform:uppercase;
-         padding:2px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-faint);
-         margin-left:8px; vertical-align:1px; }
-  .tag.notyet { border-color:var(--warn); color:var(--warn); }
-  .tag.entered { border-color:var(--plum); color:var(--plum); }
+  .tag { display:inline-block; font-size:10px; letter-spacing:.05em; text-transform:uppercase;
+         padding:2px 7px; border-radius:999px; border:1px solid var(--line); color:var(--ink-3);
+         margin-left:8px; vertical-align:2px; }
+  .tag.notyet { border-color:rgba(194,91,107,.35); color:var(--warn); }
+  .tag.entered { border-color:rgba(201,139,42,.5); color:var(--gold); }
 
   /* The switch. 44px of target, because this is the control he presses most. */
-  .sw { flex:none; width:52px; height:30px; border-radius:999px; border:1px solid var(--line);
-        background:var(--paper); position:relative; padding:0; min-height:30px; cursor:pointer; }
-  .sw::after { content:""; position:absolute; top:3px; left:3px; width:22px; height:22px;
-               border-radius:50%; background:var(--ink-faint); transition:left .13s, background .13s; }
-  .sw[aria-pressed="true"] { background:var(--plum); border-color:transparent; }
-  .sw[aria-pressed="true"]::after { left:25px; background:#241a33; }
-  .sw[disabled] { opacity:.45; cursor:default; }
+  .sw { flex:none; width:54px; height:31px; border-radius:999px; border:1px solid var(--line);
+        background:var(--card-alt); position:relative; padding:0; min-height:31px; cursor:pointer; }
+  .sw::after { content:""; position:absolute; top:3px; left:3px; width:23px; height:23px;
+               border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(59,47,71,.3);
+               transition:left .14s, background .14s; }
+  .sw[aria-pressed="true"] { background:linear-gradient(135deg, var(--plum), var(--plum-deep)); border-color:transparent; }
+  .sw[aria-pressed="true"]::after { left:27px; }
+  .sw[disabled] { opacity:.4; cursor:default; }
 
-  .note { color:var(--ink-faint); font-size:12.5px; margin:10px 0 0; }
-  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
-  .row > div { flex:1 1 150px; }
-  .row label { display:block; font-size:12px; color:var(--ink-faint); margin-bottom:4px; }
+  /* ── seeing it through their eyes ────────────────────────────────────
+     🔴 NOT A MOCK-UP. What this draws is the payload `askru_founder_preview`
+     returns, which is the investor's own payload built by the same code path
+     — so it cannot drift away from what they actually get. */
+  .scrim { position:fixed; inset:0; background:rgba(59,47,71,.45); backdrop-filter:blur(3px);
+           z-index:50; display:flex; align-items:flex-start; justify-content:center;
+           padding:28px 16px; overflow:auto; animation:fade .22s ease both; }
+  @keyframes fade { from{opacity:0} to{opacity:1} }
+  .sheet { background:linear-gradient(168deg, var(--paper), var(--paper-alt) 60%, var(--paper));
+           border:1px solid var(--line); border-radius:24px; max-width:900px; width:100%;
+           padding:24px 26px 30px; box-shadow:0 40px 90px -40px rgba(59,47,71,.75);
+           animation:rise .35s cubic-bezier(.2,.7,.3,1) both; }
+  .sheet .shead { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0 0 4px; }
+  .sheet .shead h2 { font-size:22px; margin:0; font-weight:600; letter-spacing:-.01em; }
+  .sheet .shead .sp { flex:1 1 auto; }
+  .sheet .note { color:var(--ink-3); font-size:12.5px; margin:0 0 18px; }
+  .sheet table.t { width:100%; border-collapse:collapse; }
+  .sheet table.t th { text-align:right; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+                      color:var(--ink-3); font-weight:700; padding:0 0 9px; border-bottom:1px solid var(--line); }
+  .sheet table.t th:first-child { text-align:left; }
+  .sheet table.t td { padding:12px 0; border-bottom:1px solid var(--line-2); vertical-align:top;
+                      text-align:right; font-variant-numeric:tabular-nums; }
+  .sheet table.t td:first-child { text-align:left; }
+  .sheet table.t td.v { font-size:18px; font-weight:650; width:108px; }
+  .sheet table.t td.v.small { font-size:13.5px; font-weight:500; color:var(--ink-2); width:auto; }
+  .sheet table.t td.v.none { font-size:12.5px; font-weight:500; color:var(--ink-3); }
 
-  @media (max-width:560px){ body{padding:16px 14px 48px} section.sec{padding:14px} }
+  @media (max-width:620px){
+    body{padding:18px 14px 56px}
+    section.sec{padding:17px 16px}
+    header.top h1{font-size:24px}
+    .hero .n{font-size:28px}
+    .sheet { padding:18px 16px 24px }
+  }
 </style>
 </head>
 <body>
+<div class="glow" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="wrap">
 
-  <div class="gate" id="gate">
-    <h1>Founder Den</h1>
+  <div class="gate rise" id="gate">
+    <div class="mark">R</div>
+    <h1 class="serif">Founder Den</h1>
     <p>Your code — not the investors’.</p>
     <form id="f-gate" autocomplete="off">
-      <input id="code" type="password" placeholder="Code" autocomplete="off" autocapitalize="off" spellcheck="false" required />
+      <input id="code" type="password" placeholder="••••••••" autocomplete="off" autocapitalize="off" spellcheck="false" required />
       <button class="primary" type="submit" id="go">Open</button>
     </form>
     <p class="msg" id="gatemsg" role="status" aria-live="polite"></p>
   </div>
 
   <div id="panel" hidden>
-    <header class="top">
-      <h1>Founder Den</h1>
-      <span class="when" id="when"></span>
+    <header class="top rise">
+      <div class="mark">R</div>
+      <h1 class="serif">Founder Den</h1>
       <span class="sp"></span>
-      <button type="button" id="refresh">Refresh</button>
+      <button type="button" class="ghost" id="refresh">Refresh</button>
     </header>
+    <p class="when" id="when"></p>
 
-    <section class="sec">
-      <h2>Switching for</h2>
-      <div class="who" id="who"></div>
-      <p class="note" id="whonote"></p>
+    <div class="heroes" id="heroes"></div>
+    <div id="charts"></div>
+
+    <section class="sec rise">
+      <h2>Your investors</h2>
+      <div class="invs" id="who"></div>
+      <p class="sec-note" id="whonote"></p>
     </section>
 
     <div id="investor-form" hidden>
@@ -156,22 +275,43 @@
           <div><label for="i-firm">Firm</label><input id="i-firm" /></div>
           <div><label for="i-email">Email</label><input id="i-email" type="email" /></div>
         </div>
-        <div class="row" style="margin-top:10px">
+        <div class="row" style="margin-top:11px">
           <div><label for="i-handle">Handle (a–z, 0–9)</label><input id="i-handle" autocapitalize="off" spellcheck="false" /></div>
           <div><label for="i-secret">Their secret</label><input id="i-secret" type="password" autocomplete="new-password" /></div>
           <div style="flex:0 0 auto"><button class="primary" type="button" id="i-save">Save</button></div>
-          <div style="flex:0 0 auto"><button type="button" id="i-cancel">Cancel</button></div>
+          <div style="flex:0 0 auto"><button class="ghost" type="button" id="i-cancel">Cancel</button></div>
         </div>
         <!-- 🔴 THE CODE IS BUILT HERE AND STORED NOWHERE. The database keeps a
              bcrypt of the secret; this sentence is the only place the whole
              code ever exists, and it is gone when the page is closed. -->
-        <p class="note" id="i-note">Their code will be <b>handle-secret</b>. Write it down now — it is hashed on save and cannot be read back.</p>
+        <p class="sec-note" id="i-note">Their code will be <b>handle-secret</b>. Write it down now — it is hashed on save and cannot be read back.</p>
         <p class="msg" id="i-msg" role="status" aria-live="polite"></p>
       </section>
     </div>
 
+    <section class="sec rise">
+      <h2>Write an update</h2>
+      <div class="row">
+        <div style="flex:1 1 100%"><label for="u-title">Heading</label><input id="u-title" placeholder="What happened" /></div>
+      </div>
+      <div class="row" style="margin-top:11px">
+        <div style="flex:1 1 100%"><label for="u-body">The update</label><textarea id="u-body" placeholder="Plain words. Every investor who can sign in will see this."></textarea></div>
+      </div>
+      <div class="row" style="margin-top:11px">
+        <div style="flex:0 0 auto"><button class="primary" type="button" id="u-post">Post to all investors</button></div>
+      </div>
+      <!-- 🔴 POSTING PUBLISHES. IT DOES NOT SEND MAIL. Putting a round of
+           email out under his name is an act he should take deliberately,
+           not something a page does because a row was written. -->
+      <p class="sec-note">This appears on every investor’s dashboard straight away. It does <b>not</b> email anybody.</p>
+      <p class="msg" id="u-msg" role="status" aria-live="polite"></p>
+      <div id="updates"></div>
+    </section>
+
     <div id="body"></div>
   </div>
+
+  <div id="preview"></div>
 </div>
 <script>
 (function () {
@@ -180,14 +320,23 @@
 
   /* 🔴 IN MEMORY, NOWHERE ELSE. */
   var CODE = null, DATA = null, PICKED = null, EDITING = null;
+  var PIE = ["#7c5cff", "#ff8fb4", "#c98b2a", "#5b3fc0", "#2f9e6a", "#4b63b0"];
 
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function say(el, cls, text){ el.className = "msg" + (cls?" "+cls:""); el.textContent = text; }
   function stamp(d){ try { return (d||new Date()).toLocaleString("en-IN",
     { timeZone:"Asia/Kolkata", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) + " IST"; }
     catch(e){ return ""; } }
-  function say(el, cls, text){ el.className = "msg" + (cls?" "+cls:""); el.textContent = text; }
+  function dayLabel(d){
+    try { return new Date(d + "T00:00:00").toLocaleDateString("en-IN", { day:"numeric", month:"short" }); }
+    catch(e){ return d; }
+  }
+  function initials(s){
+    var p = String(s||"?").trim().split(/\s+/);
+    return ((p[0]||"?")[0] + (p[1] ? p[1][0] : "")).toUpperCase();
+  }
 
   function rpc(fn, body){
     return fetch(URL_ + "/rest/v1/rpc/" + fn, {
@@ -197,19 +346,176 @@
     }).then(function(r){ return r.ok ? r.json() : null; });
   }
 
-  /* ---- who am I switching for ---- */
+  /* 🔴 A ZERO IS A ZERO. Only null means "no answer"; `!v` would collapse
+     "nobody has paid" into "we cannot tell you", which is the one distinction
+     this whole catalogue exists to keep. */
+  function one(live, k){
+    var v = live[k];
+    if (v === null || v === undefined) return null;
+    if (live.unit === "rupees")  return "₹" + Number(v).toLocaleString("en-IN");
+    if (live.unit === "percent") return Number(v) + "%";
+    if (live.unit === "text")    return String(v);
+    return Number(v).toLocaleString("en-IN");
+  }
+  function liveLine(live){
+    if (!live) return "—";
+    var w = one(live,"website"), a = one(live,"app"), t = one(live,"total");
+    if (w === null && a === null && t === null) return live.basis ? esc(live.basis) : "—";
+    var parts = [];
+    if (w !== null) parts.push("website <b>" + esc(w) + "</b>");
+    if (a !== null) parts.push("app <b>" + esc(a) + "</b>");
+    if (t !== null && w !== t) parts.push("both <b>" + esc(t) + "</b>");
+    var line = parts.join(" &nbsp;·&nbsp; ");
+    if (live.basis) line += '<div class="sub" style="margin-top:5px">' + esc(live.basis) + "</div>";
+    return line;
+  }
+  function metric(key){ return (DATA.metrics||[]).filter(function(x){ return x.key === key; })[0]; }
+  function series(){ return (DATA.series) || {}; }
+
+  /* ════════ charts, drawn by hand so there is nothing to load ════════ */
+  function donut(rows, total){
+    if (!total) return "";
+    var R = 62, r = 40, cx = 76, cy = 76, a = -Math.PI/2, out = "";
+    rows.forEach(function(row, i){
+      var frac = row.n / total;
+      /* A full circle has no arc — a single-slice donut would vanish, so it
+         is drawn as a ring. */
+      if (frac >= 0.9999) {
+        out += '<circle cx="'+cx+'" cy="'+cy+'" r="'+((R+r)/2)+'" fill="none" stroke="'+PIE[i%PIE.length]
+             + '" stroke-width="'+(R-r)+'"><title>'+esc(row.label)+': '+row.n+'</title></circle>';
+        return;
+      }
+      var b = a + frac * Math.PI * 2, big = (b - a) > Math.PI ? 1 : 0;
+      var p = ["M", cx + R*Math.cos(a), cy + R*Math.sin(a),
+               "A", R, R, 0, big, 1, cx + R*Math.cos(b), cy + R*Math.sin(b),
+               "L", cx + r*Math.cos(b), cy + r*Math.sin(b),
+               "A", r, r, 0, big, 0, cx + r*Math.cos(a), cy + r*Math.sin(a), "Z"].join(" ");
+      out += '<path d="'+p+'" fill="'+PIE[i%PIE.length]+'" opacity=".92"><title>'+esc(row.label)+': '+row.n+'</title></path>';
+      a = b;
+    });
+    return '<svg viewBox="0 0 152 152" role="img" aria-label="Breakdown">' + out
+      + '<text x="76" y="72" text-anchor="middle" font-size="26" font-weight="650" fill="#3b2f47">'+total+'</text>'
+      + '<text x="76" y="90" text-anchor="middle" font-size="10" letter-spacing="1.2" fill="#6f6480">TOTAL</text></svg>';
+  }
+  function legend(rows, total){
+    return '<div class="legend">' + rows.map(function(row,i){
+      return '<span><i style="background:'+PIE[i%PIE.length]+'"></i>'+esc(row.label)+' — <b>'+row.n+'</b>'
+        + (total ? ' ('+Math.round(row.n/total*100)+'%)' : '') + '</span>';
+    }).join("") + '</div>';
+  }
+  function area(points){
+    if (!points.length) return "";
+    var W = 420, H = 150, pad = 26;
+    var max = Math.max.apply(null, points.map(function(p){ return p.n; }));
+    if (max <= 0) max = 1;
+    var step = points.length > 1 ? (W - pad*2) / (points.length - 1) : 0;
+    var xy = points.map(function(p, i){ return [pad + i*step, H - pad - (p.n / max) * (H - pad*2)]; });
+    var line = xy.map(function(c,i){ return (i?"L":"M") + c[0].toFixed(1) + " " + c[1].toFixed(1); }).join(" ");
+    var fill = line + " L " + xy[xy.length-1][0].toFixed(1) + " " + (H-pad) + " L " + xy[0][0].toFixed(1) + " " + (H-pad) + " Z";
+    var dots = xy.map(function(c, i){
+      return '<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="4" fill="#7c5cff">'
+        + '<title>'+esc(dayLabel(points[i].day))+': '+points[i].n+'</title></circle>';
+    }).join("");
+    var ticks = points.map(function(p, i){
+      if (points.length > 6 && i % Math.ceil(points.length/5) !== 0 && i !== points.length-1) return "";
+      return '<text x="'+xy[i][0].toFixed(1)+'" y="'+(H-7)+'" text-anchor="middle" font-size="10" fill="#6f6480">'
+        + esc(dayLabel(p.day)) + '</text>';
+    }).join("");
+    return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Joined per day">'
+      + '<defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0%" stop-color="#7c5cff" stop-opacity=".30"/>'
+      + '<stop offset="100%" stop-color="#7c5cff" stop-opacity="0"/></linearGradient></defs>'
+      + '<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad)+'" y2="'+(H-pad)+'" stroke="#ecdfc8"/>'
+      + '<text x="'+pad+'" y="18" font-size="10" fill="#6f6480">peak '+max+'</text>'
+      + (xy.length > 1 ? '<path d="'+fill+'" fill="url(#gf)"/><path d="'+line+'" fill="none" stroke="#7c5cff" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' : "")
+      + dots + ticks + '</svg>';
+  }
+  function bars(rows){
+    var max = Math.max.apply(null, rows.map(function(r){ return r.n; }).concat([1]));
+    return '<svg viewBox="0 0 300 '+(rows.length*44+10)+'" role="img" aria-label="Money">'
+      + rows.map(function(r, i){
+          var w = Math.max(2, (r.n / max) * 190), y = i*44 + 8;
+          return '<text x="0" y="'+(y+13)+'" font-size="12" fill="#5a4d66">'+esc(r.label)+'</text>'
+            + '<rect x="0" y="'+(y+20)+'" width="'+w.toFixed(1)+'" height="14" rx="7" fill="'+(i?"#c98b2a":"#7c5cff")+'" opacity=".9"><title>'+esc(r.label)+': ₹'+r.n+'</title></rect>'
+            + '<text x="'+(w+8).toFixed(1)+'" y="'+(y+31)+'" font-size="12" font-weight="650" fill="#3b2f47">₹'+Number(r.n).toLocaleString("en-IN")+'</text>';
+        }).join("") + '</svg>';
+  }
+
+  function paintCharts(){
+    var s = series();
+    if (!s.joined_by_day) { $("charts").innerHTML = ""; return; }
+    var byDay = s.joined_by_day || [];
+    var byMode = (s.readings_by_mode || []).map(function(x){ return { label:x.mode, n:x.n }; });
+    var modeTotal = byMode.reduce(function(a,b){ return a + b.n; }, 0);
+    var fp = (s.free_vs_paid || {}).total || { free:0, paid:0 };
+    var fpRows = [{label:"Free", n:fp.free||0}, {label:"Paid", n:fp.paid||0}];
+    var fpTotal = fpRows[0].n + fpRows[1].n;
+    var money = s.money || { revenue:0, cost:0 };
+
+    $("charts").innerHTML = '<section class="sec rise"><h2>At a glance</h2><div class="charts">'
+      + '<div class="chart"><h3>Joining, day by day</h3><p class="cap">Only the days that have somebody on them.</p>'
+      + (byDay.length ? area(byDay) : '<p class="none-yet">Nobody has joined yet, so there is no line to draw.</p>') + '</div>'
+      + '<div class="chart"><h3>What they asked for</h3><p class="cap">Every reading given, by kind.</p>'
+      + (modeTotal ? donut(byMode, modeTotal) + legend(byMode, modeTotal) : '<p class="none-yet">No readings yet.</p>') + '</div>'
+      + '<div class="chart"><h3>Free and paid</h3><p class="cap">Everybody, both surfaces.</p>'
+      + (fpTotal ? donut(fpRows, fpTotal) + legend(fpRows, fpTotal) : '<p class="none-yet">Nobody yet.</p>') + '</div>'
+      + '<div class="chart"><h3>Money in, money out</h3><p class="cap">Collected against what the readings cost us to serve.</p>'
+      + ((money.revenue || money.cost) ? bars([{label:"Revenue collected", n:money.revenue||0},{label:"Model cost", n:money.cost||0}])
+                                       : '<p class="none-yet">Nothing collected and nothing spent on public readings yet.</p>') + '</div>'
+      + '</div></section>';
+  }
+
+  function paintHeroes(){
+    function val(key){ var mt = metric(key); return (mt && mt.live) ? one(mt.live, "total") : null; }
+    var rv = (series().reviews) || {};
+    var cards = [
+      { n: val("executive.total_users_registered"), k:"People", x:"website + app" },
+      { n: val("executive.total_sessions_completed"), k:"Readings given", x:"" },
+      { n: val("executive.revenue_to_date"), k:"Revenue", x:"collected, live mode" },
+      { n: rv.count ? String(rv.avg_stars || "—") : null, k:"Average stars", x: rv.count ? (rv.count + " review(s)") : "" },
+      { n: DATA.days_of_data ? String(DATA.days_of_data) : null, k:"Days of data", x:"since the first public row" }
+    ];
+    $("heroes").innerHTML = cards.filter(function(c){ return c.n !== null; }).map(function(c){
+      return '<div class="hero rise"><div class="n">' + esc(c.n) + '</div>'
+        + '<div class="k">' + esc(c.k) + '</div>'
+        + (c.x ? '<div class="x">' + esc(c.x) + '</div>' : '') + '</div>';
+    }).join("");
+  }
+
+  /* ════════ investors ════════ */
+  function picked(){ return (DATA.investors||[]).filter(function(i){ return i.id === PICKED; })[0] || null; }
+
   function paintWho(){
     var box = $("who"); box.innerHTML = "";
     (DATA.investors||[]).forEach(function(inv){
-      var b = document.createElement("button");
-      b.type = "button";
-      b.textContent = inv.name + (inv.firm ? " · " + inv.firm : "");
-      if (PICKED === inv.id) b.className = "on";
-      b.addEventListener("click", function(){ PICKED = inv.id; paintWho(); paintMetrics(); });
-      box.appendChild(b);
+      var d = document.createElement("div");
+      d.className = "inv" + (PICKED === inv.id ? " on" : "") + (inv.active ? "" : " off");
+      d.innerHTML =
+        '<div class="row1"><div class="av">' + esc(initials(inv.name)) + '</div>'
+        + '<div><div class="nm">' + esc(inv.name) + '</div>'
+        + '<div class="fm">' + esc(inv.firm || "—") + '</div></div></div>'
+        + '<div class="meta">'
+        + '<span class="pill ' + (inv.active ? "live" : "off") + '">' + (inv.active ? "Active" : "Revoked") + '</span>'
+        + ' &nbsp; ' + (inv.on||[]).length + ' of ' + (DATA.metrics||[]).length + ' shown'
+        + (inv.has_code ? "" : ' &nbsp; <span class="pill off">no code</span>')
+        + (inv.last_seen_at ? '<br>last opened ' + esc(stamp(new Date(inv.last_seen_at))) : '<br>never opened')
+        + '</div>'
+        + '<div class="acts">'
+        + '<button type="button" class="primary" data-prev="' + inv.id + '">See their view</button>'
+        + '<button type="button" class="ghost" data-edit="' + inv.id + '">Edit</button>'
+        + '<button type="button" class="ghost" data-active="' + inv.id + '" data-on="' + (inv.active ? "0" : "1") + '">'
+        + (inv.active ? "Revoke" : "Restore") + '</button>'
+        + '<button type="button" class="danger" data-del="' + inv.id + '">Delete</button>'
+        + '</div>';
+      d.addEventListener("click", function(e){
+        if (e.target.closest("button")) return;
+        PICKED = inv.id; paintWho(); paintMetrics();
+      });
+      box.appendChild(d);
     });
+
     var add = document.createElement("button");
-    add.type = "button"; add.className = "add"; add.textContent = "+ investor";
+    add.type = "button"; add.className = "add-inv"; add.textContent = "+  add an investor";
     add.addEventListener("click", function(){ openInvestor(null); });
     box.appendChild(add);
 
@@ -217,21 +523,129 @@
     if (!(DATA.investors||[]).length) {
       $("whonote").textContent = "No investors yet. Add one, then switch on what they may see.";
     } else if (!inv) {
-      $("whonote").textContent = "Pick an investor to switch metrics on and off for them.";
+      $("whonote").textContent = "Tap an investor to switch metrics on and off for them.";
     } else {
-      var n = (inv.on||[]).length;
-      $("whonote").innerHTML = esc(inv.name) + " can see <b>" + n + "</b> of " + (DATA.metrics||[]).length
-        + " metrics." + (inv.has_code ? "" : " <b>No code set</b> — they cannot sign in yet.")
-        + ' <a href="#" id="editinv" style="color:var(--plum)">Edit</a>';
-      var e = $("editinv");
-      if (e) e.addEventListener("click", function(ev){ ev.preventDefault(); openInvestor(inv); });
+      $("whonote").innerHTML = "Switching for <b>" + esc(inv.name) + "</b>. "
+        + "Revoke shuts their door and keeps these switches; delete takes both and cannot be undone.";
     }
+
+    Array.prototype.forEach.call(box.querySelectorAll("[data-prev]"), function(b){
+      b.addEventListener("click", function(){
+        var was = b.textContent; b.disabled = true; b.textContent = "…";
+        rpc("askru_founder_preview", { code: CODE, p_investor: b.dataset.prev })
+          .then(function(d){
+            b.disabled = false; b.textContent = was;
+            if (d && d.ok) showPreview(d);
+          })
+          .catch(function(){ b.disabled = false; b.textContent = was; });
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-edit]"), function(b){
+      b.addEventListener("click", function(){
+        openInvestor((DATA.investors||[]).filter(function(i){ return i.id === b.dataset.edit; })[0]);
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-active]"), function(b){
+      b.addEventListener("click", function(){
+        b.disabled = true;
+        rpc("askru_founder_investor_active", { code: CODE, p_id: b.dataset.active, p_on: b.dataset.on === "1" })
+          .then(function(d){ if (d && d.ok) load(CODE); else b.disabled = false; })
+          .catch(function(){ b.disabled = false; });
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-del]"), function(b){
+      b.addEventListener("click", function(){
+        var who = (DATA.investors||[]).filter(function(i){ return i.id === b.dataset.del; })[0] || {};
+        /* 🔴 ASKS, BECAUSE IT CANNOT BE UNDONE — and names them, so a mis-tap
+           on a crowded grid is caught by reading rather than by hoping. */
+        if (!window.confirm("Delete " + (who.name || "this investor") + " for good?\n\n"
+          + "Their switches go too, and this cannot be undone.\n"
+          + "If they have simply stopped being an investor, use Revoke instead.")) return;
+        b.disabled = true;
+        rpc("askru_founder_investor_delete", { code: CODE, p_id: b.dataset.del })
+          .then(function(d){ if (d && d.ok) { if (PICKED === b.dataset.del) PICKED = null; load(CODE); } else b.disabled = false; })
+          .catch(function(){ b.disabled = false; });
+      });
+    });
   }
-  function picked(){ return (DATA.investors||[]).filter(function(i){ return i.id === PICKED; })[0] || null; }
+
+  /* ════════ what the investor sees ════════
+     🔴 EVERY FIGURE HERE COMES OUT OF THE PAYLOAD THE SERVER BUILT FOR THEM.
+     Nothing is filtered, recomputed or formatted differently on this side —
+     if it were, this would be his copy of the answer rather than the answer,
+     and the two would part company the first time either changed. */
+  function previewSurfaceTable(p, surface){
+    var metrics = p.metrics || [];
+    if (!metrics.length) {
+      return '<p class="none-yet">Nothing is switched on for them, so their page would say exactly that.</p>';
+    }
+    var bySection = [], last = null;
+    metrics.forEach(function(mt){
+      if (!last || last.name !== mt.section) { last = { name: mt.section, items: [] }; bySection.push(last); }
+      last.items.push(mt);
+    });
+    return bySection.map(function(s){
+      var rows = s.items.map(function(mt){
+        var cells = "", basis = "";
+        if (mt.kind === "computed") {
+          ["website","app","total"].forEach(function(k){
+            var t = mt.live ? one(mt.live, k) : null;
+            cells += '<td class="v' + (t === null ? " none" : (mt.live && mt.live.unit === "text" ? " small" : "")) + '">'
+                   + esc(t === null ? ((mt.live && mt.live.basis) ? "not yet" : "—") : t) + '</td>';
+          });
+          if (mt.live && mt.live.basis && (mt.live[surface] === null || mt.live[surface] === undefined)) {
+            basis = '<div class="sub" style="font-style:italic;margin-top:6px">' + esc(mt.live.basis) + '</div>';
+          }
+        } else if (mt.kind === "entered") {
+          cells = '<td class="v small" colspan="3">' + (mt.value ? esc(mt.value) : "—") + '</td>';
+        } else {
+          cells = '<td class="v none" colspan="3">not measured yet</td>';
+        }
+        return '<tr><td><div class="label">' + esc(mt.label) + '</div>'
+          + '<div class="sub">' + esc(mt.description || "") + '</div>' + basis + '</td>' + cells + '</tr>';
+      }).join("");
+      return '<h2 style="margin:20px 0 10px">' + esc(s.name) + '</h2>'
+        + '<table class="t"><thead><tr><th>Metric</th><th>Website</th><th>App</th><th>Both</th></tr></thead>'
+        + '<tbody>' + rows + '</tbody></table>';
+    }).join("");
+  }
+
+  function showPreview(p){
+    var inv = p.investor || {};
+    var warn = p.can_open
+      ? ''
+      : '<p class="sec-note" style="color:var(--warn)">⚠️ They cannot open this right now — '
+        + 'access is revoked or no code is set. This is what they <i>would</i> see.</p>';
+    var ups = (p.updates || []).length
+      ? '<h2 style="margin:20px 0 10px">From the founder</h2>'
+        + (p.updates||[]).map(function(u){
+            return '<div class="upd"><h3 class="serif">' + esc(u.title) + '</h3>'
+              + '<div class="at">' + esc(stamp(new Date(u.published_at))) + '</div>'
+              + '<p>' + esc(u.body) + '</p></div>';
+          }).join("")
+      : '';
+
+    $("preview").innerHTML =
+      '<div class="scrim" id="scrim"><div class="sheet">'
+      + '<div class="shead"><h2 class="serif">' + esc(inv.name || "Investor") + '</h2>'
+      + '<span class="sp"></span><button type="button" class="ghost" id="pv-close">Close</button></div>'
+      + '<p class="note">This is their page, built by the server exactly as it builds theirs — '
+      + (p.metrics || []).length + ' of ' + (DATA.metrics||[]).length + ' metrics, '
+      + 'counted ' + esc(stamp(p.as_of ? new Date(p.as_of) : new Date())) + '.</p>'
+      + warn + ups
+      + previewSurfaceTable(p, "website")
+      + '</div></div>';
+
+    function close(){ $("preview").innerHTML = ""; document.removeEventListener("keydown", onKey); }
+    function onKey(e){ if (e.key === "Escape") close(); }
+    $("pv-close").addEventListener("click", close);
+    $("scrim").addEventListener("click", function(e){ if (e.target.id === "scrim") close(); });
+    document.addEventListener("keydown", onKey);
+  }
 
   function openInvestor(inv){
     EDITING = inv;
-    $("invtitle").textContent = inv ? "Edit investor" : "Add an investor";
+    $("invtitle").textContent = inv ? ("Edit " + inv.name) : "Add an investor";
     $("i-name").value = inv ? (inv.name||"") : "";
     $("i-firm").value = inv ? (inv.firm||"") : "";
     $("i-email").value = inv ? (inv.email||"") : "";
@@ -270,77 +684,80 @@
     }).catch(function(){ $("i-save").disabled = false; say(m,"err","Could not reach the database."); });
   });
 
-  /* ---- what a live number looks like ----
-     🔴 A ZERO IS A ZERO. Only null means "no answer"; `!v` would collapse
-     "nobody has paid" into "we cannot tell you", which is the one
-     distinction this whole catalogue exists to keep. */
-  function one(live, k){
-    var v = live[k];
-    if (v === null || v === undefined) return null;
-    if (live.unit === "rupees")  return "₹" + Number(v).toLocaleString("en-IN");
-    if (live.unit === "percent") return Number(v) + "%";
-    if (live.unit === "text")    return String(v);
-    return Number(v).toLocaleString("en-IN");
-  }
-  function liveLine(live){
-    if (!live) return "—";
-    var w = one(live, "website"), a = one(live, "app"), t = one(live, "total");
-    if (w === null && a === null && t === null) {
-      return live.basis ? esc(live.basis) : "—";
-    }
-    var parts = [];
-    if (w !== null) parts.push("website <b>" + esc(w) + "</b>");
-    if (a !== null) parts.push("app <b>" + esc(a) + "</b>");
-    if (t !== null && w !== t) parts.push("both <b>" + esc(t) + "</b>");
-    var line = parts.join(" · ");
-    if (live.basis) line += '<div class="sub" style="margin-top:4px">' + esc(live.basis) + "</div>";
-    return line;
+  /* ════════ updates ════════ */
+  $("u-post").addEventListener("click", function(){
+    var m = $("u-msg");
+    var t = $("u-title").value.trim(), b = $("u-body").value.trim();
+    if (!t || !b) { say(m,"err","A heading and something under it."); return; }
+    $("u-post").disabled = true; say(m,"","Posting…");
+    rpc("askru_founder_update_post", { code: CODE, p_title: t, p_body: b })
+      .then(function(d){
+        $("u-post").disabled = false;
+        if (!d || d.ok !== true) { say(m,"err", d && d.message ? d.message : "That did not post."); return; }
+        say(m,"ok","Posted. Every investor who can sign in sees it now.");
+        $("u-title").value = ""; $("u-body").value = "";
+        load(CODE);
+      })
+      .catch(function(){ $("u-post").disabled = false; say(m,"err","Could not reach the database."); });
+  });
+
+  function paintUpdates(){
+    var list = DATA.updates || [];
+    if (!list.length) { $("updates").innerHTML = ""; return; }
+    $("updates").innerHTML = '<div style="margin-top:20px">' + list.map(function(u){
+      return '<div class="upd"><h3 class="serif">' + esc(u.title) + '</h3>'
+        + '<div class="at">' + esc(stamp(new Date(u.published_at))) + '</div>'
+        + '<p>' + esc(u.body) + '</p>'
+        + '<div class="x"><button type="button" class="danger" data-updel="' + u.id + '">Remove</button></div></div>';
+    }).join("") + '</div>';
+    Array.prototype.forEach.call($("updates").querySelectorAll("[data-updel]"), function(b){
+      b.addEventListener("click", function(){
+        if (!window.confirm("Remove this update from every investor's dashboard?")) return;
+        b.disabled = true;
+        rpc("askru_founder_update_delete", { code: CODE, p_id: b.dataset.updel })
+          .then(function(d){ if (d && d.ok) load(CODE); else b.disabled = false; })
+          .catch(function(){ b.disabled = false; });
+      });
+    });
   }
 
-  /* ---- the metrics ---- */
+  /* ════════ metrics ════════ */
   function paintMetrics(){
     var inv = picked();
     var on = {};
     if (inv) (inv.on||[]).forEach(function(k){ on[k] = true; });
 
-    var bySection = [];
-    var last = null;
+    var bySection = [], last = null;
     (DATA.metrics||[]).forEach(function(mt){
       if (!last || last.name !== mt.section) { last = { name: mt.section, items: [] }; bySection.push(last); }
       last.items.push(mt);
     });
 
-    var html = bySection.map(function(s){
+    $("body").innerHTML = bySection.map(function(s){
       var rows = s.items.map(function(mt){
         var tag = mt.kind === "not_yet" ? '<span class="tag notyet">not measured yet</span>'
                 : mt.kind === "entered" ? '<span class="tag entered">you write this</span>' : "";
-        var val = "";
+        var val;
         if (mt.kind === "entered") {
           val = '<div class="val"><input data-value="' + esc(mt.key) + '" value="' + esc(mt.value || "") + '" placeholder="—" />'
-              + ' <button type="button" data-save="' + esc(mt.key) + '">Save</button></div>';
+              + ' <button type="button" class="ghost" data-save="' + esc(mt.key) + '">Save</button></div>';
         } else if (mt.kind === "not_yet") {
-          val = '<div class="val">Nothing feeds this yet.</div>';
-        } else if (mt.kind === "computed") {
-          /* 🔴 ALL THREE SURFACES AT ONCE. He is deciding what to SHARE, and
-             that decision needs the whole picture; the investor's page shows
-             one surface at a time because they are reading, not deciding. */
+          val = '<div class="val" style="color:var(--ink-3)">Nothing feeds this yet.</div>';
+        } else {
           val = '<div class="val">' + liveLine(mt.live) + '</div>';
         }
-        return '<div class="m">'
-          + '<div class="body"><div class="label">' + esc(mt.label) + tag + '</div>'
+        return '<div class="m"><div class="body">'
+          + '<div class="label">' + esc(mt.label) + tag + '</div>'
           + '<div class="sub">' + esc(mt.description || "") + (mt.purpose ? " · " + esc(mt.purpose) : "") + '</div>'
           + val + '</div>'
           + '<button class="sw" type="button" data-metric="' + esc(mt.key) + '"'
           + ' aria-pressed="' + (on[mt.key] ? "true" : "false") + '"'
           + (inv ? "" : " disabled")
-          + ' aria-label="Show ' + esc(mt.label) + ' to this investor"></button>'
-          + '</div>';
+          + ' aria-label="Show ' + esc(mt.label) + ' to this investor"></button></div>';
       }).join("");
       var onCount = s.items.filter(function(x){ return on[x.key]; }).length;
-      return '<section class="sec"><h2>' + esc(s.name) + ' — ' + onCount + ' of ' + s.items.length + ' on</h2>' + rows + '</section>';
+      return '<section class="sec rise"><h2>' + esc(s.name) + ' — ' + onCount + ' of ' + s.items.length + ' on</h2>' + rows + '</section>';
     }).join("");
-
-    $("body").innerHTML = html;
 
     Array.prototype.forEach.call($("body").querySelectorAll(".sw"), function(b){
       b.addEventListener("click", function(){
@@ -380,12 +797,12 @@
       DATA = d; CODE = code;
       if (!PICKED && (d.investors||[]).length) PICKED = d.investors[0].id;
       $("gate").hidden = true; $("panel").hidden = false;
-      /* 🔴 THE SERVER'S CLOCK, NOT THIS BROWSER'S. A page that stamps
-         itself says when it DREW, which is not when the numbers were
-         counted — and on a stale tab those are hours apart. */
-      $("when").textContent = "as of " + stamp(d.as_of ? new Date(d.as_of) : new Date())
-        + (d.days_of_data ? "  ·  " + d.days_of_data + " day(s) of data" : "");
-      paintWho(); paintMetrics();
+      /* 🔴 THE SERVER'S CLOCK, NOT THIS BROWSER'S. A page that stamps itself
+         says when it DREW, which is not when the numbers were counted. */
+      $("when").textContent = "Counted " + stamp(d.as_of ? new Date(d.as_of) : new Date())
+        + (d.days_of_data ? "  ·  " + d.days_of_data + " day(s) of public data" : "")
+        + (d.contact ? "  ·  investors reply to " + d.contact : "");
+      paintHeroes(); paintCharts(); paintWho(); paintUpdates(); paintMetrics();
       return d;
     });
   }
@@ -398,8 +815,7 @@
     load(v).then(function(d){
       $("go").disabled = false; $("code").value = "";
       if (!d || d.ok !== true) {
-        say(m,"err", d && d.reason === "not_set"
-          ? "No Founder Den code is set yet. Set one in the database first."
+        say(m,"err", d && d.reason === "not_set" ? "No Founder Den code is set yet."
           : d && d.reason === "locked" ? "Too many wrong codes in the last hour. It opens again by itself."
           : "That code didn’t work.");
       } else { say(m,"",""); }
@@ -408,8 +824,9 @@
 
   $("refresh").addEventListener("click", function(){
     if (!CODE) return;
-    var b = $("refresh"); b.textContent = "Refreshing…";
-    load(CODE).then(function(){ b.textContent = "Refresh"; });
+    var b = $("refresh"); b.textContent = "Refreshing…"; b.disabled = true;
+    load(CODE).then(function(){ b.textContent = "Refresh"; b.disabled = false; })
+              .catch(function(){ b.textContent = "Refresh"; b.disabled = false; });
   });
 }());
 </script>
