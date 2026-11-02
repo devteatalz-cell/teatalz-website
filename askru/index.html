@@ -3039,6 +3039,73 @@ a { color: var(--plum-deep); }
       /* A RESTORE, NOT A STEP. Open the panel where it is; do not move the
          page. They opened the site to read it from the top. */
       showPick(false);
+
+      /* ── 🔴 COMING BACK FROM THE PAYMENT PAGE — 2 Nov 2026 ──────────────
+         The founder: *"payment ke baad user wapas nahi aata."* Until today
+         neither website money path sent a `callback_url` to Razorpay, so
+         there was no coming back at all — people ended on Razorpay's receipt
+         page. `try-reading-pay` and `try-dakshina` now send them here.
+
+         ⚠️ AND IT IS THE ONE PAGE LOAD THAT *SHOULD* MOVE. The fix above
+         stops a restore scrolling, which is right for every other load and
+         wrong for this one: somebody who has just paid needs the ask form,
+         not the hero. So this is the exception, and it is an exception
+         because the person did something, not because the page reloaded.
+
+         🔴 THE IDS ARE READ, NOT BELIEVED. Razorpay appends its own payment
+         and link ids and a signature. They are used here for exactly two
+         things — whether to say something, and where to scroll. The signed
+         server-to-server webhook is still the only thing that grants a
+         reading or records an offering, and nothing below spends anything.
+         Anybody can type these parameters; all they win is a scroll.
+
+         ⚠️ THE PARAMETERS ARE STRIPPED. Payment ids have no business sitting
+         in the address bar to be copied, shared or re-sent on a reload, and
+         `replaceState` leaves the entry rather than adding one so Back is
+         not polluted. Our own beacon sends `location.pathname` and never the
+         query, so nothing was going to leave anyway — this is about the
+         person's own URL bar. */
+      (function () {
+        var status = null;
+        try {
+          var qs = new URLSearchParams(window.location.search);
+          if (qs.get('razorpay_payment_link_id') || qs.get('razorpay_payment_id')) {
+            status = String(qs.get('razorpay_payment_link_status') || '').toLowerCase();
+            try {
+              window.history.replaceState(null, '', window.location.pathname);
+            } catch (e) { /* older browsers keep the query; harmless */ }
+          }
+        } catch (e) { return; /* no URLSearchParams: nothing to read */ }
+        if (status === null) return;
+
+        var m = document.getElementById('try-modes');
+        var f = document.getElementById('try-form');
+        var msg = document.getElementById('try-msg');
+        if (m) m.hidden = false;
+        if (f) f.hidden = false;
+
+        /* 🔴 WE DO NOT TELL THEM THE MONEY ARRIVED, because this page does
+           not know. Razorpay says 'paid' to the browser; the webhook is what
+           makes it true, and it may not have landed yet. So: what they did,
+           and what to do next. Never "payment successful".
+
+           ⚠️ A status that is not 'paid' is NOT called a failure either. A
+           link can be returned from unpaid, part-paid or cancelled, and the
+           app's equivalent bug today is exactly this — it resolves "I do not
+           know yet" into "it did not happen". */
+        var line = status === 'paid'
+          ? 'You are back. Ask Ru your question below — if the payment is still settling, give it a moment and ask again.'
+          : 'You are back. If you finished the payment, ask below; if you did not, the offer is still here.';
+        if (msg) {
+          if (typeof say === 'function') say(msg, line, 'ok');
+          else msg.textContent = line;
+        }
+
+        var target = f || m;
+        if (target) {
+          try { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { }
+        }
+      })();
       /* 🔴 THE STREAK IS FOR WHOEVER ALREADY READ — and that is almost
          never the same page load as the reading. Wired only into the
          answer path, it appeared once and never again; the founder
