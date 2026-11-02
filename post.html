@@ -6,6 +6,13 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Redirecting… — Teatalz Blog</title>
+  <!-- 2 Nov 2026: this is a redirect stub, and without this line it was
+       indexable. A static host cannot send a 301, so Google was free to
+       index a page whose title is "Redirecting…" and whose body is 109
+       words of fallback text. The posts themselves are real pages at
+       /blog/<slug>/ and are all in the sitemap; this file only forwards
+       old ?slug= links to them. Nothing here should ever rank. -->
+  <meta name="robots" content="noindex, follow" />
 
   <!-- ==========================================================================
        REDIRECT SHIM. Posts used to render client-side from this one file at

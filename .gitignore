@@ -18,3 +18,11 @@ _superseded-*.html
 
 # local dev server config, not part of the site
 .claude/
+
+# Editing backups. Four of these were swept into the 28 Oct commit by a bulk
+# add and served live for five days — full stale copies of the landing page,
+# two of them marked index,follow. A backup belongs beside the editor, never
+# in a folder whose whole contents are published.
+*.bak
+*.bak-*
+*.bak.*
