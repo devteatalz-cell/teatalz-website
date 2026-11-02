@@ -2207,6 +2207,30 @@ a { color: var(--plum-deep); }
     var phoneEl = document.getElementById('try-phone');
     var langEl = document.getElementById('try-lang');
 
+    /* ── 🔴 EVERY REQUEST THAT PRODUCES A REPLY CARRIES THE LANGUAGE ──────
+       The founder, 2 Nov 2026: *"agar maine english select kari website pe to
+       bhi ru hinglish mai answer karte hai."*
+
+       The dropdown's value WAS being sent — but only on the JOIN request,
+       where it is stored against the waitlist row. Not one of the three
+       requests that actually produce a reading carried it: the first reading
+       sent `{ token, mode, question }`, the follow-up sent
+       `{ token, question }`, and the spread sent `{ token }`. So `try-ru`
+       never saw a language on any turn, and the model was left to guess from
+       the question.
+
+       ⚠️ FOUND BY TAKING A READING ON THE LIVE SITE, not by reading the code.
+       The server half of this fix was deployed an hour earlier and did
+       nothing, because the page it depends on was never sending the field.
+       A fix that ships and never runs looks exactly like a fix that works.
+
+       🔵 SO IT IS A FUNCTION, NOT THREE COPIES OF A LINE. Three hand-written
+       call sites are three chances to forget the fourth. */
+    function withLang(b) {
+      b.language = (langEl && langEl.value) || 'en';
+      return b;
+    }
+
     var pick = document.getElementById('try-pick');
     var modes = document.getElementById('try-modes');
     var birth = document.getElementById('try-birth');
@@ -2749,7 +2773,7 @@ a { color: var(--plum-deep); }
       var was = btn.textContent;
       btn.disabled = true;
       btn.textContent = 'Ru is reading…';
-      var payload = { token: token };
+      var payload = withLang({ token: token });
       if (what.clarify === undefined) payload.deeper = true; else payload.clarify = what.clarify;
       api('try-ru', { body: payload }).then(function (res) {
         btn.disabled = false;
@@ -3482,7 +3506,7 @@ a { color: var(--plum-deep); }
       go.textContent = 'Ru is reading…';
       say(msg, '');
 
-      var body = { token: token, mode: chosen, question: text };
+      var body = withLang({ token: token, mode: chosen, question: text });
       if (chosen === 'tarot' && picked !== null) body.pick = picked;
       if (chosen === 'vedic') {
         /* Sent as typed; the server resolves the place and casts the chart,
@@ -3754,7 +3778,7 @@ a { color: var(--plum-deep); }
       say(fmsg, '');
       bubble('you', text);
 
-      api('try-ru', { body: { token: token, question: text } }).then(function (res) {
+      api('try-ru', { body: withLang({ token: token, question: text }) }).then(function (res) {
         fgo.disabled = false;
         fgo.textContent = was;
         fq.value = '';
