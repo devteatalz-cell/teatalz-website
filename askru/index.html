@@ -52,7 +52,20 @@ catch (e) { /* an old browser keeps its own behaviour, which is the default */ }
 
      The proof of this working is the DEPLOYED page, never this file:
        curl -sL https://teatalz.com/askru/ | grep -c 3933602676781012
-     should be 2. It was 0 before today. -->
+     returns 4, and it was 0 before 30 Oct.
+
+     🔴 IT RETURNS 4, NOT THE 2 THIS COMMENT ORIGINALLY CLAIMED, AND TWO OF
+     THE FOUR ARE THIS COMMENT — the heading above and the curl line itself.
+     A check written inside the file it checks is part of its own answer. It
+     was caught on 2 Nov by somebody told to verify rather than believe, and
+     the wrong number mattered: an unexpected extra occurrence of a pixel id
+     is what a DOUBLE-INITIALISED pixel looks like, and that would silently
+     double every number the next campaign is judged on.
+
+     ⚠️ SO THE NUMBER THAT MEANS ANYTHING IS NOT THIS ONE. What has to be
+     true is that the pixel initialises ONCE and fires PageView ONCE. Both
+     verified on the live page, 2 Nov: one fbq init, one PageView track.
+     Count those on the deployed HTML, not this id. -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
