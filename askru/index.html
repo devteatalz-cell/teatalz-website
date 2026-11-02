@@ -3,6 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ── 🔴 THE PAGE OPENS AT THE TOP — 2 Nov 2026 ─────────────────────────
+     The founder: *"website ka alignment theek karo, page kholte hi seedha
+     take-reading wale area par aa jata hai."* TWO separate things did that,
+     and only one of them was ours.
+
+     Ours was `showPick()` scrolling on a page load — fixed further down.
+     THIS is the other one, and it is the browser: with `scrollRestoration`
+     at its default `auto`, a reload puts you back where you were. MEASURED
+     with NO token in localStorage — scrolled to 2000, reloaded, came back at
+     2000 — so it was not our script. He reloads this page dozens of times a
+     day and it hit him every time.
+
+     🔴 THE OBVIOUS VERSION OF THIS FIX DOES NOT WORK, AND I SHIPPED IT FOR
+     TEN MINUTES BEFORE MEASURING IT. Checking `navigation.type === 'reload'`
+     and setting `manual` on that load is too late: the value lives on the
+     HISTORY ENTRY and is read when the entry is restored, which has already
+     been decided by the time any script runs. Measured — `navType: reload`,
+     `scrollRestoration: manual`, and `scrollY` still 2000. Setting it on the
+     entry BEFORE the reload gives scrollY 0. So it has to be unconditional,
+     because at set-time nothing can know whether the next load will be a
+     reload or a Back.
+
+     ⚠️ THE PRICE, STATED: back and forward now also land at the top. On this
+     page that costs a scroll position to somebody who opens the privacy,
+     terms or refund page in the footer and presses Back — three links. It is
+     one line to revert if he would rather have the Back behaviour.
+
+     🔵 A `#hash` in the URL is UNAFFECTED: anchor scrolling is not scroll
+     restoration, and the browser still honours it. Verified, not assumed. -->
+<script>
+try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; }
+catch (e) { /* an old browser keeps its own behaviour, which is the default */ }
+</script>
 <!-- ── 🔴 META PIXEL — 30 Oct 2026, id 3933602676781012 ──────────────────
      Here because the ads could not be optimised without it. Both ad sets
      were set to optimise for "Landing page views", which Meta can only
@@ -2948,7 +2981,21 @@ a { color: var(--plum-deep); }
        does not meet an empty deck while the count is in flight. */
     buildDeck(5);
 
-    function showPick() {
+    /* 🔴 `scroll` IS FALSE ON A PAGE LOAD, AND THAT IS THE WHOLE POINT.
+       The founder, 2 Nov 2026: *"website ka alignment theek karo, page
+       kholte hi seedha take-reading wale area par aa jata hai, upar se shuru
+       nahi hota."* He was right, and the cause was here.
+
+       Scrolling the pick panel into view is correct when somebody has just
+       finished the join form — the next step is below the fold and they
+       should be taken to it. It is wrong on a page LOAD, which is the other
+       caller: anybody whose browser already holds a token (every returning
+       visitor, the founder included) was thrown past the hero, the tribute
+       and the whole pitch, every single time they opened the page.
+
+       ⚠️ The bug was not the scroll. It was one function serving a step
+       TRANSITION and a state RESTORE as if they were the same event. */
+    function showPick(scroll) {
       join.hidden = true;
       pick.hidden = false;
       /* 🔴 A HIDDEN ELEMENT HAS NO WIDTH, so a tree laid while the panel was
@@ -2957,7 +3004,9 @@ a { color: var(--plum-deep); }
       layTree();
       /* Scroll the step they are now on into view — on a phone the join
          card can be the whole screen, and the next step appears below it. */
-      try { pick.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* older browsers */ }
+      if (scroll) {
+        try { pick.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* older browsers */ }
+      }
     }
 
     /* 🔴 A STORED TOKEN IS NOT A LIVE SESSION — checked on load, 29 Oct 2026.
@@ -2974,7 +3023,9 @@ a { color: var(--plum-deep); }
        only if the server says the session is gone. A network blip must not
        throw somebody back to the join form while their session is fine. */
     if (token) {
-      showPick();
+      /* A RESTORE, NOT A STEP. Open the panel where it is; do not move the
+         page. They opened the site to read it from the top. */
+      showPick(false);
       /* 🔴 THE STREAK IS FOR WHOEVER ALREADY READ — and that is almost
          never the same page load as the reading. Wired only into the
          answer path, it appeared once and never again; the founder
@@ -3039,7 +3090,8 @@ a { color: var(--plum-deep); }
 
         token = b.token;
         try { window.localStorage.setItem(STORE, token); } catch (e2) { /* private window */ }
-        showPick();
+        /* A STEP THEY JUST TOOK. Take them to it. */
+        showPick(true);
       }).catch(function () {
         joinGo.disabled = false;
         joinGo.textContent = was;
