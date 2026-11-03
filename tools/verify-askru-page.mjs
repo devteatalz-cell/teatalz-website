@@ -24,13 +24,46 @@
 //
 // Exits non-zero if anything fails.
 // ============================================================================
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const FILE = path.join(ROOT, 'askru', 'index.html');
+/* 🔴 THE PAGE MOVED REPOS ON 2 Nov 2026 AND THIS SCRIPT DID NOT.
+
+   It read `askru/index.html` in THIS repo, which is now a 2.9 KB redirect
+   stub -- the real page is `askru-site/index.html`, a sibling checkout that
+   publishes askru.in. So on 3 Nov the script exited 2 with
+   "the language dropdown (id=try-lang) is not in askru/index.html", which is
+   the instrument guard doing exactly its job: it refused rather than
+   reporting a clean pass on a file with none of the page in it.
+
+   ⚠️ THE THREE NEEDLES BELOW ARE UNCHANGED, DELIBERATELY. The tempting
+   repair was to soften them until the stub satisfied them, and that would
+   have been worse than the refusal: a loosened needle turns a guard into a
+   formality and every check after it into a claim about nothing. Verified
+   present in the new file before repointing -- try-lang 1, api('try-ru' 5,
+   try-join 1.
+
+   Override with argv[1] when the checkout lives elsewhere. */
+const ASKRU_PAGE = process.argv[2] ?? path.join(ROOT, '..', 'askru-site', 'index.html');
+const FILE = ASKRU_PAGE;
+if (!existsSync(FILE)) {
+  console.error(`REFUSED: no file at ${FILE}. The askru.in page lives in the askru-site checkout; pass its index.html as the first argument.`);
+  process.exit(2);
+}
 const html = readFileSync(FILE, 'utf8');
+
+/* 🔴 A REDIRECT STUB IS NOT THE PAGE, AND IT IS THE SPECIFIC WAY THIS
+   BREAKS. When content moves, what is left behind is a meta-refresh of a few
+   kilobytes that still answers 200 and still parses as HTML. Without this
+   check the next move would produce the same bare "not in the file" message
+   and the next reader would again have to work out whether the page was
+   restructured or relocated. Name the cause. */
+if (/http-equiv="refresh"/i.test(html)) {
+  console.error(`REFUSED: ${FILE} is a redirect stub, not the page. Content has moved; point this at the new checkout rather than relaxing the checks below.`);
+  process.exit(2);
+}
 
 const fails = [], warns = [];
 const fail = (m) => fails.push(m);
@@ -48,7 +81,7 @@ for (const [needle, what] of [
   ['id="try-join"', 'the join panel'],
 ]) {
   if (!html.includes(needle)) {
-    console.error(`REFUSED: ${what} (${needle}) is not in askru/index.html — this script is checking the wrong file or the page was restructured, and every result below would be meaningless.`);
+    console.error(`REFUSED: ${what} (${needle}) is not in ${FILE} — this script is checking the wrong file or the page was restructured, and every result below would be meaningless.`);
     process.exit(2);
   }
 }
@@ -131,7 +164,7 @@ if (count(/askru-visit/g) !== 1) {
 
 // ---- report ----------------------------------------------------------------
 console.log('-'.repeat(60));
-console.log(`askru/index.html — ${html.length.toLocaleString()} bytes, ${tryRuCalls} try-ru calls, ${withLangUses} withLang references`);
+console.log(`${FILE} — ${html.length.toLocaleString()} bytes, ${tryRuCalls} try-ru calls, ${withLangUses} withLang references`);
 if (warns.length) { console.log(`\n${warns.length} warning(s):`); warns.forEach((w) => console.log(`  ~ ${w}`)); }
 if (fails.length) { console.log(`\n${fails.length} FAILURE(S):`); fails.forEach((f) => console.log(`  x ${f}`)); }
 else console.log('\nPASS — no failures.');

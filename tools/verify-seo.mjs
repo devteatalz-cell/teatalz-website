@@ -118,6 +118,56 @@ for (const slug of slugs) {
 if (locs.some((l) => l.includes('post.html'))) fail('sitemap still lists post.html URLs');
 if (new Set(locs).size !== locs.length) fail('sitemap has duplicate <loc> entries');
 
+/* 🔴 A SITEMAP MAY NOT SUBMIT A PAGE THAT TELLS CRAWLERS TO SKIP IT.
+
+   Missing until 3 Nov 2026, and its absence had already cost us: when the
+   Ask Ru content moved to askru.in on 2 Nov, /askru/, /askru/kundli-milan/
+   and /askru/choghadiya/ became `noindex, follow` redirect stubs and stayed
+   in this sitemap. Search Console calls that "Submitted URL marked noindex" --
+   two of our own files contradicting each other, with nothing here to notice.
+   Found by the QA session; the three rows are out and this is what keeps them
+   out.
+
+   ⚠️ COMMENTS ARE STRIPPED FIRST. A page carrying
+   `<!-- <meta name="robots" content="noindex"> -->` is NOT noindexed, and the
+   QA session found exactly that hole in its own checker the same day -- its
+   predicates read raw HTML including comments, which a browser does not. A
+   checker that reports a commented-out tag as live is as wrong as one that
+   misses a live one, and it fails in the direction that looks careful. */
+const stripComments = (s) => s.replace(/<!--[\s\S]*?-->/g, '');
+const fileForLoc = (loc) => {
+  const rel = loc.replace(/^https:\/\/teatalz\.com\//, '');
+  return path.join(ROOT, rel === '' || rel.endsWith('/') ? rel + 'index.html' : rel);
+};
+const isNoindex = (file) => {
+  if (!existsSync(file)) return null;          /* not ours to judge */
+  return /<meta[^>]+name=["']robots["'][^>]*content=["'][^"']*noindex/i
+    .test(stripComments(readFileSync(file, 'utf8')));
+};
+for (const loc of locs) {
+  const f = fileForLoc(loc);
+  const n = isNoindex(f);
+  /* ⚠️ `null` means no local file, which is NOT a pass -- it is a URL this
+     repo cannot vouch for. Said rather than silently skipped, because a
+     sitemap full of unverifiable rows would otherwise read as a clean one. */
+  if (n === null) warn(`sitemap lists ${loc} but ${path.relative(ROOT, f)} is not in this repo — not checked for noindex`);
+  else if (n) fail(`sitemap submits ${loc}, but that page is noindex — Search Console reports this as "Submitted URL marked noindex"`);
+}
+
+/* 🔴 CONTROL — THE RULE ABOVE MUST BE ABLE TO FIRE.
+
+   `askru/index.html` is a noindex redirect stub and is deliberately NOT in
+   the sitemap, which makes it the one file that can prove the detector works
+   without failing the run. Without this, removing the three rows would make
+   the loop iterate over nothing but indexable pages for ever, and a detector
+   that silently stopped matching would look exactly like a clean sitemap.
+   That is the failure the whole file is written against. */
+const CANARY = path.join(ROOT, 'askru', 'index.html');
+if (existsSync(CANARY)) {
+  if (isNoindex(CANARY) !== true) fail(`the noindex detector did not fire on ${path.relative(ROOT, CANARY)}, which IS noindex — every sitemap row above was checked by an instrument that cannot say no`);
+  if (locs.some((l) => fileForLoc(l) === CANARY)) fail('askru/index.html is back in the sitemap, and it is a noindex stub');
+}
+
 // ---- robots ----------------------------------------------------------------
 const robots = readFileSync(path.join(ROOT, 'robots.txt'), 'utf8');
 if (/^\s*Disallow:\s*\/investor\.html/mi.test(robots))
