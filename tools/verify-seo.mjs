@@ -141,7 +141,19 @@ const fileForLoc = (loc) => {
 };
 const isNoindex = (file) => {
   if (!existsSync(file)) return null;          /* not ours to judge */
-  return /<meta[^>]+name=["']robots["'][^>]*content=["'][^"']*noindex/i
+/* 🔴 QUOTES ARE OPTIONAL IN HTML, AND THIS REGEX DEMANDED THEM.
+
+   Written 3 Nov as `name=["']robots["']` + `content=["']`, which misses
+   `<meta name=robots content="noindex, nofollow">` -- a real spelling, in a
+   real file in this repo (ui-snapshot.html), which IS noindex and which the
+   detector called indexable. Found by the QA session within the hour.
+
+   ⚠️ AND THE CONTROL BELOW COULD NOT HAVE CAUGHT IT. The first canary was
+   askru/index.html, whose tag is QUOTED -- so the control fired, the run
+   passed, and the detector stayed blind to the one spelling it exists for. A
+   canary firing is not enough; it has to fire on the assertion that can
+   actually fail. Hence TWO canaries now, one of each spelling. */
+  return /<meta[^>]+name=["']?robots["']?[^>]*content=["']?[^"'>]*noindex/i
     .test(stripComments(readFileSync(file, 'utf8')));
 };
 for (const loc of locs) {
@@ -166,6 +178,17 @@ const CANARY = path.join(ROOT, 'askru', 'index.html');
 if (existsSync(CANARY)) {
   if (isNoindex(CANARY) !== true) fail(`the noindex detector did not fire on ${path.relative(ROOT, CANARY)}, which IS noindex — every sitemap row above was checked by an instrument that cannot say no`);
   if (locs.some((l) => fileForLoc(l) === CANARY)) fail('askru/index.html is back in the sitemap, and it is a noindex stub');
+}
+
+/* 🔴 SECOND CANARY — THE UNQUOTED SPELLING.
+   ui-snapshot.html carries `<meta name=robots content="noindex, nofollow">`
+   and is not in the sitemap, so it proves the detector handles an unquoted
+   attribute without failing the run. One canary per spelling, because a test
+   built only from the case you found cannot show you the case you did not. */
+const CANARY_UNQUOTED = path.join(ROOT, 'ui-snapshot.html');
+if (existsSync(CANARY_UNQUOTED)) {
+  if (isNoindex(CANARY_UNQUOTED) !== true) fail(`the noindex detector did not fire on ${path.relative(ROOT, CANARY_UNQUOTED)}, whose robots meta is UNQUOTED and says noindex — the sitemap rows above were checked by a detector that only understands quoted attributes`);
+  if (locs.some((l) => fileForLoc(l) === CANARY_UNQUOTED)) fail('ui-snapshot.html is in the sitemap, and it is noindex');
 }
 
 // ---- robots ----------------------------------------------------------------
