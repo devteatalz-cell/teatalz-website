@@ -110,16 +110,44 @@
     <!-- A real link, so it works with scripting off and can be long-pressed. -->
     <a class="go" id="open" href="teatalz://wallet">Open Ask Ru</a>
     <div id="late">
-      <p class="quiet">If nothing opened, you can close this tab — the payment
-        is done either way, and the balance will be there next time you open
-        the app.</p>
+      <!-- 🔴 "Close this tab" used to be the ONLY instruction here, and for anyone the hop failed
+           for it was a dead end: money paid, page says go away. It now names what happened, what
+           to do, and where else to go. -->
+      <p class="quiet">If the app did not open, tap <strong>Open Ask Ru</strong> above — a tap
+        works where an automatic jump is blocked. Your payment is done either way, and the balance
+        is there the next time you open the app.</p>
+      <p class="quiet">No app on this phone? Your reading is on
+        <a href="https://askru.in/">askru.in</a>.</p>
     </div>
   </main>
 <script>
   /* The hop. `replace` rather than `assign` so the back button does not land
      on a page that immediately leaves again. */
   (function () {
-    var HOME = 'teatalz://wallet';
+    /* 🔴 A BARE `teatalz://` ON PAGE LOAD IS SILENTLY SUPPRESSED — 4 Nov 2026.
+     *
+     * Founder: payment finishes and nothing happens, the page just says to close the tab. The
+     * scheme was never wrong — app.json registers "teatalz" and every caller uses
+     * `teatalz://wallet`. The problem is the GESTURE: Chrome on Android refuses an
+     * external-protocol navigation that no tap asked for, and refuses it with no error and no
+     * event, so this page could not tell a blocked hop from a missing app.
+     *
+     * `intent://` is the form Android honours from a page. It names the package outright, so
+     * Chrome does not have to guess which app answers the scheme.
+     *
+     * ⚠️ DELIBERATELY NO `S.browser_fallback_url`. With one, a failed resolve would carry the
+     * person AWAY from this page — and away from the one control that always works, the button
+     * below, which carries the tap that an automatic jump does not have. Failing and staying put
+     * is better than succeeding at leaving. */
+    var PKG  = 'com.houseofrume.askru';
+    var HOME = /android/i.test(navigator.userAgent)
+      ? 'intent://wallet#Intent;scheme=teatalz;package=' + PKG + ';end'
+      : 'teatalz://wallet';
+
+    /* The button gets the same address, so a tap uses the form the browser actually accepts. */
+    var open = document.getElementById('open');
+    if (open) open.setAttribute('href', HOME);
+
     try { window.location.replace(HOME); } catch (e) { /* scheme refused */ }
 
     /* 🔴 AND A WAY OUT IF IT DID NOT WORK. A browser that blocks the scheme
