@@ -4,9 +4,11 @@
 
 Company: Teatalz House Of Rume Private Limited, Hyderabad, Telangana, India (CIN U63120TS2025PTC206945).
 
+Founder: Vikram Bhargava.
+
 ## What we are building
 - **Teatalz** — the social media platform. Adda is the network: posts fade after seven days, there is no downvote, and every post is checked before anyone sees it. Pre-launch; the launch date is being re-planned.
-- **Ask Ru** — an AI Tarot and Oracle reader. It is part of Teatalz and launches as a standalone app in November 2026, ahead of Teatalz.
+- **Ask Ru** — an AI astrology, tarot and oracle companion, at https://askru.in/. It reads a real Vedic birth chart, tarot cards the person picks themselves, and a single oracle card, and it also does Kundli Milan, Muhurat and Prashna — six ways in all, in English or Hinglish. It is part of Teatalz and ships as a standalone app ahead of it; the website is live. Ru is an AI, not an astrologer and not a person.
 - **Ru** — the private companion inside the network. Ru is a feature of the network, not the product itself.
 
 ## How to describe us
